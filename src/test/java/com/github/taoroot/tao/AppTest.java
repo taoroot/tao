@@ -1,23 +1,25 @@
 package com.github.taoroot.tao;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.taoroot.tao.security.CustomAuthenticationEntryPoint;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashMap;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- *
- * @author Joe Grandja
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,7 +51,11 @@ public class AppTest {
     @Test
     public void customAccessDeniedHandler() throws Exception {
         // @formatter:off
-        this.mockMvc.perform(post("/login", "")).andExpect(status().isOk());
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("username", "user");
+        hashMap.put("password", "password");
+        String content = new ObjectMapper().writeValueAsString(hashMap);
+        this.mockMvc.perform(post("/login",  hashMap).contentType(MediaType.APPLICATION_JSON_VALUE).content(content)).andExpect(status().isOk());
         // @formatter:on
     }
 
