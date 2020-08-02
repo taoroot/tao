@@ -17,6 +17,7 @@ argfile*
 activemq-data/
 
 classes/
+logs/
 /build
 buildSrc/build
 /spring-*/build
