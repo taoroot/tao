@@ -17,16 +17,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public final class CustomUsernamePasswordSecurityConfigurer<H extends HttpSecurityBuilder<H>>
         extends AbstractHttpConfigurer<CustomUsernamePasswordSecurityConfigurer<H>, H> {
 
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final CustomAuthenticationSuccessHandler successHandler;
+    private AuthenticationManager authenticationManager;
 
-    public CustomUsernamePasswordSecurityConfigurer(AuthenticationManager authenticationManager,
-                                                    UserDetailsService userDetailsService,
-                                                    CustomAuthenticationSuccessHandler successHandler) {
-        this.authenticationManager = authenticationManager;
+    private UserDetailsService userDetailsService;
+
+    private CustomAuthenticationSuccessHandler successHandler;
+
+    public CustomUsernamePasswordSecurityConfigurer<H> userDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+        return this;
+    }
+
+    public CustomUsernamePasswordSecurityConfigurer<H> authenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+        return this;
+    }
+
+    public CustomUsernamePasswordSecurityConfigurer<H> successHandler(CustomAuthenticationSuccessHandler successHandler) {
         this.successHandler = successHandler;
+        return this;
     }
 
     @Override

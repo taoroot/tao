@@ -1,6 +1,10 @@
 package com.github.taoroot.tao.security;
 
+import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
 import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordSecurityConfigurer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,17 +14,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-
-import java.util.Locale;
 
 @EnableWebSecurity
 public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
-    public static final String secret = "123123123123123123123123123123123123123123123123123123123123123";
+    public static final String secret = "secretsecretsecretsecretsecretsecret";
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -33,16 +34,25 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         CustomAuthenticationEntryPoint customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint();
 
         // 自定义密码登录器
-        http.apply(new CustomUsernamePasswordSecurityConfigurer<>(
-                authenticationManagerBean(),
-                userDetailsService(),
-                new CustomAuthenticationSuccessHandler(secret)));
+        http.apply(new CustomUsernamePasswordSecurityConfigurer<>())
+                .authenticationManager(authenticationManagerBean())
+                .userDetailsService(userDetailsService())
+                .successHandler(new CustomAuthenticationSuccessHandler(secret));
 
         // 自定义JWT登录器
         http.oauth2ResourceServer()
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .jwt()
                 .decoder(new CustomJwtDecoder(secret));
+
+        // 社会登录
+        http.oauth2Login()
+                .successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
+                .authorizationEndpoint()
+                .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
+                        http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
+                        OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))
+                .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
 
         // 系统自带配置
         http
@@ -73,4 +83,5 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
     }
+
 }

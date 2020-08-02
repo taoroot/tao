@@ -27,6 +27,7 @@ buildSrc/build
 target/
 /build/
 build/
+application-dev.yml
 
 # Eclipse artifacts, including WTP generated manifests
 .classpath

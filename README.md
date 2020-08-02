@@ -1,5 +1,7 @@
 # tao
 
+前端地址: https://tao.flizi.cn
+
 - Spring Boot 2.3.x
 - Spring Security 5.x
 
@@ -8,6 +10,5 @@
 # 登录方式
 
 - 密码登录 
+- 社会登录
 - 短信登录 [todo]
-- OAuth2登录
-
