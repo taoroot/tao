@@ -1,3 +1,12 @@
+logging:
+  level:
+    root: WARN
+    org.springframework: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
+
+
 spring:
   security:
     oauth2:
