@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SmsCodeValidateFilter extends OncePerRequestFilter {
+public class SmsCodeValidationFilter extends OncePerRequestFilter {
 
     private final Set<String> urls = new HashSet<>();
 
@@ -21,14 +21,14 @@ public class SmsCodeValidateFilter extends OncePerRequestFilter {
 
     private AuthenticationFailureHandler authenticationFailureHandler;
 
-    private SmsCodeValidateRepository smsCodeValidateRepository;
+    private SmsCodeValidationRepository smsCodeValidationRepository;
 
     public void authenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
-    public void smsCodeRepository(SmsCodeValidateRepository smsCodeValidateRepository) {
-        this.smsCodeValidateRepository = smsCodeValidateRepository;
+    public void smsCodeRepository(SmsCodeValidationRepository smsCodeValidationRepository) {
+        this.smsCodeValidationRepository = smsCodeValidationRepository;
     }
 
     public Set<String> addUrl(String url) {
@@ -62,18 +62,18 @@ public class SmsCodeValidateFilter extends OncePerRequestFilter {
         // 手机号
         String phone = obtainPhone(request);
         // 从缓存中获取Code
-        String cacheCode = smsCodeValidateRepository.getCode(phone);
+        String cacheCode = smsCodeValidationRepository.getCode(phone);
 
         if (smsCode == null || smsCode.isEmpty()) {
-            throw new SmsCodeValidateException("短信验证码不能为空");
+            throw new SmsCodeValidationException("短信验证码不能为空");
         }
 
         if (cacheCode == null) {
-            throw new SmsCodeValidateException("验证码已失效");
+            throw new SmsCodeValidationException("验证码已失效");
         }
 
         if (!smsCode.toLowerCase().equals(cacheCode)) {
-            throw new SmsCodeValidateException("短信验证码错误");
+            throw new SmsCodeValidationException("短信验证码错误");
         }
     }
 

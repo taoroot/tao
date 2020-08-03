@@ -1,8 +1,8 @@
 package com.github.taoroot.tao.security.auth.sms.support;
 
-import com.github.taoroot.tao.security.auth.sms.SmsCodeValidateRepository;
+import com.github.taoroot.tao.security.auth.sms.SmsCodeValidationRepository;
 
-public class InMemorySmsCodeValidateRepository implements SmsCodeValidateRepository {
+public class InMemorySmsCodeValidationRepository implements SmsCodeValidationRepository {
 
     @Override
     public String getCode(String code) {

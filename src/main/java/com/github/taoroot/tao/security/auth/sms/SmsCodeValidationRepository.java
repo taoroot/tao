@@ -1,6 +1,6 @@
 package com.github.taoroot.tao.security.auth.sms;
 
-public interface SmsCodeValidateRepository {
+public interface SmsCodeValidationRepository {
 
     String getCode(String phone);
 

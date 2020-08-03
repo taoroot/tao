@@ -50,6 +50,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         // 短信登录
         http.apply(new SmsCodeAuthenticationSecurityConfig<>())
                 .userDetailsService(userDetailsService)
+                .validationUrls("/xxxxx", "xxxx")
                 .authenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         // 社会登录

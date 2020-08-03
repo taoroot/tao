@@ -5,12 +5,18 @@ import com.github.taoroot.tao.security.CustomUserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SmsCodeAuthenticationSecurityConfig<H extends HttpSecurityBuilder<H>>
         extends AbstractHttpConfigurer<SmsCodeAuthenticationSecurityConfig<H>, H> {
 
     public static final String LOGIN_PATH = "/login/phone";
+
+    private Set<String> validationUrls = new HashSet<>();
 
     private CustomUserDetailsService userDetailsService;
 
@@ -28,13 +34,16 @@ public class SmsCodeAuthenticationSecurityConfig<H extends HttpSecurityBuilder<H
         SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider();
         smsCodeAuthenticationProvider.setUserDetailService(userDetailsService);
         http.authenticationProvider(smsCodeAuthenticationProvider)
-                .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(smsCodeAuthenticationFilter, AnonymousAuthenticationFilter.class);
+
 
         // 手机验证码校验
-        SmsCodeValidateFilter smsCodeValidateFilter = new SmsCodeValidateFilter();
-        smsCodeValidateFilter.addUrl(LOGIN_PATH);
-        smsCodeValidateFilter.afterPropertiesSet();
-        http.addFilterBefore(smsCodeValidateFilter, SmsCodeAuthenticationFilter.class);
+        SmsCodeValidationFilter smsCodeValidationFilter = new SmsCodeValidationFilter();
+        smsCodeValidationFilter.addUrl(LOGIN_PATH);
+        validationUrls.forEach(smsCodeValidationFilter::addUrl);
+        smsCodeValidationFilter.afterPropertiesSet();
+
+        http.addFilterBefore(smsCodeValidationFilter, SmsCodeAuthenticationFilter.class);
     }
 
     public SmsCodeAuthenticationSecurityConfig<H> userDetailsService(CustomUserDetailsService userDetailsService) {
@@ -44,6 +53,11 @@ public class SmsCodeAuthenticationSecurityConfig<H extends HttpSecurityBuilder<H
 
     public SmsCodeAuthenticationSecurityConfig<H> authenticationSuccessHandler(CustomAuthenticationSuccessHandler authenticationSuccessHandler) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
+        return this;
+    }
+
+    public SmsCodeAuthenticationSecurityConfig<H> validationUrls(String... validationUrls) {
+        this.validationUrls = new HashSet<>(Arrays.asList(validationUrls));
         return this;
     }
 }
