@@ -10,6 +10,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SmsCodeAuthenticationSecurityConfig<H extends HttpSecurityBuilder<H>>
         extends AbstractHttpConfigurer<SmsCodeAuthenticationSecurityConfig<H>, H> {
 
+    public static final String LOGIN_PATH = "/login/phone";
+
     private CustomUserDetailsService userDetailsService;
 
     private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
@@ -18,15 +20,21 @@ public class SmsCodeAuthenticationSecurityConfig<H extends HttpSecurityBuilder<H
     public void configure(H http) throws Exception {
         super.configure(http);
 
-        SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter();
+        // 手机号登录
+        SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter(LOGIN_PATH);
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
 
         SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider();
         smsCodeAuthenticationProvider.setUserDetailService(userDetailsService);
-
         http.authenticationProvider(smsCodeAuthenticationProvider)
                 .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 手机验证码校验
+        SmsCodeValidateFilter smsCodeValidateFilter = new SmsCodeValidateFilter();
+        smsCodeValidateFilter.addUrl(LOGIN_PATH);
+        smsCodeValidateFilter.afterPropertiesSet();
+        http.addFilterBefore(smsCodeValidateFilter, SmsCodeAuthenticationFilter.class);
     }
 
     public SmsCodeAuthenticationSecurityConfig<H> userDetailsService(CustomUserDetailsService userDetailsService) {

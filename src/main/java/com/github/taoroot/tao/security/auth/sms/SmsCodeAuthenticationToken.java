@@ -8,6 +8,8 @@ import java.util.Collection;
 
 public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
 
+    public static final String PHONE = "phone";
+
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     // ~ Instance fields
