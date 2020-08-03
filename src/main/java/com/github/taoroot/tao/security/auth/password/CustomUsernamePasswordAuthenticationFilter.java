@@ -3,6 +3,7 @@ package com.github.taoroot.tao.security.auth.password;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.taoroot.tao.security.auth.RequestUtil;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,12 +45,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 	public Authentication attemptAuthentication(HttpServletRequest request,
 												HttpServletResponse response) throws AuthenticationException {
 		if (postOnly && !request.getMethod().equals("POST")) {
-			throw new AuthenticationServiceException(
-					"Authentication method not supported: " + request.getMethod());
+			throw new AuthenticationServiceException("仅支持POST");
 		}
 
-
-		HashMap<String, String> hashMap = getBodyJSON(request);
+		HashMap<String, String> hashMap = RequestUtil.getBodyJSON(request);
 		String username = hashMap.get(usernameParameter);
 		String password = hashMap.get(passwordParameter);
 
@@ -72,39 +71,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}
 
-	/**
-	 * 读取body字符串数据,解析为JSON
-	 * @param request
-	 * @return
-	 */
-	private HashMap<String, String> getBodyJSON(HttpServletRequest request) {
-		HashMap<String, String> hashMap = new HashMap<>();
-		StringBuilder sb = new StringBuilder();
-		String line = null;
 
-		try (BufferedReader reader = request.getReader()) {
-			while (true) {
-				try {
-					if ((line = reader.readLine()) == null) break;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				sb.append(line);
-			}
-		} catch (IOException e) {
-			logger.warn("密码登录失败,无法读取Body数据");
-			return hashMap;
-		}
-
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			hashMap = mapper.readValue(sb.toString(), new TypeReference<HashMap<String, String>>() {});
-		} catch (JsonProcessingException e) {
-			logger.warn("密码登录失败,无法解析为JSON格式");
-			return hashMap;
-		}
-		return hashMap;
-	}
 
 
 	/**

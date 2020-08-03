@@ -11,8 +11,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * 没啥用,先放着
- *
- * @param <H>
  */
 public final class CustomUsernamePasswordSecurityConfigurer<H extends HttpSecurityBuilder<H>>
         extends AbstractHttpConfigurer<CustomUsernamePasswordSecurityConfigurer<H>, H> {
@@ -52,13 +50,11 @@ public final class CustomUsernamePasswordSecurityConfigurer<H extends HttpSecuri
         provider.afterPropertiesSet();
         builder.authenticationProvider(provider);
 
-
         // 自定义用户密码过滤器
         CustomUsernamePasswordAuthenticationFilter filter = new CustomUsernamePasswordAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationSuccessHandler(successHandler);
 
-        builder.addFilterBefore(filter,
-                UsernamePasswordAuthenticationFilter.class);
+        builder.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
     }
 }
