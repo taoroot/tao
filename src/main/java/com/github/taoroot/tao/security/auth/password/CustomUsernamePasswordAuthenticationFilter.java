@@ -26,6 +26,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
+    public static final String LOGIN_PATH_KEY = "/login";
+
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
@@ -35,7 +37,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
     // ===================================================================================================
 
     public CustomUsernamePasswordAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/login", "POST"));
+        super(new AntPathRequestMatcher(LOGIN_PATH_KEY, "POST"));
     }
 
     // ~ Methods

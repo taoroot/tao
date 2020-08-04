@@ -1,5 +1,8 @@
-package com.github.taoroot.tao.security.auth.sms;
+package com.github.taoroot.tao.security.captcha.support;
 
+import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationToken;
+import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
+import com.github.taoroot.tao.security.captcha.CaptchaValidationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.util.AntPathMatcher;
@@ -21,14 +24,14 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
 
     private AuthenticationFailureHandler authenticationFailureHandler;
 
-    private SmsCodeValidationRepository smsCodeValidationRepository;
+    private CaptchaValidationRepository captchaValidationRepository;
 
     public void authenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
-    public void smsCodeRepository(SmsCodeValidationRepository smsCodeValidationRepository) {
-        this.smsCodeValidationRepository = smsCodeValidationRepository;
+    public void smsCodeRepository(CaptchaValidationRepository captchaValidationRepository) {
+        this.captchaValidationRepository = captchaValidationRepository;
     }
 
     public Set<String> addUrl(String url) {
@@ -62,18 +65,18 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
         // 手机号
         String phone = obtainPhone(request);
         // 从缓存中获取Code
-        String cacheCode = smsCodeValidationRepository.getCode(phone);
+        String cacheCode = captchaValidationRepository.getCode(phone);
 
         if (smsCode == null || smsCode.isEmpty()) {
-            throw new SmsCodeValidationException("短信验证码不能为空");
+            throw new CaptchaValidationException("短信验证码不能为空");
         }
 
         if (cacheCode == null) {
-            throw new SmsCodeValidationException("验证码已失效");
+            throw new CaptchaValidationException("验证码已失效");
         }
 
         if (!smsCode.toLowerCase().equals(cacheCode)) {
-            throw new SmsCodeValidationException("短信验证码错误");
+            throw new CaptchaValidationException("短信验证码错误");
         }
     }
 

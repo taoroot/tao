@@ -55,6 +55,6 @@ public final class CustomUsernamePasswordSecurityConfigurer<H extends HttpSecuri
         filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationSuccessHandler(successHandler);
 
-        builder.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+        builder.addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class);
     }
 }

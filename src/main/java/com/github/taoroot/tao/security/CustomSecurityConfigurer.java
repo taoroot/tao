@@ -3,9 +3,15 @@ package com.github.taoroot.tao.security;
 import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
+import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordAuthenticationFilter;
 import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordSecurityConfigurer;
-import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationSecurityConfig;
+import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
+import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationFilter;
+import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
+import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
+import com.github.taoroot.tao.security.captcha.support.InMemoryValidationRepository;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +29,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Resource
     private CustomUserDetailsService userDetailsService;
+
+    @Resource
+    private CaptchaValidationRepository captchaValidationRepository;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -47,10 +56,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .jwt()
                 .decoder(new CustomJwtDecoder(secret));
 
-        // 短信登录
-        http.apply(new SmsCodeAuthenticationSecurityConfig<>())
+        // 手机号登录
+        http.apply(new SmsCodeAuthenticationConfigurer<>())
                 .userDetailsService(userDetailsService)
-                .validationUrls("/xxxxx", "xxxx")
                 .authenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         // 社会登录
@@ -61,6 +69,11 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                         http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
                         OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))
                 .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
+
+        // 验证码校验
+        http.apply(new CaptchaValidationConfigurer<>())
+                .imageValidationUrls(CustomUsernamePasswordAuthenticationFilter.LOGIN_PATH_KEY) // 账号密码登录需要用有图像图像验证码
+                .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY); // 手机号登录需要有手机号验证码
 
         // 系统自带配置
         http
@@ -82,4 +95,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     // @formatter:on
 
+
+    @Bean
+    CaptchaValidationRepository captchaValidationRepository() {
+        return new InMemoryValidationRepository();
+    }
 }

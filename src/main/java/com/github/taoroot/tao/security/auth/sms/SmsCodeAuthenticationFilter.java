@@ -13,8 +13,10 @@ import java.io.IOException;
 
 public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    protected SmsCodeAuthenticationFilter(String defaultFilterProcessesUrl) {
-        super(defaultFilterProcessesUrl);
+    public static final String LOGIN_PATH_KEY = "/login/phone";
+
+    protected SmsCodeAuthenticationFilter() {
+        super(LOGIN_PATH_KEY);
     }
 
     @Override
