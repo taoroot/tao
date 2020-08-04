@@ -3,11 +3,8 @@ package com.github.taoroot.tao.security;
 import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
-import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordAuthenticationFilter;
 import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordSecurityConfigurer;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
-import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationFilter;
-import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import com.github.taoroot.tao.security.captcha.support.InMemoryValidationRepository;
 import org.springframework.context.ApplicationContext;
@@ -19,8 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 
 @EnableWebSecurity
 public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
@@ -75,6 +74,15 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 //                .captchaValidationRepository(new InMemoryValidationRepository()); // 验证码存入内存
 //                .imageValidationUrls(CustomUsernamePasswordAuthenticationFilter.LOGIN_PATH_KEY) // 账号密码登录需要用有图像图像验证码
 //                .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY); // 手机号登录需要有手机号验证码
+
+        // 跨域
+        http.cors().configurationSource(req -> {
+            CorsConfiguration corsConfiguration = new CorsConfiguration();
+            corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+            corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+            corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+            return corsConfiguration;
+        });
 
         // 系统自带配置
         http
