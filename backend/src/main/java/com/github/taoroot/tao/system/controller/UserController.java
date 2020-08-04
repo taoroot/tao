@@ -11,4 +11,5 @@ public class UserController {
     public Object index() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
+
 }

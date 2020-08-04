@@ -53,9 +53,9 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        const { username } = data
+        const { name } = data
 
-        commit('SET_NAME', username)
+        commit('SET_NAME', name)
         commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
         resolve(data)
       }).catch(error => {
@@ -67,7 +67,7 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout().then(() => {
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')
