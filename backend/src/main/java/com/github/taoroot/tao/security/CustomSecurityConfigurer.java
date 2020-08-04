@@ -1,5 +1,6 @@
 package com.github.taoroot.tao.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
@@ -86,6 +87,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
         // 系统自带配置
         http
+                .logout()
+                    .logoutSuccessHandler((req, res, auth) -> res.getWriter().write("success")) // 退出登录
+                .and()
                 .csrf().disable()      // 禁用CSRF
                 .formLogin().disable() // 禁用表单登录
                 .httpBasic().disable() // 禁用Basic登录
