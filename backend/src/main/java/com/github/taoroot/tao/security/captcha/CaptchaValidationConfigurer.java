@@ -19,6 +19,10 @@ public class CaptchaValidationConfigurer<H extends HttpSecurityBuilder<H>>
 
     private CaptchaValidationRepository captchaValidationRepository;
 
+    public CaptchaValidationConfigurer<H> captchaValidationRepository(CaptchaValidationRepository captchaValidationRepository) {
+        this.captchaValidationRepository = captchaValidationRepository;
+        return this;
+    }
     public CaptchaValidationConfigurer<H> smsValidationUrls(String... url) {
         smsValidationUrls.addAll(Arrays.asList(url));
         return this;

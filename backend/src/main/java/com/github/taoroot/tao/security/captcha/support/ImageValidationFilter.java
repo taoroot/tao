@@ -30,7 +30,7 @@ public class ImageValidationFilter extends OncePerRequestFilter {
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
-    public void smsCodeRepository(CaptchaValidationRepository captchaValidationRepository) {
+    public void captchaValidationRepository(CaptchaValidationRepository captchaValidationRepository) {
         this.captchaValidationRepository = captchaValidationRepository;
     }
 

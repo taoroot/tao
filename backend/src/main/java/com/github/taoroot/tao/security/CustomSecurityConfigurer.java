@@ -47,7 +47,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         // 自定义密码登录器
         http.apply(new CustomUsernamePasswordSecurityConfigurer<>())
                 .authenticationManager(authenticationManagerBean())
-                .userDetailsService(userDetailsService())
+                .userDetailsService(userDetailsService)
                 .successHandler(customAuthenticationSuccessHandler);
 
         // 自定义JWT登录器
@@ -71,9 +71,10 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
 
         // 验证码校验
-        http.apply(new CaptchaValidationConfigurer<>())
-                .imageValidationUrls(CustomUsernamePasswordAuthenticationFilter.LOGIN_PATH_KEY) // 账号密码登录需要用有图像图像验证码
-                .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY); // 手机号登录需要有手机号验证码
+//        http.apply(new CaptchaValidationConfigurer<>())
+//                .captchaValidationRepository(new InMemoryValidationRepository()); // 验证码存入内存
+//                .imageValidationUrls(CustomUsernamePasswordAuthenticationFilter.LOGIN_PATH_KEY) // 账号密码登录需要用有图像图像验证码
+//                .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY); // 手机号登录需要有手机号验证码
 
         // 系统自带配置
         http

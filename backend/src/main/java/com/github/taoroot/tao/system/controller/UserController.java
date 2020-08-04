@@ -9,6 +9,6 @@ public class UserController {
 
     @GetMapping("/user/info")
     public Object index() {
-        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }
