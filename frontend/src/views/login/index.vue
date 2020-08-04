@@ -44,8 +44,7 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
+        <a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/github">GitHub</a>
       </div>
 
     </el-form>
@@ -54,6 +53,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { setToken } from '@/utils/auth'
 
 export default {
   name: 'Login',
@@ -74,8 +74,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -85,6 +85,15 @@ export default {
       passwordType: 'password',
       redirect: undefined
     }
+  },
+  created() {
+   var token = (window.location.search.match(new RegExp('[?&]token=([^&]+)')) || [, null])[1]
+   console.log(token)
+   if (token) {
+     setToken(token)
+     var {  pathname, origin, hash } = window.location
+     window.location.href =  origin + pathname + hash 
+   }
   },
   watch: {
     $route: {
