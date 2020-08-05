@@ -42,6 +42,10 @@ public class R<T> implements Serializable {
         return instance(data, OK, msg);
     }
 
+    public static <T> R<T> okMsg(String msg) {
+        return instance(null, OK, msg);
+    }
+
     public static <T> R<T> error() {
         return instance(null, ERROR, null);
     }

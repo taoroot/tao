@@ -5,6 +5,8 @@ import com.github.taoroot.tao.security.CustomUserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
@@ -13,7 +15,9 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
 
     private CustomUserDetailsService userDetailsService;
 
-    private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    private AuthenticationFailureHandler authenticationFailureHandler;
 
     @Override
     public void configure(H http) throws Exception {
@@ -22,6 +26,7 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter();
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
 
         SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider();
         smsCodeAuthenticationProvider.setUserDetailService(userDetailsService);
@@ -34,8 +39,13 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         return this;
     }
 
-    public SmsCodeAuthenticationConfigurer<H> authenticationSuccessHandler(CustomAuthenticationSuccessHandler authenticationSuccessHandler) {
+    public SmsCodeAuthenticationConfigurer<H> authenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
+        return this;
+    }
+
+    public SmsCodeAuthenticationConfigurer<H> authenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+        this.authenticationFailureHandler = authenticationFailureHandler;
         return this;
     }
 }

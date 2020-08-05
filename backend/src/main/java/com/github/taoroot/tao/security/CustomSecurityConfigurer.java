@@ -3,12 +3,12 @@ package com.github.taoroot.tao.security;
 import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
-import com.github.taoroot.tao.security.auth.password.CustomUsernamePasswordSecurityConfigurer;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import com.github.taoroot.tao.security.captcha.support.InMemoryValidationRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,6 +31,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService);
         super.configure(auth);
     }
 
@@ -40,13 +41,15 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         CustomAuthenticationEntryPoint customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint();
         CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler = new CustomAuthenticationSuccessHandler(secret);
 
-        // 自定义密码登录器
-        http.apply(new CustomUsernamePasswordSecurityConfigurer<>())
-                .authenticationManager(authenticationManagerBean())
-                .userDetailsService(userDetailsService)
+        // Basic 登录
+        http.httpBasic(Customizer.withDefaults());
+
+        // 密码登录
+        http.formLogin()
+                .failureHandler(customAuthenticationEntryPoint::commence)
                 .successHandler(customAuthenticationSuccessHandler);
 
-        // 自定义JWT登录器
+        // JWT登录
         http.oauth2ResourceServer()
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .jwt()
@@ -55,6 +58,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         // 手机号登录
         http.apply(new SmsCodeAuthenticationConfigurer<>())
                 .userDetailsService(userDetailsService)
+                .authenticationFailureHandler(customAuthenticationEntryPoint::commence)
                 .authenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         // 社会登录
@@ -81,16 +85,14 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
             return corsConfiguration;
         });
 
+        // 退出登录
+        http.logout()
+                .logoutSuccessHandler(new CustomLogoutSuccessHandler());
+
         // 系统自带配置
         http
-                .logout()
-                    .logoutSuccessHandler((req, res, auth) -> res.getWriter().write("success")) // 退出登录
-                .and()
                 .csrf().disable()      // 禁用CSRF
-                .formLogin().disable() // 禁用表单登录
-                .httpBasic().disable() // 禁用Basic登录
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 禁用 SESSION
-
                 .and()
                 // 检测到 AccessDeniedException, 根据用户身份执行不同处理
                 .exceptionHandling()
@@ -98,12 +100,10 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 // 如果不是匿名用户，将启动AccessDeniedHandler
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
-
                 .and()
                 .authorizeRequests().anyRequest().authenticated(); // 其他请求必须鉴权后访问
     }
     // @formatter:on
-
 
     @Bean
     CaptchaValidationRepository captchaValidationRepository() {
