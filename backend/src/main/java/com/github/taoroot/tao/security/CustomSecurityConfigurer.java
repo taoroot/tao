@@ -1,6 +1,5 @@
 package com.github.taoroot.tao.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
@@ -22,7 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import javax.annotation.Resource;
 import java.util.Collections;
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     public static final String secret = "secretsecretsecretsecretsecretsecret";
