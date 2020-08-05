@@ -52,14 +52,13 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
 import { setToken } from '@/utils/auth'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      if (value.length < 2) {
         callback(new Error('Please enter the correct user name'))
       } else {
         callback()
@@ -86,21 +85,20 @@ export default {
       redirect: undefined
     }
   },
-  created() {
-   var token = (window.location.search.match(new RegExp('[?&]token=([^&]+)')) || [, null])[1]
-   console.log(token)
-   if (token) {
-     setToken(token)
-     var {  pathname, origin, hash } = window.location
-     window.location.href =  origin + pathname + hash 
-   }
-  },
   watch: {
     $route: {
       handler: function(route) {
         this.redirect = route.query && route.query.redirect
       },
       immediate: true
+    }
+  },
+  created() {
+    var token = (window.location.search.match(new RegExp('[?&]token=([^&]+)')) || [null, null])[1]
+    if (token) {
+      setToken(token)
+      var { pathname, origin, hash } = window.location
+      window.location.href = origin + pathname + hash
     }
   },
   methods: {

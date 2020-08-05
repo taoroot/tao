@@ -45,14 +45,12 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    return { data: res }
-
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    if (res.code !== 0) {
       Message({
-        message: res.message || 'Error',
+        message: res.message || '未知错误',
         type: 'error',
-        duration: 5 * 1000
+        duration: 2 * 1000
       })
 
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;

@@ -13,7 +13,7 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailsService {
 
     {
         UserDetails userDetails = CustomUser.withDefaultPasswordEncoder()
-                .username("user")
+                .username("username")
                 .password("password")
                 .roles("USER")
                 .build();

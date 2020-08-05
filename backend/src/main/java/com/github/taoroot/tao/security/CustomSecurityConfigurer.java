@@ -29,9 +29,6 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Resource
     private CustomUserDetailsService userDetailsService;
 
-    @Resource
-    private CaptchaValidationRepository captchaValidationRepository;
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         super.configure(auth);

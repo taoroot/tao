@@ -1,6 +1,7 @@
 package com.github.taoroot.tao.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.taoroot.tao.utils.R;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -41,14 +42,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
             jwsObject.sign(new MACSigner(secret));
 
-            HashMap<String, String> message = new HashMap<>();
-            message.put("token", jwsObject.serialize());
-            message.put("documentation_url", "/swagger-ui.html");
+            R<String> r = R.ok(jwsObject.serialize());
 
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(new ObjectMapper().writeValueAsString(message));
+            response.getWriter().write(new ObjectMapper().writeValueAsString(r));
         }
     }
 

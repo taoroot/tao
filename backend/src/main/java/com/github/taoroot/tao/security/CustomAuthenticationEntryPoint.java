@@ -1,6 +1,7 @@
 package com.github.taoroot.tao.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.taoroot.tao.utils.R;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -22,14 +23,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         if (!response.isCommitted()) {
 
-            HashMap<String, String> message = new HashMap<>();
-            message.put("message", authException.getMessage());
-            message.put("documentation_url", "/swagger-ui.html");
-
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(new ObjectMapper().writeValueAsString(message));
+
+            R<String> r = R.errMsg(authException.getMessage());
+
+            response.getWriter().write(new ObjectMapper().writeValueAsString(r));
         }
     }
 }
