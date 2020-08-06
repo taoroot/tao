@@ -14,10 +14,13 @@ https://tao.flizi.cn
 https://api.flizi.cn/tao
 
 - [Spring Boot 2.3.x](https://github.com/spring-projects/spring-boot)
-- [Spring Security 5.x](https://github.com/spring-projects/spring-security)
+- [Spring Security 5.x](https://github.com/spring-projects/spring-security) 
 
 
 > spring-social, security-oauth 不再更新, 这里将不引入相关包
+
+> [Spring Security 源码分析](https://github.com/taoroot/tao/tree/master/document/Spring%20Security%20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90.md)
+
 
 # 登录方式
 
