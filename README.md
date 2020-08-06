@@ -1,38 +1,31 @@
 # tao
 
-预览地址: https://tao.flizi.cn
+前后端分离项目
 
-- Spring Boot 2.3.x
-- Spring Security 5.x
+前端:
+
+https://tao.flizi.cn
+
+- [vue.js](https://github.com/vuejs/vue)
+- [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+
+后端:
+
+https://api.flizi.cn/tao
+
+- [Spring Boot 2.3.x](https://github.com/spring-projects/spring-boot)
+- [Spring Security 5.x](https://github.com/spring-projects/spring-security)
+
 
 > spring-social, security-oauth 不再更新, 这里将不引入相关包
 
-# Spring Security Filter (从上到下执行)
-
-- 'WebAsyncManagerIntegrationFilter'
-- 'SecurityContextPersistenceFilter'
-- 'HeaderWriterFilter'
-- 'CorsFilter'
-- 'LogoutFilter'
-- 'OAuth2AuthorizationRequestRedirectFilter'
-- 'OAuth2LoginAuthenticationFilter'
-- 'CustomUsernamePasswordAuthenticationFilter'
-- 'SmsCodeAuthenticationFilter'
-- 'BearerTokenAuthenticationFilter'
-- 'RequestCacheAwareFilter'
-- 'SecurityContextHolderAwareRequestFilter'
-- 'AnonymousAuthenticationFilter'
-- 'SessionManagementFilter'
-- 'ExceptionTranslationFilter'
-- 'FilterSecurityInterceptor'
-
 # 登录方式
 
-## 密码登录 [已完成]
+## 密码登录 [开发中]
 
 表单登录 和 密码登录都可以直接使用默认的, 表单登录可以添加一下图片验证码过滤器
 
-## 社会登录(OAuth2) [已完成]
+## 社会登录(OAuth2) [开发中]
 
 为什么不用 spring-social, 和 spring-security-oauth 
 
