@@ -207,3 +207,90 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 ```
 
 
+# AbstractConfiguredSecurityBuilder#build()
+
+主要就是执行了收集到的SecurityConfigurer实例的方法,  主要是init()[重点] 
+
+```java
+public final O build() throws Exception {
+	if (this.building.compareAndSet(false, true)) {
+		this.object = doBuild();
+		return this.object;
+	}
+	throw new AlreadyBuiltException("This object has already been built");
+}
+protected final O doBuild() throws Exception {
+	synchronized (configurers) {
+		buildState = BuildState.INITIALIZING;
+
+		beforeInit(); 
+		init(); // 执行所有SecurityConfigurer的中的init() 方法
+
+		buildState = BuildState.CONFIGURING;
+
+		beforeConfigure();
+		configure();  // 执行所有SecurityConfigurer的中的 configure() 方法,默认空实现
+
+		buildState = BuildState.BUILDING;
+
+		O result = performBuild();
+
+		buildState = BuildState.BUILT;
+
+		return result;
+	}
+}
+```
+
+# WebSecurityConfigurerAdapter#init()
+```java
+public void init(final WebSecurity web) throws Exception {
+	final HttpSecurity http = getHttp();
+	web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
+		FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
+		web.securityInterceptor(securityInterceptor);
+	});
+}
+
+protected final HttpSecurity getHttp() throws Exception {
+	if (http != null) {
+		return http;
+	}
+
+	AuthenticationEventPublisher eventPublisher = getAuthenticationEventPublisher();
+	localConfigureAuthenticationBldr.authenticationEventPublisher(eventPublisher);
+
+	AuthenticationManager authenticationManager = authenticationManager();
+	authenticationBuilder.parentAuthenticationManager(authenticationManager);
+	Map<Class<?>, Object> sharedObjects = createSharedObjects();
+
+	http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
+			sharedObjects);
+	if (!disableDefaults) {
+		// @formatter:off
+		http
+			.csrf().and()
+			.addFilter(new WebAsyncManagerIntegrationFilter())
+			.exceptionHandling().and()
+			.headers().and()
+			.sessionManagement().and()
+			.securityContext().and()
+			.requestCache().and()
+			.anonymous().and()
+			.servletApi().and()
+			.apply(new DefaultLoginPageConfigurer<>()).and()
+			.logout();
+		// @formatter:on
+		ClassLoader classLoader = this.context.getClassLoader();
+		List<AbstractHttpConfigurer> defaultHttpConfigurers =
+				SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);
+
+		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
+			http.apply(configurer);
+		}
+	}
+	configure(http);
+	return http;
+}
+```
+
