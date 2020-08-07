@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.springframework.security.config.annotation.SecurityConfigurer</OriginalElement>
+  <nodes>
+    <node x="318.0" y="320.0">org.springframework.security.config.annotation.authentication.configurers.userdetails.AbstractDaoAuthenticationConfigurer</node>
+    <node x="494.0" y="400.0">org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer</node>
+    <node x="0.0" y="560.0">org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer</node>
+    <node x="488.79999999999995" y="160.0">org.springframework.security.config.annotation.SecurityConfigurerAdapter</node>
+    <node x="202.0" y="400.0">org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsServiceConfigurer</node>
+    <node x="756.8" y="160.0">org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter</node>
+    <node x="630.0" y="240.0">org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer</node>
+    <node x="1120.8" y="160.0">org.springframework.security.config.annotation.web.WebSecurityConfigurer</node>
+    <node x="844.0" y="0.0">org.springframework.security.config.annotation.SecurityBuilder</node>
+    <node x="356.0" y="560.0">org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer</node>
+    <node x="354.0" y="240.0">org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer</node>
+    <node x="832.8" y="80.0">org.springframework.security.config.annotation.SecurityConfigurer</node>
+    <node x="202.0" y="480.0">org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer" target="org.springframework.security.config.annotation.SecurityConfigurerAdapter">
+      <point x="0.0" y="-15.0" />
+      <point x="742.0" y="215.0" />
+      <point x="674.8" y="215.0" />
+      <point x="62.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="508.0" y="535.0" />
+      <point x="406.0" y="535.0" />
+      <point x="68.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.SecurityConfigurerAdapter" target="org.springframework.security.config.annotation.SecurityConfigurer">
+      <point x="62.0" y="-15.0" />
+      <point x="674.8" y="135.0" />
+      <point x="864.8" y="135.0" />
+      <point x="-64.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.userdetails.AbstractDaoAuthenticationConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.userdetails.AbstractDaoAuthenticationConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="626.0" y="375.0" />
+      <point x="564.0" y="375.0" />
+      <point x="82.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsServiceConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.userdetails.AbstractDaoAuthenticationConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="338.0" y="375.0" />
+      <point x="400.0" y="375.0" />
+      <point x="-82.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="168.0" y="535.0" />
+      <point x="270.0" y="535.0" />
+      <point x="-68.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.web.WebSecurityConfigurer" target="org.springframework.security.config.annotation.SecurityBuilder">
+      <point x="54.0" y="-15.0" />
+      <point x="1282.8" y="55.0" />
+      <point x="984.0" y="55.0" />
+      <point x="56.00000000000003" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter" target="org.springframework.security.config.annotation.SecurityConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.web.WebSecurityConfigurer" target="org.springframework.security.config.annotation.SecurityConfigurer">
+      <point x="-54.0" y="-15.0" />
+      <point x="1174.8" y="135.0" />
+      <point x="992.8" y="135.0" />
+      <point x="64.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.SecurityConfigurer" target="org.springframework.security.config.annotation.SecurityBuilder">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer" target="org.springframework.security.config.annotation.SecurityConfigurerAdapter">
+      <point x="0.0" y="-15.0" />
+      <point x="482.0" y="215.0" />
+      <point x="550.8" y="215.0" />
+      <point x="-62.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer" target="org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsServiceConfigurer">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.security.config.annotation.SecurityConfigurerAdapter" target="org.springframework.security.config.annotation.SecurityBuilder">
+      <point x="-62.0" y="-15.0" />
+      <point x="550.8" y="55.0" />
+      <point x="872.0" y="55.0" />
+      <point x="-56.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="657.0" y="219.0" />
+  <SelectedNodes>
+    <node>org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
