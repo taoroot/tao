@@ -76,9 +76,9 @@ public @interface EnableWebSecurity {
 
 # WebSecurityConfiguration
 
-1. 先调用 setFilterChainProxySecurityConfigurer(),构建 WebSecurity,并托管给 Spring 
-2. 在调用 springSecurityFilterChain() 构建  springSecurityFilterChain 过滤器链 
-	主要是调用 上一步的创建的 WebSecurity 对象父类AbstractConfiguredSecurityBuilder的 build() 方法
+1. 先调用 setFilterChainProxySecurityConfigurer(), 构建 WebSecurity, 并将 webSecurityConfigurer 存入其中,然后注入到 Spring 
+2. 再调用 springSecurityFilterChain(),  利用上一步的 WebSecurity 构建 springSecurityFilterChain 过滤器链
+
 ```java
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {
@@ -201,100 +201,382 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 }
 ```
 
+从这里看出 WebSecurity 内至少会有一个webSecurityConfigurer, 一般就是WebSecurityConfigurerAdapter,或者是我们开发者继承这个类的子类.
+具体WebSecurity的对象内容将单独讲解.
 
-# AbstractConfiguredSecurityBuilder#build()
-
-主要就是执行了收集到的SecurityConfigurer实例的方法
+# EnableGlobalAuthentication
 
 ```java
-class AbstractConfiguredSecurityBuilder {
-    public final O build() {
-        if (this.building.compareAndSet(false, true)) {
-            this.object = doBuild();
-            return this.object;
-        }
-        throw new AlreadyBuiltException("This object has already been built");
-    }
-    protected final O doBuild()  {
-        synchronized (configurers) {
-            buildState = BuildState.INITIALIZING;
-    
-            beforeInit(); 
-            init(); // 执行所有SecurityConfigurer的中的init() 方法
-    
-            buildState = BuildState.CONFIGURING;
-    
-            beforeConfigure();
-            configure();  // 执行所有SecurityConfigurer的中的 configure() 方法,默认空实现
-    
-            buildState = BuildState.BUILDING;
-    
-            O result = performBuild();
-    
-            buildState = BuildState.BUILT;
-    
-            return result;
-        }
-    }
+@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
+@Target(value = { java.lang.annotation.ElementType.TYPE })
+@Documented
+@Import(AuthenticationConfiguration.class) // [重点]
+@Configuration
+public @interface EnableGlobalAuthentication {
 }
 ```
 
-# WebSecurityConfigurerAdapter
+## AuthenticationConfiguration
 
-- init() 
-
-![WebSecurityConfigurerAdapter.uml](./WebSecurityConfigurerAdapter.png)
+- 重点 authenticationManagerBuilder() 方法, 注入了 AuthenticationManagerBuilder 对象到容器
+- 还有 getAuthenticationManager() 方法,可以看出,所有属性都是为了这个方法的材料. 在 WebSecurity 会用到,也有可能不调用该方法,用不到的时候,就是自己从容器中获取AuthenticationManagerBuilder,自定义build的过程来替代该方法.
 
 ```java
-class WebSecurityConfigurerAdapter {
-    public void init(final WebSecurity web) throws Exception {
-        final HttpSecurity http = getHttp();
-        web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
-            FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
-            web.securityInterceptor(securityInterceptor);
-        });
-    }
-    
-    protected final HttpSecurity getHttp() {
-        if (http != null) {
-            return http;
-        }
-    
-        AuthenticationEventPublisher eventPublisher = getAuthenticationEventPublisher();
-        localConfigureAuthenticationBldr.authenticationEventPublisher(eventPublisher);
-    
-        AuthenticationManager authenticationManager = authenticationManager();
-        authenticationBuilder.parentAuthenticationManager(authenticationManager);
-        Map<Class<?>, Object> sharedObjects = createSharedObjects();
-    
-        http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
-                sharedObjects);
-        if (!disableDefaults) {
-            // @formatter:off
-            http
-                .csrf().and()
-                .addFilter(new WebAsyncManagerIntegrationFilter())
-                .exceptionHandling().and()
-                .headers().and()
-                .sessionManagement().and()
-                .securityContext().and()
-                .requestCache().and()
-                .anonymous().and()
-                .servletApi().and()
-                .apply(new DefaultLoginPageConfigurer<>()).and()
-                .logout();
-            // @formatter:on
-            ClassLoader classLoader = this.context.getClassLoader();
-            List<AbstractHttpConfigurer> defaultHttpConfigurers =
-                    SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);
-    
-            for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
-                http.apply(configurer);
-            }
-        }
-        configure(http);
-        return http;
-    }
+@Configuration(proxyBeanMethods = false)
+@Import(ObjectPostProcessorConfiguration.class) // Spring提供的工具,可以将已有的对象,注入到Spring容器中.
+public class AuthenticationConfiguration {
+
+	private AtomicBoolean buildingAuthenticationManager = new AtomicBoolean();
+
+	private ApplicationContext applicationContext;
+
+	private AuthenticationManager authenticationManager;
+
+	private boolean authenticationManagerInitialized;
+
+	private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigurers = Collections.emptyList();
+
+	private ObjectPostProcessor<Object> objectPostProcessor;
+
+    // [1]
+	@Bean
+	public AuthenticationManagerBuilder authenticationManagerBuilder(
+			ObjectPostProcessor<Object> objectPostProcessor, ApplicationContext context) {
+		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
+		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context, AuthenticationEventPublisher.class);
+
+		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, defaultPasswordEncoder);
+		if (authenticationEventPublisher != null) {
+			result.authenticationEventPublisher(authenticationEventPublisher);
+		}
+		return result;
+	}
+
+    // [2]
+	public AuthenticationManager getAuthenticationManager() throws Exception {
+		if (this.authenticationManagerInitialized) {
+			return this.authenticationManager;
+		}
+		AuthenticationManagerBuilder authBuilder = this.applicationContext.getBean(AuthenticationManagerBuilder.class);
+		if (this.buildingAuthenticationManager.getAndSet(true)) {
+			return new AuthenticationManagerDelegator(authBuilder);
+		}
+
+		for (GlobalAuthenticationConfigurerAdapter config : globalAuthConfigurers) {
+			authBuilder.apply(config);
+		}
+
+		authenticationManager = authBuilder.build();
+
+		if (authenticationManager == null) {
+			authenticationManager = getAuthenticationManagerBean();
+		}
+
+		this.authenticationManagerInitialized = true;
+		return authenticationManager;
+	}
+
+	@Bean
+	public static GlobalAuthenticationConfigurerAdapter enableGlobalAuthenticationAutowiredConfigurer(
+			ApplicationContext context) {
+		return new EnableGlobalAuthenticationAutowiredConfigurer(context);
+	}
+
+	@Bean
+	public static InitializeUserDetailsBeanManagerConfigurer initializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+		return new InitializeUserDetailsBeanManagerConfigurer(context);
+	}
+
+	@Bean
+	public static InitializeAuthenticationProviderBeanManagerConfigurer initializeAuthenticationProviderBeanManagerConfigurer(ApplicationContext context) {
+		return new InitializeAuthenticationProviderBeanManagerConfigurer(context);
+	}
+
+	@Autowired(required = false)
+	public void setGlobalAuthenticationConfigurers(
+			List<GlobalAuthenticationConfigurerAdapter> configurers) {
+		configurers.sort(AnnotationAwareOrderComparator.INSTANCE);
+		this.globalAuthConfigurers = configurers;
+	}
+
+	@Autowired
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
+	@Autowired
+	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+		this.objectPostProcessor = objectPostProcessor;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T lazyBean(Class<T> interfaceName) {
+		LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
+		String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+				applicationContext, interfaceName);
+		if (beanNamesForType.length == 0) {
+			return null;
+		}
+		String beanName;
+		if (beanNamesForType.length > 1) {
+			List<String> primaryBeanNames = getPrimaryBeanNames(beanNamesForType);
+
+			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length
+					+ " beans for type " + interfaceName + ", but none marked as primary");
+			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size()
+					+ " beans for type " + interfaceName + " marked as primary");
+			beanName = primaryBeanNames.get(0);
+		} else {
+			beanName = beanNamesForType[0];
+		}
+
+		lazyTargetSource.setTargetBeanName(beanName);
+		lazyTargetSource.setBeanFactory(applicationContext);
+		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
+		proxyFactory = objectPostProcessor.postProcess(proxyFactory);
+		proxyFactory.setTargetSource(lazyTargetSource);
+		return (T) proxyFactory.getObject();
+	}
+
+	private List<String> getPrimaryBeanNames(String[] beanNamesForType) {
+		List<String> list = new ArrayList<>();
+		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
+			return Collections.emptyList();
+		}
+		for (String beanName : beanNamesForType) {
+			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
+					.getBeanDefinition(beanName).isPrimary()) {
+				list.add(beanName);
+			}
+		}
+		return list;
+	}
+
+	private AuthenticationManager getAuthenticationManagerBean() {
+		return lazyBean(AuthenticationManager.class);
+	}
+
+	private static class EnableGlobalAuthenticationAutowiredConfigurer extends
+			GlobalAuthenticationConfigurerAdapter {
+		private final ApplicationContext context;
+		private static final Log logger = LogFactory
+				.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
+
+		EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public void init(AuthenticationManagerBuilder auth) {
+			Map<String, Object> beansWithAnnotation = context
+					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Eagerly initializing " + beansWithAnnotation);
+			}
+		}
+	}
+
+	static final class AuthenticationManagerDelegator implements AuthenticationManager {
+		private AuthenticationManagerBuilder delegateBuilder;
+		private AuthenticationManager delegate;
+		private final Object delegateMonitor = new Object();
+
+		AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder) {
+			Assert.notNull(delegateBuilder, "delegateBuilder cannot be null");
+			this.delegateBuilder = delegateBuilder;
+		}
+
+		@Override
+		public Authentication authenticate(Authentication authentication)
+				throws AuthenticationException {
+			if (this.delegate != null) {
+				return this.delegate.authenticate(authentication);
+			}
+
+			synchronized (this.delegateMonitor) {
+				if (this.delegate == null) {
+					this.delegate = this.delegateBuilder.getObject();
+					this.delegateBuilder = null;
+				}
+			}
+
+			return this.delegate.authenticate(authentication);
+		}
+
+		@Override
+		public String toString() {
+			return "AuthenticationManagerDelegator [delegate=" + this.delegate + "]";
+		}
+	}
+
+	static class DefaultPasswordEncoderAuthenticationManagerBuilder extends AuthenticationManagerBuilder {
+		private PasswordEncoder defaultPasswordEncoder;
+
+		DefaultPasswordEncoderAuthenticationManagerBuilder(
+			ObjectPostProcessor<Object> objectPostProcessor, PasswordEncoder defaultPasswordEncoder) {
+			super(objectPostProcessor);
+			this.defaultPasswordEncoder = defaultPasswordEncoder;
+		}
+
+		@Override
+		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
+			throws Exception {
+			return super.inMemoryAuthentication()
+				.passwordEncoder(this.defaultPasswordEncoder);
+		}
+
+		@Override
+		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
+			throws Exception {
+			return super.jdbcAuthentication()
+				.passwordEncoder(this.defaultPasswordEncoder);
+		}
+
+		@Override
+		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
+			T userDetailsService) throws Exception {
+			return super.userDetailsService(userDetailsService)
+				.passwordEncoder(this.defaultPasswordEncoder);
+		}
+	}
+
+	static class LazyPasswordEncoder implements PasswordEncoder {
+		private ApplicationContext applicationContext;
+		private PasswordEncoder passwordEncoder;
+
+		LazyPasswordEncoder(ApplicationContext applicationContext) {
+			this.applicationContext = applicationContext;
+		}
+
+		@Override
+		public String encode(CharSequence rawPassword) {
+			return getPasswordEncoder().encode(rawPassword);
+		}
+
+		@Override
+		public boolean matches(CharSequence rawPassword,
+			String encodedPassword) {
+			return getPasswordEncoder().matches(rawPassword, encodedPassword);
+		}
+
+		@Override
+		public boolean upgradeEncoding(String encodedPassword) {
+			return getPasswordEncoder().upgradeEncoding(encodedPassword);
+		}
+
+		private PasswordEncoder getPasswordEncoder() {
+			if (this.passwordEncoder != null) {
+				return this.passwordEncoder;
+			}
+			PasswordEncoder passwordEncoder = getBeanOrNull(this.applicationContext, PasswordEncoder.class);
+			if (passwordEncoder == null) {
+				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+			}
+			this.passwordEncoder = passwordEncoder;
+			return passwordEncoder;
+		}
+
+		@Override
+		public String toString() {
+			return getPasswordEncoder().toString();
+		}
+	}
 }
+```
+
+# SpringWebMvcImportSelector
+
+Servlet 环境下,导入 WebMvcSecurityConfiguration 配置
+
+```java
+class SpringWebMvcImportSelector implements ImportSelector {
+	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		boolean webmvcPresent = ClassUtils.isPresent(
+				"org.springframework.web.servlet.DispatcherServlet",
+				getClass().getClassLoader());
+		return webmvcPresent
+				? new String[] { "org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration" }
+				: new String[] {};
+	}
+}
+```
+
+## WebMvcSecurityConfiguration
+
+非重点
+
+用于为Spring MVC和Spring Security CSRF集成添加一个RequestDataValueProcessor。
+只要SpringWebMvcImportSelector 添加EnableWebMvc，并且DispatcherServlet出现在类路径上，就会添加此配置。
+它还添加了AuthenticationPrincipalArgumentResolver作为HandlerMethodArgumentResolver。
+
+```java
+class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContextAware {
+	private BeanResolver beanResolver;
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
+		authenticationPrincipalResolver.setBeanResolver(beanResolver);
+		argumentResolvers.add(authenticationPrincipalResolver);
+		argumentResolvers
+				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
+
+		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
+		currentSecurityContextArgumentResolver.setBeanResolver(beanResolver);
+		argumentResolvers.add(currentSecurityContextArgumentResolver);
+		argumentResolvers.add(new CsrfTokenArgumentResolver());
+	}
+
+	@Bean
+	public RequestDataValueProcessor requestDataValueProcessor() {
+		return new CsrfRequestDataValueProcessor();
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.beanResolver = new BeanFactoryResolver(applicationContext.getAutowireCapableBeanFactory());
+	}
+}
+
+```
+
+
+# OAuth2ImportSelector
+
+非重点
+
+OAuth2ClientConfiguration 生效,当存在spring-security-oauth2-client 模块
+SecurityReactorContextConfiguration 生效: 当存在 the spring-security-oauth2-client 或者 spring-security-oauth2-resource-server module , 并且需要存在 spring-webflux 模块
+
+```java
+final class OAuth2ImportSelector implements ImportSelector {
+
+	@Override
+	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		Set<String> imports = new LinkedHashSet<>();
+
+		boolean oauth2ClientPresent = ClassUtils.isPresent(
+				"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
+		if (oauth2ClientPresent) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration");
+		}
+
+		boolean webfluxPresent = ClassUtils.isPresent(
+				"org.springframework.web.reactive.function.client.ExchangeFilterFunction", getClass().getClassLoader());
+		if (webfluxPresent && oauth2ClientPresent) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
+		}
+
+		boolean oauth2ResourceServerPresent = ClassUtils.isPresent(
+				"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader());
+		if (webfluxPresent && oauth2ResourceServerPresent) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
+		}
+
+		return imports.toArray(new String[0]);
+	}
+}
+
 ```
 
