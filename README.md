@@ -19,7 +19,8 @@ https://api.flizi.cn/tao
 
 > spring-social, security-oauth 不再更新, 这里将不引入相关包
 
-> [Spring Security 源码分析](https://github.com/taoroot/tao/tree/master/document/Spring%20Security%20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90.md)
+> [Spring Security 启动流程分析](https://github.com/taoroot/tao/blob/master/document/SpringSecurity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.md)
+> [Spring Security 过滤器架构分析](https://github.com/taoroot/tao/blob/master/document/SpringSecurity%E8%BF%87%E6%BB%A4%E5%99%A8%E6%9E%B6%E6%9E%84.md)
 
 
 # 登录方式
