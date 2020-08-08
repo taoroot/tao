@@ -11,7 +11,7 @@ import java.util.HashMap;
 @RestController
 public class UserController {
 
-    @GetMapping("/user/info")
+    @GetMapping("/")
     public Object index() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         HashMap<String, String> hashMap = new HashMap<>();
