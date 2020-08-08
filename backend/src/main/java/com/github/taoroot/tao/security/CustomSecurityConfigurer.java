@@ -3,7 +3,11 @@ package com.github.taoroot.tao.security;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 @Component
 public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
@@ -21,26 +25,31 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(config -> {
+                .formLogin(config -> { // 表单处理
                     config.failureHandler(customAuthenticationEntryPoint::commence);
                     config.successHandler(customAuthenticationSuccessHandler);
                 })
-                .exceptionHandling(config -> {
+                .oauth2ResourceServer(config -> { // JWT登录
+                    config.authenticationEntryPoint(customAuthenticationEntryPoint);
+                    config.jwt().decoder(new CustomJwtDecoder(secret));
+                })
+                .logout(config -> { // 退出登录
+                    config.logoutSuccessHandler(new CustomLogoutSuccessHandler());
+                })
+                .cors(config -> config.configurationSource(req -> { // 跨域
+                    CorsConfiguration corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+                    corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+                    corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+                    return corsConfiguration;
+                }))
+                .exceptionHandling(config -> { // 异常处理
                     config.authenticationEntryPoint(customAuthenticationEntryPoint);
                     config.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
-                .authorizeRequests().anyRequest().authenticated();
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // 禁用 SESSION
+                .authorizeRequests().anyRequest().authenticated(); // 所有请求
 
-//        // 密码登录
-//        http.formLogin()
-//                .failureHandler(customAuthenticationEntryPoint::commence)
-//                .successHandler(customAuthenticationSuccessHandler);
-
-        // JWT登录
-//        http.oauth2ResourceServer()
-//                .authenticationEntryPoint(customAuthenticationEntryPoint)
-//                .jwt()
-//                .decoder(new CustomJwtDecoder(secret));
 
         // 手机号登录
 //        http.apply(new SmsCodeAuthenticationConfigurer<>())
