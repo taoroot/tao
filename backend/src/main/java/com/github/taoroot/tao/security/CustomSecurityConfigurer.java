@@ -2,9 +2,7 @@ package com.github.taoroot.tao.security;
 
 import cn.hutool.core.util.ReUtil;
 import com.github.taoroot.tao.security.annotation.NotAuth;
-import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
-import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
-import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
+import com.github.taoroot.tao.security.auth.oauth2.*;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationFilter;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
@@ -17,8 +15,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.method.HandlerMethod;
@@ -50,54 +54,81 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         CustomAuthenticationEntryPoint customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint();
         CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler = new CustomAuthenticationSuccessHandler(secret);
 
-        // Basic 登录
         http
-                .apply(new CaptchaValidationConfigurer<HttpSecurity>() // 验证码校验
+                // 验证码校验
+                .apply(new CaptchaValidationConfigurer<HttpSecurity>()
                         .failureHandler(customAuthenticationEntryPoint::commence)
                         .captchaValidationRepository(captchaValidationRepository)  // 验证码存入内存
                         .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY)
                         .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码 // 手机号登录需要有手机号验证码
-                .httpBasic(Customizer.withDefaults()) // BASIC 登录
-                .formLogin(config -> { // 表单登录
-                    config.loginProcessingUrl(FORM_LOGIN_PATH_KEY)
-                            .failureHandler(customAuthenticationEntryPoint::commence)
-                            .successHandler(customAuthenticationSuccessHandler);
-                })
-                .oauth2Login(config -> { // 社会登录
-                    config.successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
-                            .authorizationEndpoint()
-                            .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
-                                    http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
-                                    OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))
-                            .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
-                })
-                .oauth2ResourceServer(config -> { // JWT登录
-                    config.authenticationEntryPoint(customAuthenticationEntryPoint)
-                            .jwt().decoder(new CustomJwtDecoder(secret));
-                })
-                .apply(new SmsCodeAuthenticationConfigurer<HttpSecurity>() // 手机号登录
+
+                // BASIC 登录
+                .httpBasic(Customizer.withDefaults())
+
+                // 表单登录
+                .formLogin(config -> config.loginProcessingUrl(FORM_LOGIN_PATH_KEY)
+                        .failureHandler(customAuthenticationEntryPoint::commence)
+                        .successHandler(customAuthenticationSuccessHandler))
+
+                // 社会登录
+                .oauth2Login(config -> config.successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
+                        .userInfoEndpoint(userInfo -> {
+                                    List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
+//                                    Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
+//                                    userServices.add(new CustomUserTypesOAuth2UserService(customUserTypes));
+                                    DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
+                                    defaultOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
+                                    userServices.add(defaultOAuth2UserService);
+                                    userInfo.userService(new DelegatingOAuth2UserService<>(userServices));
+                                }
+                        )
+                        .tokenEndpoint(tokenEndpoint -> {
+                            DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
+                            client.setRequestEntityConverter(new CustomOAuth2AuthorizationCodeGrantRequestEntityConverter());
+                            tokenEndpoint.accessTokenResponseClient(client);
+                        })
+                        .authorizationEndpoint(authorization ->
+                                authorization.authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository())
+                                        .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
+                                                http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
+                                                OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))))
+
+                // JWT登录
+                .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .jwt().decoder(new CustomJwtDecoder(secret)))
+
+                // 手机号登录
+                .apply(new SmsCodeAuthenticationConfigurer<HttpSecurity>()
                         .userDetailsService(userDetailsService)
                         .failureHandler(customAuthenticationEntryPoint::commence)
                         .successHandler(customAuthenticationSuccessHandler)).and()
-                .logout(config -> { // 退出登录
-                    config.logoutSuccessHandler(new CustomLogoutSuccessHandler());
-                })
-                .cors(config -> config.configurationSource(req -> { // 跨域
+
+                // 退出登录
+                .logout(config -> config.logoutSuccessHandler(new CustomLogoutSuccessHandler()))
+
+                // 跨域
+                .cors(config -> config.configurationSource(req -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
                     corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
                     corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
                     return corsConfiguration;
                 }))
-                .exceptionHandling(config -> { // 异常处理
+
+                // 异常处理
+                .exceptionHandling(config -> {
                     config.authenticationEntryPoint(customAuthenticationEntryPoint)
                             .accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
-                .csrf().disable() // 禁用CSRF
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // 禁用 SESSION
+
+                // 禁用CSRF
+                .csrf().disable()
+                // 禁用 SESSION
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                // 设置URL权限
                 .authorizeRequests(registry -> {
-                    permitAllUrls(registry);  // 白名单
-                    registry.anyRequest().authenticated(); // 其他需要验证
+                    permitAllUrls(registry);  // 白名单,不需要登录也可以访问
+                    registry.anyRequest().authenticated(); // 其他需要先登录再访问
                 });
     }
     // @formatter:on

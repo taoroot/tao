@@ -62,7 +62,7 @@
       <div class="tips">
         <a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/github">GitHub | </a>
         <a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/gitea">GITEA | </a>
-        <!-- <a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/gitee">GITEE | </a> -->
+        <a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/gitee">GITEE | </a>
       </div>
 
     </el-form>

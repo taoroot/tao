@@ -23,6 +23,16 @@ spring:
           github:
             client-id: xxxx
             client-secret: xxxx
+          gitea:
+            client-id: xxxx
+            client-secret: xxxx
+            authorization-grant-type: authorization_code
+            redirect-uri: https://xxxx/login/oauth2/code/gitea
+          gitee:
+            client-id: xxxx
+            client-secret: xxxx
+            authorization-grant-type: authorization_code
+            redirect-uri: https://xxx/login/oauth2/code/gitea
         provider:
           gitea:
             authorization-uri: https://gitea.com/login/oauth/authorize
