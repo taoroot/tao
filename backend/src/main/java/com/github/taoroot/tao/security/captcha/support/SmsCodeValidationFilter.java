@@ -40,11 +40,6 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    public void afterPropertiesSet() throws ServletException {
-        super.afterPropertiesSet();
-    }
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         boolean action = urls.stream()
                 .anyMatch(url -> antPathMatcher.match(url, request.getRequestURI()));
@@ -62,22 +57,19 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
     }
 
     private void validate(HttpServletRequest request) {
-        // 短信验证码
-        String smsCode = obtainSmsCode(request);
-        // 手机号
-        String phone = obtainPhone(request);
-        // 从缓存中获取Code
-        String cacheCode = captchaValidationRepository.getCode(phone);
+        String key = obtainKey(request);
+        String code = obtainCode(request);
+        String cacheCode = captchaValidationRepository.getCode(key);
 
-        if (smsCode == null || smsCode.isEmpty()) {
+        if (key == null || key.isEmpty()) {
             throw new CaptchaValidationException("短信验证码不能为空");
         }
 
         if (cacheCode == null) {
-            throw new CaptchaValidationException("验证码已失效");
+            throw new CaptchaValidationException("短信验证码已失效");
         }
 
-        if (!smsCode.toLowerCase().equals(cacheCode)) {
+        if (!code.toLowerCase().equals(cacheCode)) {
             throw new CaptchaValidationException("短信验证码错误");
         }
     }
@@ -85,14 +77,14 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
     /**
      * 获取验证码
      */
-    private String obtainSmsCode(HttpServletRequest request) {
-        return request.getParameter("smsCode");
+    private String obtainKey(HttpServletRequest request) {
+        return request.getParameter(SmsCodeAuthenticationToken.PHONE);
     }
 
     /**
      * 获取手机号
      */
-    private String obtainPhone(HttpServletRequest request) {
-        return request.getParameter(SmsCodeAuthenticationToken.PHONE);
+    private String obtainCode(HttpServletRequest request) {
+        return request.getParameter("phoneCode");
     }
 }

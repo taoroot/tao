@@ -32,7 +32,7 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailsService {
 
     @Override
     public UserDetails loadUserByPhone(String phone) throws UsernameNotFoundException {
-        if (!phone.equals("123456789")) {
+        if (!phone.equals("1234567890")) {
             throw new UsernameNotFoundException("手机号不存在");
         }
 
@@ -41,4 +41,6 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailsService {
                 new BCryptPasswordEncoder().encode("password"),
                 "1234567890", Collections.emptyList());
     }
+
+
 }

@@ -1,6 +1,5 @@
 package com.github.taoroot.tao.security.captcha.support;
 
-import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationToken;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationException;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import org.springframework.security.core.AuthenticationException;
@@ -62,14 +61,11 @@ public class ImageValidationFilter extends OncePerRequestFilter {
     }
 
     private void validate(HttpServletRequest request) {
-        // 短信验证码
-        String smsCode = obtainSmsCode(request);
-        // 手机号
-        String phone = obtainPhone(request);
-        // 从缓存中获取Code
-        String cacheCode = captchaValidationRepository.getCode(phone);
+        String key = obtainKey(request);
+        String code = obtainCode(request);
+        String cacheCode = captchaValidationRepository.getCode(key);
 
-        if (smsCode == null || smsCode.isEmpty()) {
+        if (code == null || code.isEmpty() || key == null || key.isEmpty() ) {
             throw new CaptchaValidationException("验证码不能为空");
         }
 
@@ -77,22 +73,16 @@ public class ImageValidationFilter extends OncePerRequestFilter {
             throw new CaptchaValidationException("验证码已失效");
         }
 
-        if (!smsCode.toLowerCase().equals(cacheCode)) {
+        if (!code.toLowerCase().equals(cacheCode)) {
             throw new CaptchaValidationException("验证码错误");
         }
     }
 
-    /**
-     * 获取验证码
-     */
-    private String obtainSmsCode(HttpServletRequest request) {
-        return request.getParameter("imageCode");
+    private String obtainKey(HttpServletRequest request) {
+        return request.getParameter("imageKey");
     }
 
-    /**
-     * 获取手机号
-     */
-    private String obtainPhone(HttpServletRequest request) {
-        return request.getParameter(SmsCodeAuthenticationToken.PHONE);
+    private String obtainCode(HttpServletRequest request) {
+        return request.getParameter("imageCode");
     }
 }

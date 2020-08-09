@@ -2,7 +2,7 @@ package com.github.taoroot.tao.security.captcha;
 
 public interface CaptchaValidationRepository {
 
-    String getCode(String phone);
+    String getCode(String code);
 
-    void putCode(String phone, String code);
+    String putCode(String phone, String code);
 }
