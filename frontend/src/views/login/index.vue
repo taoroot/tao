@@ -41,6 +41,22 @@
         </span>
       </el-form-item>
 
+      <el-form-item prop="code">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          v-model="loginForm.imageCode"
+          placeholder="验证码"
+          name="password"
+          auto-complete="on"
+          @keyup.enter.native="handleLogin"
+        />
+        <span class="show-code" @click="refreshCode">
+          <el-image style="width: 100px; " :src="codeUrl" />
+        </span>
+      </el-form-item>
+
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
       <div class="tips">
@@ -76,12 +92,15 @@ export default {
     return {
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        imageKey: Math.random().toString(36).substr(2),
+        imageCode: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
+      codeUrl: '',
       loading: false,
       passwordType: 'password',
       redirect: undefined
@@ -102,6 +121,7 @@ export default {
       var { pathname, origin, hash } = window.location
       window.location.href = origin + pathname + hash
     }
+    this.refreshCode()
   },
   methods: {
     showPwd() {
@@ -113,6 +133,10 @@ export default {
       this.$nextTick(() => {
         this.$refs.password.focus()
       })
+    },
+    refreshCode() {
+      this.loginForm.imageKey = Math.random().toString(36).substr(2)
+      this.codeUrl = process.env.VUE_APP_BASE_API + 'code/image/' + this.loginForm.imageKey
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
@@ -199,6 +223,7 @@ $light_gray:#eee;
     padding: 160px 35px 0;
     margin: 0 auto;
     overflow: hidden;
+
   }
 
   .tips {
@@ -221,6 +246,11 @@ $light_gray:#eee;
     display: inline-block;
   }
 
+  .show-code {
+    display: block;
+    height: 47px;
+  }
+
   .title-container {
     position: relative;
 
@@ -231,6 +261,16 @@ $light_gray:#eee;
       text-align: center;
       font-weight: bold;
     }
+  }
+
+  .show-code {
+    position: absolute;
+    right: 10px;
+    top: 1px;
+    font-size: 16px;
+    color: $dark_gray;
+    cursor: pointer;
+    user-select: none;
   }
 
   .show-pwd {
