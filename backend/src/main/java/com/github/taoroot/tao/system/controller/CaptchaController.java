@@ -5,8 +5,10 @@ import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.captcha.generator.RandomGenerator;
 import com.github.taoroot.tao.security.annotation.NotAuth;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
+import com.github.taoroot.tao.utils.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -36,6 +38,13 @@ public class CaptchaController {
             out.flush();
             captchaValidationRepository.putCode(key, captcha.getCode());
         }
+    }
+
+    @NotAuth
+    @GetMapping(value = "/code/sms")
+    public R getSMS(@RequestParam("phone") String key)  {
+       captchaValidationRepository.putCode(key, "1234");
+       return R.okMsg("模拟发送  " + key + " ---> " + "1234");
     }
 }
 

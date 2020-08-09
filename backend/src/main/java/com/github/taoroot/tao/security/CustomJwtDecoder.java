@@ -35,6 +35,18 @@ public class CustomJwtDecoder implements JwtDecoder {
             Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
             Map<String, Object> claims = parsedJwt.getJWTClaimsSet().getClaims();
 
+            Object exp = claims.get("exp");
+
+            if (exp == null) {
+                throw new JwtException("TOKEN不合法");
+            }
+
+            int expires = Integer.parseInt(String.valueOf(exp));
+
+            if (expires < System.currentTimeMillis() / 1000) {
+                throw new JwtException("token过期");
+            }
+
             return Jwt.withTokenValue(token)
                     .headers(h -> h.putAll(headers))
                     .claims(c -> c.putAll(claims))

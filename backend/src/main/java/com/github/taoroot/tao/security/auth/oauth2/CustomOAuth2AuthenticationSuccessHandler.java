@@ -33,6 +33,8 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         if (!response.isCommitted()) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("sub", SecurityContextHolder.getContext().getAuthentication().getName());
+            jsonObject.put("aud", "AUTH2");
+            jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
 
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
             jwsObject.sign(new MACSigner(secret));
