@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +35,8 @@ public class ImageValidationFilter extends OncePerRequestFilter {
         this.captchaValidationRepository = captchaValidationRepository;
     }
 
-    public Set<String> addUrl(String url) {
-        return urls;
+    public void addUrl(String... url) {
+        Collections.addAll(urls, url);
     }
 
     @Override
@@ -48,15 +49,16 @@ public class ImageValidationFilter extends OncePerRequestFilter {
         boolean action = urls.stream()
                 .anyMatch(url -> antPathMatcher.match(url, request.getRequestURI()));
 
-        if (!action) {
-            filterChain.doFilter(request, response);
+        if (action) {
+            try {
+                validate(request);
+            } catch (AuthenticationException e) {
+                authenticationFailureHandler.onAuthenticationFailure(request, response, e);
+                return;
+            }
         }
 
-        try {
-            validate(request);
-        } catch (AuthenticationException e) {
-            authenticationFailureHandler.onAuthenticationFailure(request, response, e);
-        }
+        filterChain.doFilter(request, response);
     }
 
     private void validate(HttpServletRequest request) {
@@ -68,7 +70,7 @@ public class ImageValidationFilter extends OncePerRequestFilter {
         String cacheCode = captchaValidationRepository.getCode(phone);
 
         if (smsCode == null || smsCode.isEmpty()) {
-            throw new CaptchaValidationException("短信验证码不能为空");
+            throw new CaptchaValidationException("验证码不能为空");
         }
 
         if (cacheCode == null) {
@@ -76,7 +78,7 @@ public class ImageValidationFilter extends OncePerRequestFilter {
         }
 
         if (!smsCode.toLowerCase().equals(cacheCode)) {
-            throw new CaptchaValidationException("短信验证码错误");
+            throw new CaptchaValidationException("验证码错误");
         }
     }
 
@@ -84,7 +86,7 @@ public class ImageValidationFilter extends OncePerRequestFilter {
      * 获取验证码
      */
     private String obtainSmsCode(HttpServletRequest request) {
-        return request.getParameter("smsCode");
+        return request.getParameter("imageCode");
     }
 
     /**

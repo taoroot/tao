@@ -1,5 +1,8 @@
 package com.github.taoroot.tao.security;
 
+import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
+import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
+import com.github.taoroot.tao.security.captcha.support.InMemoryValidationRepository;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -7,12 +10,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 
 @Component
 public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     public static final String secret = "secretsecretsecretsecretsecretsecret";
+    public static final String FORM_LOGIN_PATH_KEY = "/login";
+
+    @Resource
+    private CustomUserDetailsService userDetailsService;
 
     // @formatter:off
     @Override
@@ -20,12 +28,16 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         CustomAuthenticationEntryPoint customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint();
         CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler = new CustomAuthenticationSuccessHandler(secret);
 
-//
         // Basic 登录
         http
-                .csrf().disable()
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(config -> { // 表单处理
+                .apply(new CaptchaValidationConfigurer<HttpSecurity>() // 验证码校验
+                        .failureHandler(customAuthenticationEntryPoint::commence)
+                        .captchaValidationRepository(new InMemoryValidationRepository())  // 验证码存入内存
+//                        .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY)
+                        .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码 // 手机号登录需要有手机号验证码
+                .httpBasic(Customizer.withDefaults()) // BASIC 登录
+                .formLogin(config -> { // 表单登录
+                    config.loginProcessingUrl(FORM_LOGIN_PATH_KEY);
                     config.failureHandler(customAuthenticationEntryPoint::commence);
                     config.successHandler(customAuthenticationSuccessHandler);
                 })
@@ -33,6 +45,10 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                     config.authenticationEntryPoint(customAuthenticationEntryPoint);
                     config.jwt().decoder(new CustomJwtDecoder(secret));
                 })
+                .apply(new SmsCodeAuthenticationConfigurer<HttpSecurity>() // 手机号登录
+                        .userDetailsService(userDetailsService)
+                        .failureHandler(customAuthenticationEntryPoint::commence)
+                        .successHandler(customAuthenticationSuccessHandler)).and()
                 .logout(config -> { // 退出登录
                     config.logoutSuccessHandler(new CustomLogoutSuccessHandler());
                 })
@@ -47,62 +63,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                     config.authenticationEntryPoint(customAuthenticationEntryPoint);
                     config.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
+                .csrf().disable() // 禁用CSRF
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // 禁用 SESSION
                 .authorizeRequests().anyRequest().authenticated(); // 所有请求
-
-
-        // 手机号登录
-//        http.apply(new SmsCodeAuthenticationConfigurer<>())
-//                .userDetailsService(userDetailsService)
-//                .authenticationFailureHandler(customAuthenticationEntryPoint::commence)
-//                .authenticationSuccessHandler(customAuthenticationSuccessHandler);
-
-        // 社会登录
-//        http.oauth2Login()
-//                .successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
-//                .authorizationEndpoint()
-//                .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
-//                        http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
-//                        OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))
-//                .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
-
-        // 验证码校验
-//        http.apply(new CaptchaValidationConfigurer<>())
-//                .captchaValidationRepository(new InMemoryValidationRepository()); // 验证码存入内存
-//                .imageValidationUrls(CustomUsernamePasswordAuthenticationFilter.LOGIN_PATH_KEY) // 账号密码登录需要用有图像图像验证码
-//                .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY); // 手机号登录需要有手机号验证码
-
-        // 跨域
-//        http.cors().configurationSource(req -> {
-//            CorsConfiguration corsConfiguration = new CorsConfiguration();
-//            corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
-//            corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-//            corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
-//            return corsConfiguration;
-//        });
-
-        // 退出登录
-//        http.logout()
-//                .logoutSuccessHandler(new CustomLogoutSuccessHandler());
-
-        // 系统自带配置
-//        http
-//                .csrf().disable()      // 禁用CSRF
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 禁用 SESSION
-//                .and()
-//                // 检测到 AccessDeniedException, 根据用户身份执行不同处理
-//                .exceptionHandling()
-//                // 如果是匿名用户, 将启动authenticationEntryPoint
-//                .authenticationEntryPoint(customAuthenticationEntryPoint)
-//                // 如果不是匿名用户，将启动AccessDeniedHandler
-//                .accessDeniedHandler(new CustomAccessDeniedHandler())
-//                .and()
-//                .authorizeRequests().anyRequest().authenticated(); // 其他请求必须鉴权后访问
     }
     // @formatter:on
-
-//    @Bean
-//    CaptchaValidationRepository captchaValidationRepository() {
-//        return new InMemoryValidationRepository();
-//    }
 }

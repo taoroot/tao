@@ -3,6 +3,7 @@ package com.github.taoroot.tao.security.auth.sms;
 import com.github.taoroot.tao.security.CustomAuthenticationSuccessHandler;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -11,7 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         extends AbstractHttpConfigurer<SmsCodeAuthenticationConfigurer<H>, H> {
-
 
     private CustomUserDetailsService userDetailsService;
 
@@ -24,7 +24,6 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         super.configure(http);
 
         SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter();
-        smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         smsCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
 
@@ -32,6 +31,7 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         smsCodeAuthenticationProvider.setUserDetailService(userDetailsService);
         http.authenticationProvider(smsCodeAuthenticationProvider)
                 .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
     }
 
     public SmsCodeAuthenticationConfigurer<H> userDetailsService(CustomUserDetailsService userDetailsService) {
@@ -39,12 +39,12 @@ public class SmsCodeAuthenticationConfigurer<H extends HttpSecurityBuilder<H>>
         return this;
     }
 
-    public SmsCodeAuthenticationConfigurer<H> authenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+    public SmsCodeAuthenticationConfigurer<H> successHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         return this;
     }
 
-    public SmsCodeAuthenticationConfigurer<H> authenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+    public SmsCodeAuthenticationConfigurer<H> failureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
         this.authenticationFailureHandler = authenticationFailureHandler;
         return this;
     }
