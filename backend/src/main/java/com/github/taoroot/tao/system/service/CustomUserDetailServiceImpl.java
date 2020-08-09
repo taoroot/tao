@@ -22,7 +22,7 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if (!username.equals("username")) {
-            throw new UsernameNotFoundException("手机号不存在");
+            throw new UsernameNotFoundException("用户不存在");
         }
         return new CustomUser(
                 "username",

@@ -2,6 +2,9 @@ package com.github.taoroot.tao.security;
 
 import cn.hutool.core.util.ReUtil;
 import com.github.taoroot.tao.security.annotation.NotAuth;
+import com.github.taoroot.tao.security.auth.oauth2.CustomHttpSessionOAuth2AuthorizationRequestRepository;
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthenticationSuccessHandler;
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2AuthorizationRequestResolver;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationConfigurer;
 import com.github.taoroot.tao.security.auth.sms.SmsCodeAuthenticationFilter;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
@@ -14,6 +17,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.method.HandlerMethod;
@@ -54,13 +59,21 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                         .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码 // 手机号登录需要有手机号验证码
                 .httpBasic(Customizer.withDefaults()) // BASIC 登录
                 .formLogin(config -> { // 表单登录
-                    config.loginProcessingUrl(FORM_LOGIN_PATH_KEY);
-                    config.failureHandler(customAuthenticationEntryPoint::commence);
-                    config.successHandler(customAuthenticationSuccessHandler);
+                    config.loginProcessingUrl(FORM_LOGIN_PATH_KEY)
+                            .failureHandler(customAuthenticationEntryPoint::commence)
+                            .successHandler(customAuthenticationSuccessHandler);
+                })
+                .oauth2Login(config -> { // 社会登录
+                    config.successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
+                            .authorizationEndpoint()
+                            .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
+                                    http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
+                                    OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))
+                            .authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
                 })
                 .oauth2ResourceServer(config -> { // JWT登录
-                    config.authenticationEntryPoint(customAuthenticationEntryPoint);
-                    config.jwt().decoder(new CustomJwtDecoder(secret));
+                    config.authenticationEntryPoint(customAuthenticationEntryPoint)
+                            .jwt().decoder(new CustomJwtDecoder(secret));
                 })
                 .apply(new SmsCodeAuthenticationConfigurer<HttpSecurity>() // 手机号登录
                         .userDetailsService(userDetailsService)
@@ -77,8 +90,8 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                     return corsConfiguration;
                 }))
                 .exceptionHandling(config -> { // 异常处理
-                    config.authenticationEntryPoint(customAuthenticationEntryPoint);
-                    config.accessDeniedHandler(new CustomAccessDeniedHandler());
+                    config.authenticationEntryPoint(customAuthenticationEntryPoint)
+                            .accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .csrf().disable() // 禁用CSRF
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and() // 禁用 SESSION
