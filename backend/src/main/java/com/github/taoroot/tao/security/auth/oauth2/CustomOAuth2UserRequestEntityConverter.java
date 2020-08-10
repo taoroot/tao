@@ -18,24 +18,28 @@ import java.util.Collections;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
+/**
+ * 修复码云 User-Agent 问题
+ */
 public class CustomOAuth2UserRequestEntityConverter implements Converter<OAuth2UserRequest, RequestEntity<?>> {
-	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+    private static final MediaType DEFAULT_CONTENT_TYPE = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
-	/**
-	 * Returns the {@link RequestEntity} used for the UserInfo Request.
-	 *
-	 * @param userRequest the user request
-	 * @return the {@link RequestEntity} used for the UserInfo Request
-	 */
-	@Override
-	public RequestEntity<?> convert(OAuth2UserRequest userRequest) {
-		ClientRegistration clientRegistration = userRequest.getClientRegistration();
+    /**
+     * Returns the {@link RequestEntity} used for the UserInfo Request.
+     *
+     * @param userRequest the user request
+     * @return the {@link RequestEntity} used for the UserInfo Request
+     */
+    @Override
+    public RequestEntity<?> convert(OAuth2UserRequest userRequest) {
+        ClientRegistration clientRegistration = userRequest.getClientRegistration();
 
 		HttpMethod httpMethod = HttpMethod.GET;
 		if (AuthenticationMethod.FORM.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
 			httpMethod = HttpMethod.POST;
 		}
 		HttpHeaders headers = new HttpHeaders();
+
 		headers.add(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36");
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())

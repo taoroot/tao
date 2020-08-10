@@ -29,6 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * 保存 Referer 字段
+ */
 public final class CustomOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
     private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
     private static final char PATH_DELIMITER = '/';

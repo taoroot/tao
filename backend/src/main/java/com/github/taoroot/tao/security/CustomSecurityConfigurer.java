@@ -16,12 +16,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.*;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
@@ -48,6 +51,10 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Resource
     private ApplicationContext applicationContext;
 
+    @Resource
+    private ClientRegistrationRepository clientRegistrationRepository;
+
+
     // @formatter:off
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -59,8 +66,8 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .apply(new CaptchaValidationConfigurer<HttpSecurity>()
                         .failureHandler(customAuthenticationEntryPoint::commence)
                         .captchaValidationRepository(captchaValidationRepository)  // 验证码存入内存
-                        .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY)
-                        .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码 // 手机号登录需要有手机号验证码
+                        .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY) // 手机号登录需要有手机号验证码
+                        .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码
 
                 // BASIC 登录
                 .httpBasic(Customizer.withDefaults())
@@ -72,26 +79,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
                 // 社会登录
                 .oauth2Login(config -> config.successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
-                        .userInfoEndpoint(userInfo -> {
-                                    List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-//                                    Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-//                                    userServices.add(new CustomUserTypesOAuth2UserService(customUserTypes));
-                                    DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
-                                    defaultOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
-                                    userServices.add(defaultOAuth2UserService);
-                                    userInfo.userService(new DelegatingOAuth2UserService<>(userServices));
-                                }
-                        )
-                        .tokenEndpoint(tokenEndpoint -> {
-                            DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
-                            client.setRequestEntityConverter(new CustomOAuth2AuthorizationCodeGrantRequestEntityConverter());
-                            tokenEndpoint.accessTokenResponseClient(client);
-                        })
-                        .authorizationEndpoint(authorization ->
-                                authorization.authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository())
-                                        .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
-                                                http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class),
-                                                OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI))))
+                        .tokenEndpoint(this::tokenEndpoint)
+                        .userInfoEndpoint(this::userInfoEndpoint)
+                        .authorizationEndpoint(this::authorizationEndpoint))
 
                 // JWT登录
                 .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -131,9 +121,37 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                     registry.anyRequest().authenticated(); // 其他需要先登录再访问
                 });
     }
+
+    private void authorizationEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig authorization) {
+        authorization.authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
+        authorization.authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
+        );
+    }
+
+    private void tokenEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.TokenEndpointConfig tokenEndpoint) {
+        DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
+        client.setRequestEntityConverter(new CustomOAuth2AuthorizationCodeGrantRequestEntityConverter());
+        tokenEndpoint.accessTokenResponseClient(client);
+    }
+
+    private void userInfoEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.UserInfoEndpointConfig userInfo) {
+        List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
+
+        Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
+        customUserTypes.put("gitee", GiteeOAuth2User.class);
+        customUserTypes.put("github", GitHubOAuth2User.class);
+        CustomUserTypesOAuth2UserService customOAuth2UserService = new CustomUserTypesOAuth2UserService(customUserTypes);
+        customOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
+        userServices.add(customOAuth2UserService);
+        DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
+        defaultOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
+        userServices.add(defaultOAuth2UserService);
+        userInfo.userService(new DelegatingOAuth2UserService<>(userServices));
+    }
     // @formatter:on
 
-    public void permitAllUrls(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry) {
+    private void permitAllUrls(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry) {
 
         List<String> permitAllUrls = new ArrayList<>(Arrays.asList(
                 "/swagger-ui.html",
@@ -152,9 +170,8 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
             set.add(AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), NotAuth.class));
             set.add(AnnotationUtils.findAnnotation(handlerMethod.getMethod(), NotAuth.class));
             set.forEach(annotation -> {
-                Optional.ofNullable(annotation)
-                        .ifPresent(inner -> info.getPatternsCondition().getPatterns()
-                                .forEach(url -> permitAllUrls.add(ReUtil.replaceAll(url, "\\{(.*?)\\}", "*"))));
+                Optional.ofNullable(annotation).ifPresent(inner -> info.getPatternsCondition().getPatterns().forEach(
+                        url -> permitAllUrls.add(ReUtil.replaceAll(url, "\\{(.*?)\\}", "*"))));
             });
         });
 

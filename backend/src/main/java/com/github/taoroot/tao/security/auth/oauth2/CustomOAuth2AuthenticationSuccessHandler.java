@@ -6,6 +6,7 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import net.minidev.json.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ import java.io.IOException;
 /**
  * 登录成功,返回 Token
  */
+@Log4j2
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final String secret;
@@ -30,6 +32,8 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
     @SneakyThrows
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        log.info("用户登录成功 {}", authentication);
+
         if (!response.isCommitted()) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("sub", SecurityContextHolder.getContext().getAuthentication().getName());

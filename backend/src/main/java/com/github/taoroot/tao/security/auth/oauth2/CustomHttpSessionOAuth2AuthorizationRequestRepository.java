@@ -11,6 +11,9 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 获取 Referer 字段
+ */
 public final class CustomHttpSessionOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
             CustomHttpSessionOAuth2AuthorizationRequestRepository.class.getName() + ".AUTHORIZATION_REQUEST";
