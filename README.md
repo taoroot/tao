@@ -46,8 +46,6 @@ OAuth2Login 会多获取userInfo这一步, 一般做登录最终目的是为了�
 
 ### 流程
 
-前端 <a referrerpolicy="origin" href="http://xxxx/oauth2/authorization/gitee"> 码云 </a> 标签 
-
 ---> 点击后  ---> 跳转到第三方 
 
 ----> 用户点击同意授权(第一次需要点击,如果用户以及授权过,就直接跳转了)  ---> 跳转回后端 http://localhost:8080/login/oauth2/code/gitee?code=xxxx
