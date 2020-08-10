@@ -43,4 +43,9 @@ spring:
             authorization-uri: https://gitee.com/oauth/authorize
             token-uri: https://gitee.com/oauth/token
             user-info-uri: https://gitee.com/api/v5/user
-            user-name-attribute: login
+          wx:
+            authorization-uri: https://open.weixin.qq.com/connect/qrconnect
+            token-uri: https://api.weixin.qq.com/sns/oauth2/access_token
+            user-info-uri: https://api.weixin.qq.com/sns/userinfo
+            user-info-authentication-method: form
+

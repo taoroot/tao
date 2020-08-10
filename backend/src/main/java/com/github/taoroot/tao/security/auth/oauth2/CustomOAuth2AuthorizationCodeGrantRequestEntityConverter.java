@@ -66,6 +66,7 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
         MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
         formParameters.add(OAuth2ParameterNames.GRANT_TYPE, authorizationCodeGrantRequest.getGrantType().getValue());
         formParameters.add(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
+
         String redirectUri = authorizationExchange.getAuthorizationRequest().getRedirectUri();
         String codeVerifier = authorizationExchange.getAuthorizationRequest().getAttribute(PkceParameterNames.CODE_VERIFIER);
         if (redirectUri != null) {
@@ -73,6 +74,7 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
         }
         if (!ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
             formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
+
         }
         if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
             formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
@@ -80,6 +82,9 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
         if (codeVerifier != null) {
             formParameters.add(PkceParameterNames.CODE_VERIFIER, codeVerifier);
         }
+
+        formParameters.add("appid", clientRegistration.getClientId());
+        formParameters.add("secret", clientRegistration.getClientSecret());
 
         return formParameters;
     }

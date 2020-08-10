@@ -111,6 +111,7 @@ public final class CustomOAuth2AuthorizationRequestResolver implements OAuth2Aut
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.authorizationCode();
             Map<String, Object> additionalParameters = new HashMap<>();
+            additionalParameters.put("appid", clientRegistration.getClientId());
             if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
                     clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
                 // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest

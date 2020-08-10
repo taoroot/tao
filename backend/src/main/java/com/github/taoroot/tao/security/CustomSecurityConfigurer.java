@@ -10,23 +10,24 @@ import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.*;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -124,14 +125,20 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     private void authorizationEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig authorization) {
         authorization.authorizationRequestRepository(new CustomHttpSessionOAuth2AuthorizationRequestRepository());
-        authorization.authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
-        );
+        authorization.authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI));
     }
 
     private void tokenEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.TokenEndpointConfig tokenEndpoint) {
         DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
         client.setRequestEntityConverter(new CustomOAuth2AuthorizationCodeGrantRequestEntityConverter());
+        OAuth2AccessTokenResponseHttpMessageConverter oAuth2AccessTokenResponseHttpMessageConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
+        oAuth2AccessTokenResponseHttpMessageConverter.setTokenResponseConverter(new CustomMapOAuth2AccessTokenResponseConverter());
+        ArrayList<MediaType> mediaTypes = new ArrayList<>(oAuth2AccessTokenResponseHttpMessageConverter.getSupportedMediaTypes());
+        mediaTypes.add(MediaType.TEXT_PLAIN); // 解决微信问题:  放回是text/plain 的问题
+        oAuth2AccessTokenResponseHttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+        RestTemplate restTemplate = new RestTemplate(Arrays.asList(new FormHttpMessageConverter(), oAuth2AccessTokenResponseHttpMessageConverter));
+        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+        client.setRestOperations(restTemplate);
         tokenEndpoint.accessTokenResponseClient(client);
     }
 
@@ -141,13 +148,25 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
         customUserTypes.put("gitee", GiteeOAuth2User.class);
         customUserTypes.put("github", GitHubOAuth2User.class);
+        customUserTypes.put("wx", WxOAuth2User.class);
+
+        CustomOAuth2UserRequestEntityConverter customOAuth2UserRequestEntityConverter = new CustomOAuth2UserRequestEntityConverter();
+
+
         CustomUserTypesOAuth2UserService customOAuth2UserService = new CustomUserTypesOAuth2UserService(customUserTypes);
-        customOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
+        customOAuth2UserService.setRequestEntityConverter(customOAuth2UserRequestEntityConverter);
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new CustomMappingJackson2HttpMessageConverter()); // 解决微信问题: 放回是text/plain 的问题
+
+        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+        customOAuth2UserService.setRestOperations(restTemplate);
         userServices.add(customOAuth2UserService);
         DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
-        defaultOAuth2UserService.setRequestEntityConverter(new CustomOAuth2UserRequestEntityConverter());
+        defaultOAuth2UserService.setRequestEntityConverter(customOAuth2UserRequestEntityConverter);
         userServices.add(defaultOAuth2UserService);
         userInfo.userService(new DelegatingOAuth2UserService<>(userServices));
+
     }
     // @formatter:on
 

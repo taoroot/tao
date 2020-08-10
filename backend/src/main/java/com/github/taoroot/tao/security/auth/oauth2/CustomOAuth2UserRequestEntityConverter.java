@@ -51,6 +51,11 @@ public class CustomOAuth2UserRequestEntityConverter implements Converter<OAuth2U
 			headers.setContentType(DEFAULT_CONTENT_TYPE);
 			MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 			formParameters.add(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue());
+			// 解决微信问题: 得加上openid参数问题
+			if (userRequest.getAdditionalParameters().get("openid") != null) {
+				formParameters.add("openid", (String) userRequest.getAdditionalParameters().get("openid"));
+			}
+
 			request = new RequestEntity<>(formParameters, headers, httpMethod, uri);
 		} else {
 			headers.setBearerAuth(userRequest.getAccessToken().getTokenValue());

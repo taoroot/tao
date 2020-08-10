@@ -66,7 +66,7 @@ OAuth2Login 默认实现是非前后端分离的,如果前后端分离化,就会
 
 ### 码云 失败?
 
-码云得加 User-Agent, 默认不带, 故得自定义, CustomOAuth2AuthorizationCodeGrantRequestEntityConverter(code换token请求), CustomOAuth2UserRequestEntityConverter (获取用户信息请求)
+码云必须得有加 User-Agent 头, 详情见: CustomOAuth2AuthorizationCodeGrantRequestEntityConverter 和 CustomOAuth2UserRequestEntityConverter
 
 ### SuccessHandler 获取不到 Referer 字段 ?
 
@@ -75,6 +75,13 @@ OAuth2Login 默认实现是非前后端分离的,如果前后端分离化,就会
 其实这个字段默认是存在的,不需要处理也是可以的,但是得看第三方跳转回来的是否有没有帮我们带回来, 保险起见,自己保存一下. (实际测试时,第一次授权不会待会,第二次就带回来)
 
 另外值得一提的是, 在第一次请求的时候,会生成一个state,作为key, 等第三方回调后端时,重新把第一次请求的信息找回, 例如appId, secret, 也可以加入自定义的,比如这里的 Referer, 默认存入session中.
+
+### 微信开放平台问题
+
+1. 获取token接口,没有 TokenType 字段, 详情见: CustomMapOAuth2AccessTokenResponseConverter 
+2. 调接口,返回的是 TEXT_PLAIN 类型, 而不是 application/json, 默认 restTemplate 转换器都不支持, 详情见: CustomSecurityConfigurer#tokenEndpoint 和 CustomSecurityConfigurer#userInfoEndpoint 
+3. 获取token接口, 得加 appid 和 secret 两个字段, 详情见: CustomOAuth2AuthorizationCodeGrantRequestEntityConverter#buildFormParameters
+4. 获取用户个人信息,得加 openid 字段, 详情见: CustomOAuth2UserRequestEntityConverter
 
 ## 手机号登录
 
