@@ -2,16 +2,14 @@
 
 前后端分离项目
 
-前端:
+[预览地址](https://tao.flizi.cn)
 
-https://tao.flizi.cn
+前端技术:
 
 - [vue.js](https://github.com/vuejs/vue)
 - [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 
-后端:
-
-https://api.flizi.cn/tao
+后端技术:
 
 - [Spring Boot 2.3.x](https://github.com/spring-projects/spring-boot)
 - [Spring Security 5.x](https://github.com/spring-projects/spring-security) 
