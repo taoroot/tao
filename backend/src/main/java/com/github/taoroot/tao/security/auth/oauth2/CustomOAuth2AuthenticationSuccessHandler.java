@@ -80,7 +80,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
             // 已被绑定
             if (customUserDetails != null) {
-                response.sendRedirect(referer + "msg=" + URLEncoder.encode("请先与 ", "UTF-8") + customUserDetails.getUsername() + URLEncoder.encode(" 解绑", "UTF-8"));
+                response.sendRedirect(referer + "msg=" + URLEncoder.encode("请先与 " + customUserDetails.getUsername() + " 解绑", "UTF-8"));
                 return;
             }
 
