@@ -8,9 +8,16 @@ export function login(params) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
     url: '/user/info',
+    method: 'get'
+  })
+}
+
+export function getSocial() {
+  return request({
+    url: '/user/social',
     method: 'get'
   })
 }
