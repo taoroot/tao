@@ -100,7 +100,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         userOauth2.setClientRegistrationId(clientId);
         userOauth2.setPrincipalName(principalName);
         userOauth2.insert();
-        return "ok";
+        return "绑定成功 " + userOauth2.getClientRegistrationId() + " : " + userOauth2.getPrincipalName();
     }
 
     @Override

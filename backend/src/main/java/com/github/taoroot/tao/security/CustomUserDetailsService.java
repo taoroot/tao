@@ -42,6 +42,7 @@ public interface CustomUserDetailsService extends UserDetailsService {
     CustomUserDetails loadUserByPhone(String phone) throws UsernameNotFoundException;
 
     CustomUserDetails loadUserByOAuth(String clientId, String name, boolean create);
+
     String bindOauth2(String clientId, String name, Integer userId);
 
     @Override

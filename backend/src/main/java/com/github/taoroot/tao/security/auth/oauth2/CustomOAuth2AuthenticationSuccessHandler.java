@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * 登录成功,返回 Token
@@ -79,7 +80,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
             // 已被绑定
             if (customUserDetails != null) {
-                response.sendRedirect(referer + "msg=请先与 " + customUserDetails.getUsername() + " 解绑");
+                response.sendRedirect(referer + "msg=" + URLEncoder.encode("请先与 ", "UTF-8") + customUserDetails.getUsername() + URLEncoder.encode(" 解绑", "UTF-8"));
                 return;
             }
 
@@ -89,7 +90,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
             String type = oauth2Authentication.getAuthorizedClientRegistrationId();
             String msg = userDetailsService.bindOauth2(clientId, name, Integer.parseInt(username));
             log.info("用户: {} 绑定: {} : {}", username, type, name);
-            response.sendRedirect(referer + "msg=" + msg);
+            response.sendRedirect(referer + "msg=" + URLEncoder.encode(msg, "UTF-8"));
         }
     }
 }
