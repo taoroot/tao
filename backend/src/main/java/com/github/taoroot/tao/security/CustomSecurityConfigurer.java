@@ -13,11 +13,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -56,9 +61,18 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
     private ClientRegistrationRepository clientRegistrationRepository;
 
     @Resource
-
     private CustomOAuth2AuthenticationSuccessHandler customOAuth2AuthenticationSuccessHandler;
 
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    OAuth2AuthorizedClientService authorizedClientService(JdbcTemplate jdbcTemplate, ClientRegistrationRepository clientRegistrationRepository) {
+        return new JdbcOAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository);
+    }
 
     @Bean
     private JwtDecoder jwtDecoder() {
@@ -77,7 +91,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                         .failureHandler(customAuthenticationEntryPoint::commence)
                         .captchaValidationRepository(captchaValidationRepository)  // 验证码存入内存
                         .smsValidationUrls(SmsCodeAuthenticationFilter.LOGIN_PATH_KEY) // 手机号登录需要有手机号验证码
-                        .imageValidationUrls(FORM_LOGIN_PATH_KEY)).and() // 账号密码登录需要有图像验证码
+                        .imageValidationUrls()).and() // 账号密码登录需要有图像验证码 FORM_LOGIN_PATH_KEY
 
                 // BASIC 登录
                 .httpBasic(Customizer.withDefaults())
@@ -207,7 +221,4 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
         log.info("permit all urls: {}", permitAllUrls);
     }
-
-
-
 }

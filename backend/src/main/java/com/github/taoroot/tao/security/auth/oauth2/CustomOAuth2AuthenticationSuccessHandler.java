@@ -1,6 +1,8 @@
 package com.github.taoroot.tao.security.auth.oauth2;
 
 import com.github.taoroot.tao.security.CustomJwtDecoder;
+import com.github.taoroot.tao.security.CustomUserDetails;
+import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -12,9 +14,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -35,6 +35,12 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
     @Resource
     private CustomJwtDecoder jwtDecoder;
 
+    @Resource
+    private CustomUserDetailsService userDetailsService;
+
+    @Resource
+    private org.springframework.security.oauth2.client.OAuth2AuthorizedClientService OAuth2AuthorizedClientService;
+
 
     @SneakyThrows
     @Override
@@ -45,43 +51,45 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
             return;
         }
 
-        OAuth2AuthenticationToken authentication1 = (OAuth2AuthenticationToken) authentication;
+        OAuth2AuthenticationToken oauth2Authentication = (OAuth2AuthenticationToken) authentication;
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         String referer = (String) request.getSession().getAttribute("Referer");
+        referer += referer.contains("?") ? "&" : "?";
+
 
         String accessToken = (String) request.getSession().getAttribute("access_token");
-        // 注册新账号
+        String clientId = oauth2Authentication.getAuthorizedClientRegistrationId();
+
+        // 登录账号
         if (StringUtils.isEmpty(accessToken)) {
+            // 如果灭有,就创建用户
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("sub", name);
-            jsonObject.put("aud", "auth2-" + authentication1.getAuthorizedClientRegistrationId());
+            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth(clientId, name, true);
+            jsonObject.put("sub", "" + customUserDetails.getId());
+            jsonObject.put("aud", "auth2-" + oauth2Authentication.getAuthorizedClientRegistrationId());
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
 
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
-
             jwsObject.sign(new MACSigner(jwtDecoder.getSecret()));
-
-            if (referer.indexOf("?") > 0) {
-                response.sendRedirect(referer + "&token=" + jwsObject.serialize());
-            } else {
-                response.sendRedirect(referer + "?token=" + jwsObject.serialize());
-            }
+            response.sendRedirect(referer + "token=" + jwsObject.serialize());
         }
-        // 绑定已有账号
+        // 绑定社交账号
         else {
+            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth(clientId, name, false);
+
+            // 已被绑定
+            if (customUserDetails != null) {
+                response.sendRedirect(referer + "msg=请先与 " + customUserDetails.getUsername() + " 解绑");
+                return;
+            }
+
+            // 绑定
             Jwt decode = jwtDecoder.decode(accessToken);
             String username = decode.getSubject();
-            String type = authentication1.getAuthorizedClientRegistrationId();
-            // 成功
+            String type = oauth2Authentication.getAuthorizedClientRegistrationId();
+            String msg = userDetailsService.bindOauth2(clientId, name, Integer.parseInt(username));
             log.info("用户: {} 绑定: {} : {}", username, type, name);
-            String msg = "" + name;
-            if (referer.indexOf("?") > 0) {
-                response.sendRedirect(referer + "&msg=" + msg);
-            } else {
-                response.sendRedirect(referer + "?msg=" + msg);
-            }
+            response.sendRedirect(referer + "msg=" + msg);
         }
     }
-
-
 }

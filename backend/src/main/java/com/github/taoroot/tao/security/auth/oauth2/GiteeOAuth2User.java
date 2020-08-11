@@ -51,12 +51,16 @@ public class GiteeOAuth2User implements OAuth2User {
     public Map<String, Object> getAttributes() {
         if (this.attributes == null) {
             this.attributes = new HashMap<>();
-            this.attributes.put("id", this.getId());
-            this.attributes.put("name", this.getName());
-            this.attributes.put("login", this.getLogin());
-            this.attributes.put("email", this.getEmail());
+//            this.attributes.put("id", this.getId());
+//            this.attributes.put("name", this.getName());
+//            this.attributes.put("login", this.getLogin());
+//            this.attributes.put("email", this.getEmail());
         }
         return attributes;
     }
 
+    @Override
+    public String getName() {
+        return this.login;
+    }
 }
