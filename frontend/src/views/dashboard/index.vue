@@ -26,7 +26,11 @@ export default {
   },
   mounted() {
     var msg = (window.location.search.match(new RegExp('[?&]msg=([^&]+)')) || [null, null])[1]
-    alert(msg)
+    if (msg) {
+      alert(msg)
+      var { pathname, origin, hash } = window.location
+      window.location.href = origin + pathname + hash
+    }
   },
   methods: {
     getAuthUrl(type) {
