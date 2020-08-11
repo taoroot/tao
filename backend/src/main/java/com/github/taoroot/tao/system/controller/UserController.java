@@ -15,6 +15,7 @@ public class UserController {
     @SneakyThrows
     @GetMapping("/user/info")
     public R index() {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("name", authentication.getName());
@@ -22,6 +23,5 @@ public class UserController {
         hashMap.put("other", authentication);
         return R.ok(hashMap);
     }
-
 }
 

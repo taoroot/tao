@@ -1,5 +1,8 @@
 package com.github.taoroot.tao.security.auth.oauth2;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -105,13 +108,18 @@ public final class CustomOAuth2AuthorizationRequestResolver implements OAuth2Aut
 
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
-        attributes.put("Referer", request.getHeader("Referer"));
+        String referer = request.getHeader("Referer");
+        attributes.put("Referer", referer);
+        if (StringUtils.isEmpty(referer)) {
+            throw new IllegalArgumentException("Invalid Referer");
+        }
+        attributes.put("access_token", request.getParameter("access_token"));
 
         OAuth2AuthorizationRequest.Builder builder;
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.authorizationCode();
             Map<String, Object> additionalParameters = new HashMap<>();
-            additionalParameters.put("appid", clientRegistration.getClientId());
+            additionalParameters.put(WxOAuth2User.APP_ID, clientRegistration.getClientId());
             if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
                     clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
                 // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest

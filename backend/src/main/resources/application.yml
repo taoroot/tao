@@ -38,8 +38,7 @@ spring:
             client-secret: xxxx
             authorization-grant-type: authorization_code
             redirect-uri: https://xxx/login/oauth2/code/wx
-            scope:
-              - snsapi_login
+            scope: snsapi_login
         provider:
           gitea:
             authorization-uri: https://gitea.com/login/oauth/authorize

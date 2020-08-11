@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public class GitHubOAuth2User implements OAuth2User {
+
+    public static final String TYPE = "github";
+
     private final List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
     private Map<String, Object> attributes;
     private String id;

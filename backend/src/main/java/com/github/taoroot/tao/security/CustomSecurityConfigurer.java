@@ -9,11 +9,10 @@ import com.github.taoroot.tao.security.captcha.CaptchaValidationConfigurer;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -26,6 +25,7 @@ import org.springframework.security.oauth2.client.userinfo.*;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
@@ -55,6 +55,15 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Resource
     private ClientRegistrationRepository clientRegistrationRepository;
 
+    @Resource
+
+    private CustomOAuth2AuthenticationSuccessHandler customOAuth2AuthenticationSuccessHandler;
+
+
+    @Bean
+    private JwtDecoder jwtDecoder() {
+        return new CustomJwtDecoder(secret);
+    }
 
     // @formatter:off
     @Override
@@ -73,20 +82,20 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 // BASIC 登录
                 .httpBasic(Customizer.withDefaults())
 
+                // JWT登录
+                .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .jwt().decoder(jwtDecoder()))
+
                 // 表单登录
                 .formLogin(config -> config.loginProcessingUrl(FORM_LOGIN_PATH_KEY)
                         .failureHandler(customAuthenticationEntryPoint::commence)
                         .successHandler(customAuthenticationSuccessHandler))
 
                 // 社会登录
-                .oauth2Login(config -> config.successHandler(new CustomOAuth2AuthenticationSuccessHandler(secret))
+                .oauth2Login(config -> config.successHandler(customOAuth2AuthenticationSuccessHandler)
                         .tokenEndpoint(this::tokenEndpoint)
                         .userInfoEndpoint(this::userInfoEndpoint)
                         .authorizationEndpoint(this::authorizationEndpoint))
-
-                // JWT登录
-                .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
-                        .jwt().decoder(new CustomJwtDecoder(secret)))
 
                 // 手机号登录
                 .apply(new SmsCodeAuthenticationConfigurer<HttpSecurity>()
@@ -146,9 +155,9 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
 
         Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-        customUserTypes.put("gitee", GiteeOAuth2User.class);
-        customUserTypes.put("github", GitHubOAuth2User.class);
-        customUserTypes.put("wx", WxOAuth2User.class);
+        customUserTypes.put(GiteeOAuth2User.TYPE, GiteeOAuth2User.class);
+        customUserTypes.put(GitHubOAuth2User.TYPE, GitHubOAuth2User.class);
+        customUserTypes.put(WxOAuth2User.TYPE, WxOAuth2User.class);
 
         CustomOAuth2UserRequestEntityConverter customOAuth2UserRequestEntityConverter = new CustomOAuth2UserRequestEntityConverter();
 
@@ -198,4 +207,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
         log.info("permit all urls: {}", permitAllUrls);
     }
+
+
+
 }

@@ -12,6 +12,10 @@ import java.util.Map;
 
 @Data
 public class WxOAuth2User implements OAuth2User {
+    public static final String TYPE = "wx";
+    public static final String APP_ID = "appid";
+    public static final String SECRET = "secret";
+
     private final List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
     private Map<String, Object> attributes;
     private String openid;
@@ -25,7 +29,6 @@ public class WxOAuth2User implements OAuth2User {
     private String[] privilege;
     private String unionid;
     private String errmsg;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -16,6 +16,10 @@ public class CustomJwtDecoder implements JwtDecoder {
 
     private final String secret;
 
+    public String getSecret() {
+        return secret;
+    }
+
     public CustomJwtDecoder(String secret) {
         this.secret = secret;
     }

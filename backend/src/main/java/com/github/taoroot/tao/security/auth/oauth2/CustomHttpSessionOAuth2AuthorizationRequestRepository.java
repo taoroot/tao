@@ -65,6 +65,7 @@ public final class CustomHttpSessionOAuth2AuthorizationRequestRepository impleme
         }
 
         request.getSession().setAttribute("Referer", originalRequest.getAttributes().get("Referer"));
+        request.getSession().setAttribute("access_token", originalRequest.getAttributes().get("access_token"));
 
         return originalRequest;
     }

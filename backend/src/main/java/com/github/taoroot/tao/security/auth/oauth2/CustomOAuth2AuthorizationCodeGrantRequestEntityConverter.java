@@ -83,8 +83,8 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
             formParameters.add(PkceParameterNames.CODE_VERIFIER, codeVerifier);
         }
 
-        formParameters.add("appid", clientRegistration.getClientId());
-        formParameters.add("secret", clientRegistration.getClientSecret());
+        formParameters.add(WxOAuth2User.APP_ID, clientRegistration.getClientId());
+        formParameters.add(WxOAuth2User.SECRET, clientRegistration.getClientSecret());
 
         return formParameters;
     }

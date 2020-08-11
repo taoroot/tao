@@ -61,11 +61,11 @@
 
       <div class="tips">
         <el-row style="text-align: center;">
-          <el-col :span="5"><a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/gitee"> 码云 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/github"> GitHub </a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/gitea"> GITEA </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/wx"> 微信 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" href="https://api.flizi.cn/tao/oauth2/authorization/qq"> QQ </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云 </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"> GitHub </a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> 微信 </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> QQ </a></el-col>
         </el-row>
       </div>
 
@@ -128,6 +128,9 @@ export default {
     this.refreshCode()
   },
   methods: {
+    getAuthUrl(type) {
+      return process.env.VUE_APP_BASE_API + 'oauth2/authorization/' + type
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''

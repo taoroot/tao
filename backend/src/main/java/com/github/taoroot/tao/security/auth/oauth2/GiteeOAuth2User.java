@@ -12,6 +12,9 @@ import java.util.Map;
 
 @Data
 public class GiteeOAuth2User implements OAuth2User {
+
+    public static final String TYPE = "gitee";
+
     private final List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
     private Map<String, Object> attributes;
     private String id;
