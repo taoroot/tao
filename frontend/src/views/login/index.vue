@@ -86,14 +86,15 @@
         <el-row style="text-align: center;">
 
           <el-col :span="6">第三方登录方式: </el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> <svg-icon icon-class="wechat" /> 微信</a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> <img src="qq.png"> QQ </a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> <svg-icon icon-class="wechat" /> 微信 </a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('github')"><svg-icon icon-class="github" /> GitHub</a></el-col>
+          <el-col :span="4"><img src="qq.png"><a referrerpolicy="origin" :href="getAuthUrl('qq')" style="line-height: 20px"> QQ </a></el-col>
           <!-- <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云 </a></el-col> -->
-          <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"><svg-icon icon-class="qq" />  GitHub </a></el-col> -->
           <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col> -->
         </el-row>
       </div>
     </el-form>
+    <h5 style="margin-top: 150px; text-align: center; color: #fff">Copyright ©2020 金华飞立兹科技有限公司 浙ICP备19015501号</h5>
   </div>
 </template>
 
