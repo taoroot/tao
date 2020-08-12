@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">TAO 后台系统登录</h3>
+        <h3 class="title">T A O  后台系统登录</h3>
       </div>
 
       <div style="margin-bottom: 20px;" class="tips" @click="loginForm.loginType = !loginForm.loginType">
@@ -54,14 +54,14 @@
         <el-input
           ref="phone"
           v-model="loginForm.phone"
-          style="width: 62%"
+          style="width: 69%"
           placeholder="手机号"
           name="phone"
           type="text"
           tabindex="1"
           auto-complete="on"
         />
-        <el-button :disabled="!smsEnable" @click="sendSms">{{ smsSeconds }}</el-button>
+        <el-button :disabled="!smsEnable" type="info" size="small" @click="sendSms">{{ smsSeconds }}</el-button>
       </el-form-item>
 
       <el-form-item prop="code">
@@ -165,10 +165,10 @@ export default {
         var seconds = 60
         this.smsEnable = false
         var timer = setInterval(() => {
-          this.smsSeconds = seconds-- + '秒后可重发'
+          this.smsSeconds = seconds-- + ' 秒可重发'
           if (seconds <= 0) {
             clearInterval(timer)
-            this.smsSeconds = '获取验证码'
+            this.smsSeconds = ' 获取验证码 '
             this.smsEnable = true
           }
         }, 1000)
