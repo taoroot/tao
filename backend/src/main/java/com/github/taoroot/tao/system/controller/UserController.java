@@ -1,7 +1,6 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
@@ -22,9 +21,6 @@ public class UserController {
 
     @Resource
     private SysUserOauth2Mapper sysUserOauth2Mapper;
-
-    @Resource
-    private CustomUserDetailsService customUserDetailsService;
 
     @Resource
     private ISysUserService iSysUserService;

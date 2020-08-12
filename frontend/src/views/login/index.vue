@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">T A O  后台系统登录</h3>
+        <h3 class="title">飞立兹科技后台管理系统</h3>
       </div>
 
       <div style="margin-bottom: 20px;" class="tips" @click="loginForm.loginType = !loginForm.loginType">
@@ -84,11 +84,13 @@
 
       <div class="tips">
         <el-row style="text-align: center;">
-          <el-col :span="5"> <a referrerpolicy="origin" :href="getAuthUrl('wx')"> 微信登录 </a></el-col>
-          <el-col :span="5"> <img src="qq.png"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> QQ登录 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云登录 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"> GitHub登录 </a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col>
+
+          <el-col :span="6">第三方登录方式: </el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> <svg-icon icon-class="wechat" /> 微信</a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> <img src="qq.png"> QQ </a></el-col>
+          <!-- <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云 </a></el-col> -->
+          <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"><svg-icon icon-class="qq" />  GitHub </a></el-col> -->
+          <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col> -->
         </el-row>
       </div>
     </el-form>
