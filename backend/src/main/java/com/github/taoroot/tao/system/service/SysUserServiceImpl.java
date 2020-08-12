@@ -1,14 +1,13 @@
 package com.github.taoroot.tao.system.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
-import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
+import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -24,7 +23,7 @@ import java.util.UUID;
 @Log4j2
 @Service
 @AllArgsConstructor
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements IService<SysUser>, CustomUserDetailsService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService, CustomUserDetailsService {
 
     private final SysUserOauth2Mapper sysUserOauth2Mapper;
 
@@ -108,7 +107,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser myUser = getBaseMapper().selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getPhone, phone));
 
         if (myUser == null) {
-            throw new UsernameNotFoundException(phone);
+            throw new UsernameNotFoundException("手机号不存在");
         }
 
         return translate(myUser);
@@ -125,7 +124,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return translate(myUser);
     }
 
+    @Override
+    public CustomUserDetails loadUserById(String userId) {
+        return translate(getBaseMapper().selectById(userId));
+    }
+
     private CustomUserDetails translate(SysUser myUser) {
+        assert myUser != null;
         return new CustomUserDetails(
                 myUser.getUsername(),
                 myUser.getPassword(),

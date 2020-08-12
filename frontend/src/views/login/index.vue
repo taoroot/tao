@@ -3,17 +3,23 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">TAO 后台系统登录</h3>
       </div>
 
-      <el-form-item prop="username">
+      <div style="margin-bottom: 20px;" class="tips" @click="loginForm.loginType = !loginForm.loginType">
+        <a :class="{'is-unactive':!loginForm.loginType}">用户名登录</a>
+        |
+        <a :class="{'is-unactive':loginForm.loginType}">手机号登录</a>
+      </div>
+
+      <el-form-item v-show="loginForm.loginType" prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="账号"
           name="username"
           type="text"
           tabindex="1"
@@ -21,7 +27,7 @@
         />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item v-show="loginForm.loginType" prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
@@ -30,7 +36,7 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
+          placeholder="密码"
           name="password"
           tabindex="2"
           auto-complete="on"
@@ -41,23 +47,40 @@
         </span>
       </el-form-item>
 
+      <el-form-item v-show="!loginForm.loginType" prop="phone">
+        <span class="svg-container">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input
+          ref="phone"
+          v-model="loginForm.phone"
+          style="width: 62%"
+          placeholder="手机号"
+          name="phone"
+          type="text"
+          tabindex="1"
+          auto-complete="on"
+        />
+        <el-button :disabled="!smsEnable" @click="sendSms">{{ smsSeconds }}</el-button>
+      </el-form-item>
+
       <el-form-item prop="code">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
         <el-input
-          v-model="loginForm.imageCode"
+          v-model="loginForm.code"
           placeholder="验证码"
           name="password"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
-        <span class="show-code" @click="refreshCode">
+        <span v-show="loginForm.loginType" class="show-code" @click="refreshCode">
           <el-image style="width: 100px; " :src="codeUrl" />
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin"> 登 录 </el-button>
 
       <div class="tips">
         <el-row style="text-align: center;">
@@ -75,39 +98,44 @@
 
 <script>
 import { setToken } from '@/utils/auth'
+import { getSms } from '@/api/user'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (value.length < 2) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
-    }
+    // const validateUsername = (rule, value, callback) => {
+    //   if (value.length < 2) {
+    //     callback(new Error('Please enter the correct user name'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
+    // const validatePassword = (rule, value, callback) => {
+    //   if (value.length < 6 || this.loginForm.loginType) {
+    //     callback(new Error('The password can not be less than 6 digits'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
     return {
       loginForm: {
         username: '',
         password: '',
         imageKey: Math.random().toString(36).substr(2),
-        imageCode: ''
+        code: '',
+        phone: '',
+        loginType: true
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        // password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       codeUrl: '',
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      smsSeconds: '获取验证码',
+      smsEnable: true
     }
   },
   watch: {
@@ -130,6 +158,22 @@ export default {
   methods: {
     getAuthUrl(type) {
       return process.env.VUE_APP_BASE_API + 'oauth2/authorization/' + type
+    },
+    sendSms() {
+      getSms({ 'phone': this.loginForm.phone }).then(res => {
+        if (res.code !== 0) return
+        var seconds = 60
+        this.smsEnable = false
+        var timer = setInterval(() => {
+          this.smsSeconds = seconds-- + '秒后可重发'
+          if (seconds <= 0) {
+            clearInterval(timer)
+            this.smsSeconds = '获取验证码'
+            this.smsEnable = true
+          }
+        }, 1000)
+        this.$notify({ title: '模拟发送', message: res.msg, duration: 0 })
+      })
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -184,7 +228,7 @@ $cursor: #fff;
   .el-input {
     display: inline-block;
     height: 47px;
-    width: 85%;
+    width: 76%;
 
     input {
       background: transparent;
@@ -233,6 +277,10 @@ $light_gray:#eee;
 
   }
 
+  .is-unactive {
+     color: #454545;
+  }
+
   .tips {
     font-size: 14px;
     color: #fff;
@@ -264,7 +312,7 @@ $light_gray:#eee;
     .title {
       font-size: 26px;
       color: $light_gray;
-      margin: 0px auto 40px auto;
+      margin: 0px auto 60px auto;
       text-align: center;
       font-weight: bold;
     }

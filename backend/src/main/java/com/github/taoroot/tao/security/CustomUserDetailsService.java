@@ -47,4 +47,10 @@ public interface CustomUserDetailsService extends UserDetailsService {
 
     @Override
     CustomUserDetails loadUserByUsername(String username);
+
+    CustomUserDetails loadUserById(String userId);
+
+    default CustomUserDetails loadUserById(Integer userId) {
+        return loadUserById(String.format("%d", userId));
+    }
 }

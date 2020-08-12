@@ -85,6 +85,6 @@ public class SmsCodeValidationFilter extends OncePerRequestFilter {
      * 获取手机号
      */
     private String obtainCode(HttpServletRequest request) {
-        return request.getParameter("phoneCode");
+        return request.getParameter("smsCode");
     }
 }

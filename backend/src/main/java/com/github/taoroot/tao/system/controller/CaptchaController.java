@@ -6,6 +6,7 @@ import cn.hutool.captcha.generator.RandomGenerator;
 import com.github.taoroot.tao.security.annotation.NotAuth;
 import com.github.taoroot.tao.security.captcha.CaptchaValidationRepository;
 import com.github.taoroot.tao.utils.R;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,8 +44,12 @@ public class CaptchaController {
     @NotAuth
     @GetMapping(value = "/code/sms")
     public R getSMS(@RequestParam("phone") String key)  {
+        if (StringUtils.isEmpty(key) || key.length() < 10) {
+            return R.errMsg("手机号不合法");
+        }
+
        captchaValidationRepository.putCode(key, "1234");
-       return R.okMsg("模拟发送  " + key + " ---> " + "1234");
+       return R.okMsg("发送信息到手机号: " + key + " ====> " + ", 验证码: 1234");
     }
 }
 

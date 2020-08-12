@@ -1,11 +1,13 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.taoroot.tao.security.CustomUserDetailsService;
+import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
+import com.github.taoroot.tao.system.service.ISysUserService;
 import com.github.taoroot.tao.utils.R;
 import lombok.SneakyThrows;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,15 +23,18 @@ public class UserController {
     @Resource
     private SysUserOauth2Mapper sysUserOauth2Mapper;
 
+    @Resource
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Resource
+    private ISysUserService iSysUserService;
+
     @SneakyThrows
     @GetMapping("/user/info")
     public R index() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("name", authentication.getName());
-        hashMap.put("avatar", "http://cdn.flizi.cn/img/zhiyi-avatar.jpg");
-        hashMap.put("other", authentication);
-        return R.ok(hashMap);
+        SysUser byId = iSysUserService.getById(SecurityContextHolder.getContext().getAuthentication().getName());
+        byId.setAvatar("http://cdn.flizi.cn/img/zhiyi-avatar.jpg");
+        return R.ok(byId);
     }
 
     @SneakyThrows

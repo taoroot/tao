@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo, loginPhone } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -30,16 +30,29 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password, imageKey, imageCode } = userInfo
+    const { username, password, imageKey, code, loginType, phone } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password, imageKey: imageKey, imageCode: imageCode }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data)
-        setToken(data)
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      console.log(loginType)
+      // 手机号登录
+      if (loginType) {
+        login({ username: username.trim(), password: password, imageKey: imageKey, imageCode: code }).then(response => {
+          const { data } = response
+          commit('SET_TOKEN', data)
+          setToken(data)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      } else { // 手机号登录
+        loginPhone({ phone: phone.trim(), smsCode: code }).then(response => {
+          const { data } = response
+          commit('SET_TOKEN', data)
+          setToken(data)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      }
     })
   },
 
@@ -49,13 +62,15 @@ const actions = {
       getInfo().then(response => {
         const { data } = response
 
+        console.log(data)
+
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar } = data
+        const { username, avatar } = data
 
-        commit('SET_NAME', name)
+        commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
         resolve(data)
       }).catch(error => {
@@ -65,7 +80,7 @@ const actions = {
   },
 
   // user logout
-  logout({ commit, state }) {
+  logout({ commit }) {
     return new Promise((resolve, reject) => {
       logout().then(() => {
         removeToken() // must remove  token  first

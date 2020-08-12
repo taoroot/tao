@@ -36,8 +36,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (!response.isCommitted()) {
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("sub", SecurityContextHolder.getContext().getAuthentication().getName());
+            jsonObject.put("sub", "" +principal.getId());
             jsonObject.put("aud", "PASS");
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
 
