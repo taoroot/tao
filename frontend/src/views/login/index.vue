@@ -84,14 +84,13 @@
 
       <div class="tips">
         <el-row style="text-align: center;">
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"> GitHub </a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> 微信 </a></el-col>
-          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> QQ </a></el-col>
+          <el-col :span="5"> <a referrerpolicy="origin" :href="getAuthUrl('wx')"> 微信登录 </a></el-col>
+          <el-col :span="5"> <img src="qq.png"><a referrerpolicy="origin" :href="getAuthUrl('qq')"> QQ登录 </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云登录 </a></el-col>
+          <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('github')"> GitHub登录 </a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col>
         </el-row>
       </div>
-
     </el-form>
   </div>
 </template>
