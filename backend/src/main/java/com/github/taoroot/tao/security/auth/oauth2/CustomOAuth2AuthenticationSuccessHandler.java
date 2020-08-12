@@ -63,7 +63,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
         // 登录账号
         if (StringUtils.isEmpty(accessToken)) {
-            // 如果灭有,就创建用户
+            // 如果没有,就创建用户
             JSONObject jsonObject = new JSONObject();
             CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth(clientId, name, true);
             jsonObject.put("sub", "" + customUserDetails.getId());
