@@ -7,23 +7,13 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
+
+          <img :src="avatar || '/logo.jpg'" class="user-avatar">
+          <span class="user-title">{{ name }}<i class="el-icon-caret-bottom" style="margin-right: 6px;" /></span>
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
-          <router-link to="/">
-            <el-dropdown-item>
-              Home
-            </el-dropdown-item>
-          </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-            <el-dropdown-item>Github</el-dropdown-item>
-          </a>
-          <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
-            <el-dropdown-item>Docs</el-dropdown-item>
-          </a>
-          <el-dropdown-item divided @click.native="logout">
-            <span style="display:block;">Log Out</span>
+          <el-dropdown-item>
+            <span style="display:block;" @click="logout">登出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -44,7 +34,8 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'name'
     ])
   },
   methods: {
@@ -115,21 +106,38 @@ export default {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
         position: relative;
+        height: 100%;
+        padding-left: 40px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        font-size: 0;
+        cursor: pointer;
 
         .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+          position: absolute;
+          top: 45%;
+          left: 0;
+          -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+          display: inline-block;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+        }
+
+        .user-title {
+          font-size: 16px;
+          border-right: 1px solid #e5e5e5;
+          padding-right: 20px;
         }
 
         .el-icon-caret-bottom {
-          cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 25px;
+          right: 0;
+          top: 50%;
+          -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
           font-size: 12px;
         }
       }

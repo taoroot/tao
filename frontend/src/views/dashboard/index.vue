@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">userId: {{ name }}</div>
+    <div class="dashboard-text">账号: {{ name }}</div>
     <div class="dashboard-text">已绑定: {{ socials }}</div>
     <h2> 绑定测试, 想绑定那个点哪个 </h2>
     <el-row>
