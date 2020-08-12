@@ -76,7 +76,7 @@
           @keyup.enter.native="handleLogin"
         />
         <span v-show="loginForm.loginType" class="show-code" @click="refreshCode">
-          <el-image style="width: 100px; " :src="codeUrl" />
+          <el-image style="width: 90px; height: 85%; margin-top: 5px;" :src="codeUrl" />
         </span>
       </el-form-item>
 
