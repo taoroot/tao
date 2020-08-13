@@ -85,6 +85,8 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
 
         formParameters.add(WxOAuth2User.APP_ID, clientRegistration.getClientId());
         formParameters.add(WxOAuth2User.SECRET, clientRegistration.getClientSecret());
+        // https://wiki.connect.qq.com/%E4%BD%BF%E7%94%A8authorization_code%E8%8E%B7%E5%8F%96access_token
+        formParameters.add("fmt", "json");
 
         return formParameters;
     }
