@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.SecurityUtils;
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
@@ -57,11 +58,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 
     @Override
-    public CustomUserDetails loadUserByOAuth(String clientId, String principalName, boolean create) {
+    public CustomUserDetails loadUserByOAuth(String clientId, CustomOAuth2User oAuth2User, boolean create) {
 
         SysUserOauth2 userOauth2 = sysUserOauth2Mapper.selectOne(Wrappers.<SysUserOauth2>lambdaQuery()
                 .eq(SysUserOauth2::getClientRegistrationId, clientId)
-                .eq(SysUserOauth2::getPrincipalName, principalName)
+                .eq(SysUserOauth2::getPrincipalName, oAuth2User.getName())
         );
 
         if (userOauth2 != null) {
@@ -69,15 +70,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (create) {
-            String username = UUID.randomUUID().toString().replaceAll("-", "");
+            String username = clientId +  oAuth2User.getName();
             String password = UUID.randomUUID().toString().replaceAll("-", "");
-
             SysUser sysUser = new SysUser();
             sysUser.setUsername(username);
+            sysUser.setAvatar(oAuth2User.getAvatar());
             sysUser.setPassword(passwordEncoder.encode(password));
             sysUser.insert();
 
-            bindOauth2(clientId, principalName, sysUser.getId());
+            bindOauth2(clientId, oAuth2User, sysUser.getId());
 
             return translate(sysUser);
         }
@@ -85,7 +86,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public String bindOauth2(String clientId, String principalName, Integer userId) {
+    public String bindOauth2(String clientId, CustomOAuth2User oAuth2User, Integer userId) {
         // 查询是否有相同类型
         int count = sysUserOauth2Mapper.selectCount(Wrappers.<SysUserOauth2>lambdaQuery()
                 .eq(SysUserOauth2::getClientRegistrationId, clientId)
@@ -98,7 +99,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUserOauth2 userOauth2 = new SysUserOauth2();
         userOauth2.setUserId(userId);
         userOauth2.setClientRegistrationId(clientId);
-        userOauth2.setPrincipalName(principalName);
+        userOauth2.setPrincipalName(oAuth2User.getName());
+        userOauth2.setNickname(oAuth2User.getNickname());
+        userOauth2.setAvatar(oAuth2User.getAvatar());
         userOauth2.insert();
         return "绑定成功 " + userOauth2.getClientRegistrationId() + " : " + userOauth2.getPrincipalName();
     }
@@ -142,8 +145,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public SysUser userInfo() {
-        SysUser sysUser = getById(SecurityUtils.userId());
-        sysUser.setAvatar("http://cdn.flizi.cn/img/zhiyi-avatar.jpg");
-        return sysUser;
+        return getById(SecurityUtils.userId());
     }
 }

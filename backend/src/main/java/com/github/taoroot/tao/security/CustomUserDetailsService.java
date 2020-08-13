@@ -1,6 +1,7 @@
 package com.github.taoroot.tao.security;
 
 
+import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -41,9 +42,9 @@ public interface CustomUserDetailsService extends UserDetailsService {
      */
     CustomUserDetails loadUserByPhone(String phone) throws UsernameNotFoundException;
 
-    CustomUserDetails loadUserByOAuth(String clientId, String name, boolean create);
+    CustomUserDetails loadUserByOAuth(String clientId, CustomOAuth2User oAuth2User, boolean create);
 
-    String bindOauth2(String clientId, String name, Integer userId);
+    String bindOauth2(String clientId, CustomOAuth2User principal, Integer userId);
 
     @Override
     CustomUserDetails loadUserByUsername(String username);

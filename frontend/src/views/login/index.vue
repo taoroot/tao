@@ -149,7 +149,7 @@ export default {
     }
   },
   created() {
-    var token = (window.location.search.match(new RegExp('[?&]token=([^&]+)')) || [null, null])[1]
+    var token = (window.location.search.match(new RegExp('[?&]access_token=([^&]+)')) || [null, null])[1]
     if (token) {
       setToken(token)
       var { pathname, origin, hash } = window.location

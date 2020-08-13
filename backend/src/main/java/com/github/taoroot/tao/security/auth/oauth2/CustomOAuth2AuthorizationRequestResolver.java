@@ -109,11 +109,19 @@ public final class CustomOAuth2AuthorizationRequestResolver implements OAuth2Aut
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
         String referer = request.getHeader("Referer");
-        attributes.put("Referer", referer);
-        if (StringUtils.isEmpty(referer)) {
-            throw new IllegalArgumentException("Invalid Referer");
+        String redirect = request.getParameter(OAuth2ParameterNames.REDIRECT_URI);
+
+        if (StringUtils.isEmpty(referer) && StringUtils.isEmpty(redirect)) {
+            throw new IllegalArgumentException("Invalid Header Referer or Param " + OAuth2ParameterNames.REDIRECT_URI);
         }
-        attributes.put("access_token", request.getParameter("access_token"));
+
+        if (!StringUtils.isEmpty(redirect)) {
+            attributes.put(OAuth2ParameterNames.REDIRECT_URI, redirect);
+        } else {
+            attributes.put(OAuth2ParameterNames.REDIRECT_URI, referer);
+        }
+
+        attributes.put(OAuth2ParameterNames.ACCESS_TOKEN, request.getParameter(OAuth2ParameterNames.ACCESS_TOKEN));
 
         OAuth2AuthorizationRequest.Builder builder;
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {

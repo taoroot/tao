@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 获取 Referer 字段
+ * 获取 额外 字段
  */
 public final class CustomHttpSessionOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
@@ -64,8 +64,8 @@ public final class CustomHttpSessionOAuth2AuthorizationRequestRepository impleme
             request.getSession().removeAttribute(this.sessionAttributeName);
         }
 
-        request.getSession().setAttribute("Referer", originalRequest.getAttributes().get("Referer"));
-        request.getSession().setAttribute("access_token", originalRequest.getAttributes().get("access_token"));
+        request.getSession().setAttribute(OAuth2ParameterNames.REDIRECT_URI, originalRequest.getAttributes().get(OAuth2ParameterNames.REDIRECT_URI));
+        request.getSession().setAttribute(OAuth2ParameterNames.ACCESS_TOKEN, originalRequest.getAttributes().get(OAuth2ParameterNames.ACCESS_TOKEN));
 
         return originalRequest;
     }
