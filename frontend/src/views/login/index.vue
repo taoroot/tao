@@ -86,10 +86,10 @@
         <el-row style="text-align: center;">
 
           <el-col :span="6">第三方登录方式: </el-col>
-          <el-col :span="4"><svg-icon style="height: 13px;" icon-class="wechat" /> <a referrerpolicy="origin" :href="getAuthUrl('wx')">  微信 </a></el-col>
-          <el-col :span="4"><svg-icon style="height: 13px;" icon-class="github" /> <a referrerpolicy="origin" :href="getAuthUrl('github')">GitHub</a></el-col>
-          <el-col :span="4"><img style="height: 13px;" src="qq.png"> <a referrerpolicy="origin" :href="getAuthUrl('qq')" style="line-height: 20px"> QQ </a></el-col>
-          <el-col :span="4"><svg-icon style="height: 13px;" icon-class="gitee" /> <a referrerpolicy="origin" :href="getAuthUrl('gitee')"> 码云 </a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> <svg-icon style="height: 13px;" icon-class="wechat" /> 微信</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"><svg-icon style="height: 13px;" icon-class="gitee" /> 码云</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('github')"> <svg-icon style="height: 13px;" icon-class="github" /> GitHub</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('qq')" style="line-height: 20px"><img style="height: 13px;" src="qq.png"> QQ</a></el-col>
           <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col> -->
         </el-row>
       </div>
