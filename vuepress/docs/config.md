@@ -1,0 +1,8 @@
+```java
+{
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  }
+}
+```

@@ -62,3 +62,10 @@ tests/**/coverage/
 *.ntvs*
 *.njsproj
 *.sln
+
+node_modules
+.DS_Store
+*.log
+.vscode
+.idea
+.temp

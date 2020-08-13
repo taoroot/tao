@@ -1,0 +1,15 @@
+{
+  "name": "tao",
+  "version": "1.0.0",
+  "description": "github.com/taoroot/tao",
+  "main": "index.js",
+  "scripts": { 
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+  "author": "taoroot",
+  "license": "ISC",
+  "devDependencies": {
+    "vuepress": "^1.5.3"
+  }
+}
