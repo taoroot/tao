@@ -32,7 +32,7 @@ public class CustomMappingJackson2HttpMessageConverter extends AbstractJackson2H
 	 * @see Jackson2ObjectMapperBuilder#json()
 	 */
 	public CustomMappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
-		super(objectMapper, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"), MediaType.TEXT_PLAIN);
+		super(objectMapper, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"), MediaType.TEXT_PLAIN, MediaType.TEXT_HTML);
 	}
 
 
