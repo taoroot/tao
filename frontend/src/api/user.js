@@ -33,7 +33,7 @@ export function getSms(params) {
 
 export function getSocial() {
   return request({
-    url: '/user/social',
+    url: '/user/socials',
     method: 'get'
   })
 }

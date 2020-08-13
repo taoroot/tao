@@ -172,6 +172,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         customUserTypes.put(GiteeOAuth2User.TYPE, GiteeOAuth2User.class);
         customUserTypes.put(GitHubOAuth2User.TYPE, GitHubOAuth2User.class);
         customUserTypes.put(WxOAuth2User.TYPE, WxOAuth2User.class);
+        customUserTypes.put(QQOAuth2User.TYPE, QQOAuth2User.class);
 
         CustomOAuth2UserRequestEntityConverter customOAuth2UserRequestEntityConverter = new CustomOAuth2UserRequestEntityConverter();
 

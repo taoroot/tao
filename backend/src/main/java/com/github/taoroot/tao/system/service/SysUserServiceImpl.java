@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
+import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
@@ -137,5 +138,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 myUser.getPhone(),
                 myUser.getId(),
                 AuthorityUtils.commaSeparatedStringToAuthorityList(myUser.getRoles()));
+    }
+
+    @Override
+    public SysUser userInfo() {
+        SysUser sysUser = getById(SecurityUtils.userId());
+        sysUser.setAvatar("http://cdn.flizi.cn/img/zhiyi-avatar.jpg");
+        return sysUser;
     }
 }

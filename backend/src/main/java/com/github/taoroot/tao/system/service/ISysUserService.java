@@ -5,4 +5,5 @@ import com.github.taoroot.tao.system.entity.SysUser;
 
 public interface ISysUserService extends IService<SysUser> {
 
+    SysUser userInfo();
 }

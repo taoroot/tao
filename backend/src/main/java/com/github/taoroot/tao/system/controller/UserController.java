@@ -1,7 +1,6 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.system.service.ISysUserService;
@@ -27,14 +26,12 @@ public class UserController {
 
     @SneakyThrows
     @GetMapping("/user/info")
-    public R index() {
-        SysUser byId = iSysUserService.getById(SecurityContextHolder.getContext().getAuthentication().getName());
-        byId.setAvatar("http://cdn.flizi.cn/img/zhiyi-avatar.jpg");
-        return R.ok(byId);
+    public R userInfo() {
+        return R.ok(iSysUserService.userInfo());
     }
 
     @SneakyThrows
-    @GetMapping("/user/social")
+    @GetMapping("/user/socials")
     public R social() {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         List<HashMap<String, String>> collect = sysUserOauth2Mapper.selectList(
