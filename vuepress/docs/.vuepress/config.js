@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'T A O',
+  title: 'T A O 文档说明',
   description: '基于 Spring Boot 的 RBAC 权限管理系统',
   head: [
     ['link', { rel: 'icon', href: '/zymy.jpg' }]
