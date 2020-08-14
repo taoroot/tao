@@ -37,9 +37,11 @@ module.exports = {
       {
         text: '源码分析',
         items: [
-          {
-            text: 'Spring Security',  link: '/security/',
-          }
+          { text: 'Spring Framework', link: '/spring/' },
+          { text: 'Spring Boot', link: '/springboot/' },
+          { text: 'Spring Security', link: '/security/' },
+          { text: 'MyBatis', link: '/mybatis/' },
+          { text: 'Netty', link: '/netty/' },
         ]
       },
       { text: '预览', link: 'https://tao.flizi.cn' },

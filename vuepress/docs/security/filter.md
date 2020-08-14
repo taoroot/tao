@@ -1,4 +1,4 @@
-# 过滤器
+# Filter
 
 Spring Security的Servlet支持是基于Servlet过滤器的，因此首先了解过滤器的作用是有帮助的。下图显示了单个HTTP请求处理程序的典型分层。
 

@@ -1,51 +1,57 @@
-# 启动流程
+# SecurityAutoConfiguration
+
+::: tip 自动装配
+- SecurityAutoConfiguration
+   - SpringBootWebSecurityConfiguration # WebSecurityConfigurerAdapter 导入
+   - WebSecurityEnablerConfiguration
+      - @EnableWebSecurity
+         - WebSecurityConfiguration # 过滤器链 配置(重点)
+         - SpringWebMvcImportSelector # mvc 配置
+         - OAuth2ImportSelector # OAuth2 配置
+         - @EnableGlobalAuthentication 
+           - AuthenticationConfiguration # 全局 AuthenticationManager 配置(重点)
+	- SecurityDataConfiguration # Spring Data 配置
+:::
 
 ```java
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(DefaultAuthenticationEventPublisher.class)
-@EnableConfigurationProperties(SecurityProperties.class)
-@Import({ SpringBootWebSecurityConfiguration.class, // 提供默认WebSecurityConfigurerAdapter
-	WebSecurityEnablerConfiguration.class, // 核心配置
-	SecurityDataConfiguration.class }) // 提供Spring Data 支持,不常用
+@Import({ SpringBootWebSecurityConfiguration.class, // 提供默认 WebSecurityConfigurerAdapter
+	WebSecurityEnablerConfiguration.class)} // 核心配置
 public class SecurityAutoConfiguration {
+
 	@Bean
 	@ConditionalOnMissingBean(AuthenticationEventPublisher.class) 
-	public DefaultAuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher publisher) {
-		return new DefaultAuthenticationEventPublisher(publisher); // 定义了一个事件发布器
+	public DefaultAuthenticationEventPublisher authenticationEventPublisher(
+			ApplicationEventPublisher publisher) {
+		return new DefaultAuthenticationEventPublisher(publisher); // 定义事件发布器
 	}
+
 }
 ```
-# SpringBootWebSecurityConfiguration
 
-当用户没有自定义情况下,提供一个默认的WebSecurityConfigurerAdapter
+## SpringBootWebSecurityConfiguration
+
+当用户没有自定义情况下, 提供一个默认的 WebSecurityConfigurerAdapter
 
 ```java
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
-@ConditionalOnMissingBean(WebSecurityConfigurerAdapter.class)
-@ConditionalOnWebApplication(type = Type.SERVLET)
 public class SpringBootWebSecurityConfiguration {
+
 	@Configuration(proxyBeanMethods = false)
-	@Order(SecurityProperties.BASIC_AUTH_ORDER)
 	static class DefaultConfigurerAdapter extends WebSecurityConfigurerAdapter {}
+
 }
 ```
 
-# WebSecurityEnablerConfiguration
+## WebSecurityEnablerConfiguration
 
 引入核心注解 @EnableWebSecurity
 
 ```java
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnBean(WebSecurityConfigurerAdapter.class)
-@ConditionalOnMissingBean(name = BeanIds.SPRING_SECURITY_FILTER_CHAIN)
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@EnableWebSecurity // 核心注解
+@EnableWebSecurity
 public class WebSecurityEnablerConfiguration {
 }
 ```
 
-## @EnableWebSecurity
+## EnableWebSecurity
 ```java
 @Import({ WebSecurityConfiguration.class, // [重点2]
 	SpringWebMvcImportSelector.class,
@@ -57,7 +63,7 @@ public @interface EnableWebSecurity {
 }
 ```
 
-### EnableGlobalAuthentication
+## EnableGlobalAuthentication
 
 ```java
 @Import(AuthenticationConfiguration.class) // [重点]
@@ -66,41 +72,55 @@ public @interface EnableGlobalAuthentication {
 }
 ```
 
-#### AuthenticationConfiguration
 
-全局配置
+# AuthenticationConfiguration
 
-- 重点 authenticationManagerBuilder() 方法, 注入了 AuthenticationManagerBuilder 对象到容器
-- 还有 getAuthenticationManager() 方法,可以看出,所有属性都是为了这个方法的材料. 在 WebSecurity 会用到,也有可能不调用该方法,用不到的时候,就是自己从容器中获取AuthenticationManagerBuilder,自定义build的过程来替代该方法.
+::: tip 全局 Security 配置
+- [1] authenticationManagerBuilder() 方法, 注入了 AuthenticationManagerBuilder 对象到容器
+- [2] getAuthenticationManager() 方法, 可以看出,所有属性都是为了这个方法的材料. 在 WebSecurity 会用到,也有可能不调用该方法,用不到的时候,就是自己从容器中获取AuthenticationManagerBuilder,自定义build的过程来替代该方法.
+:::
 
 ```java
 @Configuration(proxyBeanMethods = false)
-@Import(ObjectPostProcessorConfiguration.class) // Spring提供的工具,可以将已有的对象,注入到Spring容器中.
+@Import(ObjectPostProcessorConfiguration.class)
 public class AuthenticationConfiguration {
-    // [1]
-	@Bean
-	public AuthenticationManagerBuilder authenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor, ApplicationContext context) {
-		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
-		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context, AuthenticationEventPublisher.class);
+    
+	@Bean // [1]
+	public AuthenticationManagerBuilder authenticationManagerBuilder(
+				ObjectPostProcessor<Object> objectPostProcessor, ApplicationContext context) {
 
-		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, defaultPasswordEncoder);
+		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
+
+		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context, 
+				AuthenticationEventPublisher.class);
+
+		DefaultPasswordEncoderAuthenticationManagerBuilder result = 
+				new DefaultPasswordEncoderAuthenticationManagerBuilder(
+						objectPostProcessor, defaultPasswordEncoder);
+
 		if (authenticationEventPublisher != null) {
 			result.authenticationEventPublisher(authenticationEventPublisher);
 		}
+
 		return result;
 	}
+
     // [2]
 	public AuthenticationManager getAuthenticationManager() throws Exception {
-		if (this.authenticationManagerInitialized) {
+
+		if (this.authenticationManagerInitialized) { // 是否已初始化
 			return this.authenticationManager;
 		}
-		AuthenticationManagerBuilder authBuilder = this.applicationContext.getBean(AuthenticationManagerBuilder.class);
+
+		AuthenticationManagerBuilder authBuilder = this.applicationContext.getBean(
+			AuthenticationManagerBuilder.class); // 从容器中获取(默认就是上面那个Bean)
+
 		if (this.buildingAuthenticationManager.getAndSet(true)) {
-			return new AuthenticationManagerDelegator(authBuilder);
+			return new AuthenticationManagerDelegator(authBuilder); 
 		}
 
 		for (GlobalAuthenticationConfigurerAdapter config : globalAuthConfigurers) {
-			authBuilder.apply(config);
+			authBuilder.apply(config); // 默认就是下面声明的三个Bean
 		}
 
 		authenticationManager = authBuilder.build();
@@ -111,6 +131,25 @@ public class AuthenticationConfiguration {
 
 		this.authenticationManagerInitialized = true;
 		return authenticationManager;
+	}
+
+	
+	@Bean
+	public static GlobalAuthenticationConfigurerAdapter enableGlobalAuthenticationAutowiredConfigurer(
+			ApplicationContext context) {
+		return new EnableGlobalAuthenticationAutowiredConfigurer(context);
+	}
+
+	@Bean
+	public static InitializeUserDetailsBeanManagerConfigurer initializeUserDetailsBeanManagerConfigurer(
+			ApplicationContext context) {
+		return new InitializeUserDetailsBeanManagerConfigurer(context);
+	}
+
+	@Bean
+	public static InitializeAuthenticationProviderBeanManagerConfigurer initializeAuthenticationProviderBeanManagerConfigurer(
+			ApplicationContext context) {
+		return new InitializeAuthenticationProviderBeanManagerConfigurer(context);
 	}
 }
 ```
