@@ -17,6 +17,16 @@ module.exports = {
             '/guide/yzm',
           ]
         }
+      ],
+      '/security/': [
+        {
+          title: 'Spring Security',
+          children: [
+            '/security/filter',
+            '/security/boot',
+            '/security/websecurity',
+          ]
+        }
       ]
     },
     sidebarDepth: 2, // h2 和 h3 标题，显示在侧边栏上
@@ -28,11 +38,7 @@ module.exports = {
         text: '源码分析',
         items: [
           {
-            text: 'Security', items: [
-              { text: 'Security 过滤器', link: '/source/security/filter' },
-              { text: 'Security 启动流程', link: '/source/security/boot' },
-              { text: 'WebSecurity 源码分析', link: '/source/security/websecurity' }
-            ]
+            text: 'Spring Security',  link: '/security/',
           }
         ]
       },
