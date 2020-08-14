@@ -4,7 +4,6 @@ actionText: 快速入门 →
 actionLink: /guide/
 ---
 
-
 前端技术:
 
 - [vue.js ](https://github.com/vuejs/vue)
@@ -15,17 +14,5 @@ actionLink: /guide/
 - [Spring Boot 2.3.x ](https://github.com/spring-projects/spring-boot)
 - [Spring Security 5.x ](https://github.com/spring-projects/spring-security) 
 
-::: warning 依赖排除
-spring-social, security-oauth 官方不再更新, 不将引入相关包
-:::
-
-
-# 预览界面
-
-[预览地址 https://tao.flizi.cn ](https://tao.flizi.cn)
-
-![登录界面](login.jpg)
-
-# 公众号
 
 ![公众号-知一码园](zymy.jpg)
