@@ -27,24 +27,24 @@ spring:
             client-id: xxxx
             client-secret: xxxx
             authorization-grant-type: authorization_code
-            redirect-uri: {baseUrl}/login/oauth2/code/{registrationId}
+            redirect-uri: https://xxxx/login/oauth2/code/gitea
           gitee:
             client-id: xxxx
             client-secret: xxxx
             authorization-grant-type: authorization_code
-            redirect-uri: {baseUrl}/login/oauth2/code/{registrationId}
+            redirect-uri: https://xxx/login/oauth2/code/gitea
           wx:
             client-id: xxx
             client-secret: xxxx
             authorization-grant-type: authorization_code
-            redirect-uri: {baseUrl}/login/oauth2/code/{registrationId}
+            redirect-uri: https://xxx/login/oauth2/code/wx
             scope: snsapi_login
             client-authentication-method: post
           qq:
             client-id: xxx
             client-secret: xxxx
             authorization-grant-type: authorization_code
-            redirect-uri: {baseUrl}/login/oauth2/code/{registrationId}
+            redirect-uri: https://xxx/login/oauth2/code/qq
             scope: get_user_info
             client-authentication-method: post
         provider:
