@@ -24,8 +24,8 @@ spring-social, security-oauth 官方不再更新, 不将引入相关包
 
 [预览地址 https://tao.flizi.cn ](https://tao.flizi.cn)
 
-![登录界面](images/login.jpg)
+![登录界面](login.jpg)
 
 # 公众号
 
-![公众号-知一码园](images/zymy.jpg)
+![公众号-知一码园](zymy.jpg)

@@ -2,7 +2,7 @@
 
 Spring Security的Servlet支持是基于Servlet过滤器的，因此首先了解过滤器的作用是有帮助的。下图显示了单个HTTP请求处理程序的典型分层。
 
-![](./filterchain.png)
+![](/filterchain.png)
 
 客户端向应用程序发送一个请求，容器创建一个包含过滤器的过滤器链和根据请求URI的路径处理HttpServletRequest的Servlet。
 在Spring MVC应用程序中，Servlet是DispatcherServlet的一个实例。
@@ -23,7 +23,7 @@ Servlet容器允许使用它自己的标准注册过滤器，但是它不知道S
 可以通过标准Servlet容器机制注册DelegatingFilterProxy，但将所有工作委托给实现过滤器的Spring Bean。
 下面是如何将DelegatingFilterProxy融入过滤器和过滤器链的图片。
 
-![](./delegatingfilterproxy.png)
+![](/delegatingfilterproxy.png)
 
 DelegatingFilterProxy从ApplicationContext中查找Bean Filter0，然后调用Bean Filter0。下面可以看到DelegatingFilterProxy的伪代码。
 
@@ -46,7 +46,7 @@ Spring Security的Servlet支持包含在FilterChainProxy中。
 FilterChainProxy是Spring Security提供的一个特殊过滤器，它允许通过SecurityFilterChain委托给许多过滤器实例。
 由于FilterChainProxy是一个Bean，它通常被包装在一个DelegatingFilterProxy中。
 
-![](./filterchainproxy.png)
+![](/filterchainproxy.png)
 
 ## SecurityFilterChain
 
@@ -62,84 +62,11 @@ FilterChainProxy为直接注册Servlet容器或委托filterproxy提供了许多�
 
 实际上，可以使用FilterChainProxy来确定应该使用哪个SecurityFilterChain。这允许为不同的应用程序片提供完全独立的配置。
 
-![](./multi-securityfilterchain.png)
+![](/multi-securityfilterchain.png)
 
 只有第一个匹配的SecurityFilterChain才会被调用。如果请求一个/api/messages/的URL，它将首先匹配SecurityFilterChain0的/api/**模式，因此即使它也匹配SecurityFilterChainn，也只会调用SecurityFilterChain0。如果请求的URL为/messages/，它将与SecurityFilterChain0的/api/**模式不匹配，因此FilterChainProxy将继续尝试每个SecurityFilterChain。假设没有其他实例，则将调用与SecurityFilterChainn匹配的SecurityFilterChain实例。
 
 请注意，SecurityFilterChain0只配置了三个安全过滤器实例。但是，SecurityFilterChainn配置了四个安全过滤器。需要注意的是，每个SecurityFilterChain可以是惟一的，并且是隔离配置的。事实上，如果应用程序希望Spring security忽略某些请求，SecurityFilterChain可能没有安全过滤器。
-
-# 内置过滤器
-
-使用SecurityFilterChain API将安全过滤器插入到FilterChainProxy中。
-过滤器的顺序很重要。通常没有必要知道Spring Security过滤器的顺序。然而，有时知道顺序是有益的
-
-```
-  ChannelProcessingFilter
-  
-  ConcurrentSessionFilter
-  
-  WebAsyncManagerIntegrationFilter
-  
-  SecurityContextPersistenceFilter
-  
-  HeaderWriterFilter
-  
-  CorsFilter
-  
-  CsrfFilter
-  
-  LogoutFilter
-  
-  OAuth2AuthorizationRequestRedirectFilter
-  
-  Saml2WebSsoAuthenticationRequestFilter
-  
-  X509AuthenticationFilter
-  
-  AbstractPreAuthenticatedProcessingFilter
-  
-  CasAuthenticationFilter
-  
-  OAuth2LoginAuthenticationFilter
-  
-  Saml2WebSsoAuthenticationFilter
-  
-  UsernamePasswordAuthenticationFilter
-  
-  ConcurrentSessionFilter
-  
-  OpenIDAuthenticationFilter
-  
-  DefaultLoginPageGeneratingFilter
-  
-  DefaultLogoutPageGeneratingFilter
-  
-  DigestAuthenticationFilter
-  
-  BearerTokenAuthenticationFilter
-  
-  BasicAuthenticationFilter
-  
-  RequestCacheAwareFilter
-  
-  SecurityContextHolderAwareRequestFilter
-  
-  JaasApiIntegrationFilter
-  
-  RememberMeAuthenticationFilter
-  
-  AnonymousAuthenticationFilter
-  
-  OAuth2AuthorizationCodeGrantFilter
-  
-  SessionManagementFilter
-  
-  ExceptionTranslationFilter
-  
-  FilterSecurityInterceptor
-  
-  SwitchUserFilter
-```
 
 # 处理安全异常
 
@@ -147,7 +74,7 @@ ExceptionTranslationFilter允许将AccessDeniedException和AuthenticationExcepti
 
 ExceptionTranslationFilter作为一个安全过滤器插入到FilterChainProxy中。
 
-[exceptiontranslationfilter](./exceptiontranslationfilter.png)
+![exceptiontranslationfilter](/exceptiontranslationfilter.png)
 
 1. 首先，ExceptionTranslationFilter调用FilterChain.doFilter(request, response)来调用应用程序的其余部分。
 
@@ -169,4 +96,46 @@ try {
         accessDenied(); 
     }
 }
+```
+
+
+# 内置过滤器
+
+使用SecurityFilterChain API将安全过滤器插入到FilterChainProxy中。
+过滤器的顺序很重要。通常没有必要知道Spring Security过滤器的顺序。然而，有时知道顺序是有益的
+
+```shell
+ChannelProcessingFilter
+ConcurrentSessionFilter
+WebAsyncManagerIntegrationFilter
+SecurityContextPersistenceFilter
+HeaderWriterFilter
+CorsFilter
+CsrfFilter
+LogoutFilter
+OAuth2AuthorizationRequestRedirectFilter
+Saml2WebSsoAuthenticationRequestFilter
+X509AuthenticationFilter
+AbstractPreAuthenticatedProcessingFilter
+CasAuthenticationFilter
+OAuth2LoginAuthenticationFilter
+Saml2WebSsoAuthenticationFilter
+UsernamePasswordAuthenticationFilter
+ConcurrentSessionFilter
+OpenIDAuthenticationFilter
+DefaultLoginPageGeneratingFilter
+DefaultLogoutPageGeneratingFilter
+DigestAuthenticationFilter
+BearerTokenAuthenticationFilter
+BasicAuthenticationFilter
+RequestCacheAwareFilter
+SecurityContextHolderAwareRequestFilter
+JaasApiIntegrationFilter
+RememberMeAuthenticationFilter
+AnonymousAuthenticationFilter
+OAuth2AuthorizationCodeGrantFilter
+SessionManagementFilter
+ExceptionTranslationFilter
+FilterSecurityInterceptor
+SwitchUserFilter
 ```
