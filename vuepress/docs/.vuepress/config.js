@@ -27,10 +27,15 @@ module.exports = {
           collapsable: false,
           children: [
             '/security/filter',
-            '/security/boot',
+            '/security/securityautoconfiguration',
             '/security/websecurity',
             '/security/websecurityconfigureradapter',
             '/security/httpsecurity',
+            '/security/authenticationmanagerbuilder',
+            '/security/filterchainproxy',
+            '/security/formloginconfigurer',
+            '/security/oauth2loginconfigurer',
+            '/security/oauth2resourceserverconfigurer'
           ]
         }
       ]
