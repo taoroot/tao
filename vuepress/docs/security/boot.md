@@ -1,6 +1,6 @@
 # SecurityAutoConfiguration
 
-[<<< 目录](/security/README.md)
+[<< 目录](/security/README.md)
 
 在[过滤器一章](/security/filter)已说明, 自动装配的最终目的是创建 FilterChainProxy 和 SecurityFilterChain.
 

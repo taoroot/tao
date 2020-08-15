@@ -29,6 +29,8 @@ module.exports = {
             '/security/filter',
             '/security/boot',
             '/security/websecurity',
+            '/security/websecurityconfigureradapter',
+            '/security/httpsecurity',
           ]
         }
       ]

@@ -1,4 +1,6 @@
-# WebSecurity 源码
+# WebSecurity
+
+[<< 目录](/security/README.md)
 
 ![WebSecurity](/WebSecurity.png)
 
@@ -108,6 +110,14 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 ```
 
 ## WebSecurity
+
+执行我上述的 SecurityConfigurer, 生成 SecurityBuilder\<? extends SecurityFilterChain\>,
+加入到 securityFilterChainBuilders 集合
+
+WebSecurityConfigurer\<WebSecurity\> 具体类 [WebSecurityConfigurerAdapter](/security/websecurityconfigureradapter)
+
+SecurityBuilder\<? extends SecurityFilterChain\> 具体类 [HttpSecurity](/security/websecurity) 
+
 
 ```java
 public final class WebSecurity extends
