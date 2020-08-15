@@ -20,4 +20,9 @@
 
 > spring-social, security-oauth 不再更新, 这里将不引入相关包
 
-![login](./document/login.jpg)
+![login](vuepress/docs/.vuepress/public/login.jpg)
+
+# 个人公众号
+
+![公众号-知一码园](vuepress/docs/.vuepress/public/zymy.jpg)
+
