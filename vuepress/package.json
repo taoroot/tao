@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "github.com/taoroot/tao",
   "main": "index.js",
-  "scripts": { 
+  "scripts": {
     "dev": "vuepress dev docs",
     "build": "vuepress build docs"
   },
   "author": "taoroot",
   "license": "ISC",
   "devDependencies": {
+    "@vuepress/plugin-back-to-top": "^1.0.0-rc.1",
     "vuepress": "^1.5.3"
   }
 }

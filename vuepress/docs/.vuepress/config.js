@@ -4,6 +4,9 @@ module.exports = {
   head: [
     ['link', { rel: 'icon', href: '/zymy.jpg' }]
   ],
+  plugins: {
+    '@vuepress/back-to-top': {}
+  },
   themeConfig: {
     sidebar: {
       '/guide/': [
