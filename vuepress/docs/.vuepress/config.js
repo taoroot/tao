@@ -24,6 +24,7 @@ module.exports = {
       '/security/': [
         {
           title: 'Spring Security',
+          collapsable: false,
           children: [
             '/security/filter',
             '/security/boot',
