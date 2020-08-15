@@ -1,28 +1,28 @@
 # 总目录
 
-[过滤器架构分析](/security/filter)
+[过滤器架构分析](/security/filter.md)
 
-[启动过程分析之 SecurityAutoConfiguration ](/security/securityautoconfiguration)
+[启动过程分析之 SecurityAutoConfiguration ](/security/securityautoconfiguration.md)
 
-[启动过程分析之 OAuth2ClientConfiguration ](/security/oauth2clientconfiguration)
+[启动过程分析之 OAuth2ClientConfiguration ](/security/oauth2clientconfiguration.md)
 
-[启动过程分析之 UserDetailsServiceAutoConfiguration ](/security/userdetailsserviceautoconfiguration)
+[启动过程分析之 UserDetailsServiceAutoConfiguration ](/security/userdetailsserviceautoconfiguration.md)
 
-[启动过程分析之 SecurityFilterAutoConfiguration ](/security/securityfilterautoconfiguration)
+[启动过程分析之 SecurityFilterAutoConfiguration ](/security/securityfilterautoconfiguration.md)
 
-[WebSecurity 源码分析](/security/websecurity)
+[WebSecurity 源码分析](/security/websecurity.md)
 
-[WebSecurityConfigurerAdapter 源码分析](/security/boot)
+[WebSecurityConfigurerAdapter 源码分析](/security/boot.md)
 
-[HttpSecurity 源码分析](/security/httpsecurity)
+[HttpSecurity 源码分析](/security/httpsecurity.md)
 
-[AuthenticationManagerBuilder 源码分析](/security/authenticationmanagerbuilder)
+[AuthenticationManagerBuilder 源码分析](/security/authenticationmanagerbuilder.md)
 
-[FilterChainProxy 源码分析](/security/filterchainproxy)
+[FilterChainProxy 源码分析](/security/filterchainproxy.md)
 
-[FormLoginConfigurer\<HttpSecurity\> 源码分析](/security/formloginconfigurer)
+[FormLoginConfigurer\<HttpSecurity\> 源码分析](/security/formloginconfigurer.md)
 
-[OAuth2LoginConfigurer\<HttpSecurity\> 源码分析](/security/oauth2loginconfigurer)
+[OAuth2LoginConfigurer\<HttpSecurity\> 源码分析](/security/oauth2loginconfigurer.md)
 
-[OAuth2ResourceServerConfigurer\<HttpSecurity\> 源码分析](/security/oauth2resourceserverconfigurer)
+[OAuth2ResourceServerConfigurer\<HttpSecurity\> 源码分析](/security/oauth2resourceserverconfigurer.md)
 
