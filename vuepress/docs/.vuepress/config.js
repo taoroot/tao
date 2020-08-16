@@ -35,6 +35,8 @@ module.exports = {
             '/security/filterchainproxy',
             '/security/formloginconfigurer',
             '/security/oauth2loginconfigurer',
+            '/security/corsconfigurer',
+            '/security/exceptionhandlingconfigurer',
             '/security/oauth2resourceserverconfigurer'
           ]
         }

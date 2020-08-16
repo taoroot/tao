@@ -2,161 +2,244 @@
 
 [<< 目录](/security/README.md)
 
+![HttpSecurity](/HttpSecurity.png)
+
+
+从继承关系可以看出,最后执行的是 performBuild() 方法
+
 ```java
-/*
- *  0 = {CsrfConfigurer@5981} 
- *  1 = {ExceptionHandlingConfigurer@5982} 
- *  2 = {HeadersConfigurer@5983} 
- *  3 = {SessionManagementConfigurer@5984} 
- *  4 = {SecurityContextConfigurer@5985} 
- *  5 = {RequestCacheConfigurer@5986} 
- *  6 = {AnonymousConfigurer@5987} 
- *  7 = {ServletApiConfigurer@5988} 
- *  8 = {DefaultLoginPageConfigurer@5989} 
- *  9 = {LogoutConfigurer@5990} 
- *  10 = {ExpressionUrlAuthorizationConfigurer@5991} 
- *  11 = {FormLoginConfigurer@5992} 
- *  12 = {HttpBasicConfigurer@5993} 
- */
-protected final O doBuild()  {
-    synchronized (configurers) {
-        buildState = BuildState.INITIALIZING;
+public final class HttpSecurity extends
+		AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
+		implements SecurityBuilder<DefaultSecurityFilterChain>,
+		HttpSecurityBuilder<HttpSecurity> {
 
-        beforeInit(); 
-        init();
+	@Override
+	protected DefaultSecurityFilterChain performBuild() {
+		filters.sort(comparator); // 过滤器排序
+		return new DefaultSecurityFilterChain(requestMatcher, filters); 
+	}
+}
+```
 
-        buildState = BuildState.CONFIGURING;
+关于AbstractConfiguredSecurityBuilder 和 SecurityBuilder 已在[ WebSecurity一章 ](/security/websecurity.md)叙述过.
+这里多出一个 HttpSecurityBuilder
 
-        beforeConfigure();
-        configure();  
+## HttpSecurityBuilder
 
-        buildState = BuildState.BUILDING;
+- 带排序的添加过滤器
+- 添加或移除配置
+- 添加 UserDetailsService
+- 添加 AuthenticationProvider
 
-        O result = performBuild(); // 调用 HttpSecurity 的 performBuild()
+```java
+public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
+		SecurityBuilder<DefaultSecurityFilterChain> {
+	
+	// 获取某个配置
+	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C getConfigurer(Class<C> clazz);
+	// 移除某个配置 disable() 就是依据这个原理实现
+	<C extends SecurityConfigurer<DefaultSecurityFilterChain, H>> C removeConfigurer(Class<C> clazz);
+	// 缓存某个对象
+	<C> void setSharedObject(Class<C> sharedType, C object);
+	// 获取缓存对象
+	<C> C getSharedObject(Class<C> sharedType);
+	// 添加 AuthenticationProvider
+	H authenticationProvider(AuthenticationProvider authenticationProvider);
+	// 添加 UserDetailsService
+	H userDetailsService(UserDetailsService userDetailsService) throws Exception;
+	// 在某个过滤器后添加过滤器
+	H addFilterAfter(Filter filter, Class<? extends Filter> afterFilter);
+	// 在某个过滤器前添加过滤器
+	H addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter);
+	// 默认添加 (map.put)
+	H addFilter(Filter filter);
+}
+```
 
-        buildState = BuildState.BUILT;
+## 过滤器排序
 
-        return result;
-    }
+先记录到 filters 列表, 然后注册到比较器中, 最后利用比较器进行对列表重新排序.
+
+重点在于这个比较器
+
+```java
+private List<Filter> filters = new ArrayList<>(); 
+private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+private FilterComparator comparator = new FilterComparator(); // 比较器
+
+public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
+	comparator.registerAfter(filter.getClass(), afterFilter);
+	return addFilter(filter);
 }
 
-// [1]
-private void init() throws Exception {
-    Collection<SecurityConfigurer<O, B>> configurers = getConfigurers(); // 13 个
-
-    for (SecurityConfigurer<O, B> configurer : configurers) {
-        configurer.init((B) this);
-    }
-
-    for (SecurityConfigurer<O, B> configurer : configurersAddedInInitializing) {
-        configurer.init((B) this);
-    }
+public HttpSecurity addFilterBefore(Filter filter,
+		Class<? extends Filter> beforeFilter) {
+	comparator.registerBefore(filter.getClass(), beforeFilter);
+	return addFilter(filter);
 }
 
-// [2]
-protected void beforeConfigure() throws Exception {
-    // 构建通过 AuthenticationManagerBuilder 构建 AuthenticationManager
-    setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+public HttpSecurity addFilter(Filter filter) {
+	Class<? extends Filter> filterClass = filter.getClass();
+	if (!comparator.isRegistered(filterClass)) {
+		throw new IllegalArgumentException(
+				"The Filter class "
+						+ filterClass.getName()
+						+ "没有已注册的Order，并且在没有指定Order的情况下无法添加。"
+						+ "考虑使用addFilterBefore或addFilterAfter代替");
+	}
+	this.filters.add(filter);
+	return this;
 }
+
+public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
+	this.comparator.registerAt(filter.getClass(), atFilter);
+	return addFilter(filter);
+}
+
+
+```
+
+#### FilterComparator
+
+比较器在构造函数中提供了一大堆内置过滤器的排序,而且不能修改.
+
+```java
+// <类名, Order> Order 越小越在前
+private final Map<String, Integer> filterToOrder = new HashMap<>();
+
+FilterComparator() {
+	Step order = new Step(INITIAL_ORDER, ORDER_STEP);
+	put(ChannelProcessingFilter.class, order.next());
+	put(ConcurrentSessionFilter.class, order.next());
+	put(WebAsyncManagerIntegrationFilter.class, order.next());
+	put(SecurityContextPersistenceFilter.class, order.next());
+	put(HeaderWriterFilter.class, order.next());
+	put(CorsFilter.class, order.next());
+	put(CsrfFilter.class, order.next());
+	put(LogoutFilter.class, order.next());
+	filterToOrder.put(
+		"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
+			order.next());
+	filterToOrder.put(
+			"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter",
+			order.next());
+	put(X509AuthenticationFilter.class, order.next());
+	put(AbstractPreAuthenticatedProcessingFilter.class, order.next());
+	filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter",
+			order.next());
+	filterToOrder.put(
+		"org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
+			order.next());
+	filterToOrder.put(
+			"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter",
+			order.next());
+	put(UsernamePasswordAuthenticationFilter.class, order.next());
+	put(ConcurrentSessionFilter.class, order.next());
+	filterToOrder.put(
+			"org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
+	put(DefaultLoginPageGeneratingFilter.class, order.next());
+	put(DefaultLogoutPageGeneratingFilter.class, order.next());
+	put(ConcurrentSessionFilter.class, order.next());
+	put(DigestAuthenticationFilter.class, order.next());
+	filterToOrder.put(
+			"org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter", order.next());
+	put(BasicAuthenticationFilter.class, order.next());
+	put(RequestCacheAwareFilter.class, order.next());
+	put(SecurityContextHolderAwareRequestFilter.class, order.next());
+	put(JaasApiIntegrationFilter.class, order.next());
+	put(RememberMeAuthenticationFilter.class, order.next());
+	put(AnonymousAuthenticationFilter.class, order.next());
+	filterToOrder.put(
+		"org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
+			order.next());
+	put(SessionManagementFilter.class, order.next());
+	put(ExceptionTranslationFilter.class, order.next());
+	put(FilterSecurityInterceptor.class, order.next());
+	put(SwitchUserFilter.class, order.next());
+}
+
+public void registerBefore(Class<? extends Filter> filter,
+		Class<? extends Filter> beforeFilter) {
+	Integer position = getOrder(beforeFilter); // 获取当前Order
+	if (position == null) {
+		throw new IllegalArgumentException(
+				"Cannot register after unregistered Filter " + beforeFilter);
+	}
+
+	put(filter, position - 1); // Order 小1
+}
+
+private void put(Class<? extends Filter> filter, int position) {
+	String className = filter.getName();
+	filterToOrder.put(className, position);
+}
+```
+
+## userDetailsService()
+## authenticationProvider()
+
+
+```java
+// 从缓存中获取 AuthenticationManagerBuilder
 private AuthenticationManagerBuilder getAuthenticationRegistry() {
-    return getSharedObject(AuthenticationManagerBuilder.class);
+	return getSharedObject(AuthenticationManagerBuilder.class);
 }
-// AuthenticationManagerBuilder#performBuild
-protected ProviderManager performBuild() throws Exception {
-    if (!isConfigured()) {
-        return null;
-    }
-    // 重点: ProviderManager
-    ProviderManager providerManager = new ProviderManager(authenticationProviders, parentAuthenticationManager);
-    if (eraseCredentials != null) {
-        providerManager.setEraseCredentialsAfterAuthentication(eraseCredentials);
-    }
-    if (eventPublisher != null) {
-        providerManager.setAuthenticationEventPublisher(eventPublisher);
-    }
-    providerManager = postProcess(providerManager);
-    return providerManager;
+
+public HttpSecurity userDetailsService(UserDetailsService userDetailsService) {
+	getAuthenticationRegistry().userDetailsService(userDetailsService);
+	return this;
+}
+
+public HttpSecurity authenticationProvider( AuthenticationProvider authenticationProvider) {
+	getAuthenticationRegistry().authenticationProvider(authenticationProvider);
+	return this;
 }
 ```
-到这里主要的 securityFilterChains 创建过程就完成了,主要流程也算完成了.
+::: tip 关于 AuthenticationManagerBuilder
+将在 [AuthenticationManagerBuilder 一章](/security/authenticationmanagerbuilder.md) 具体分析
+::: 
 
-# SpringWebMvcImportSelector
-
-Servlet 环境下,导入 WebMvcSecurityConfiguration 配置
+## 常见配置 
 
 ```java
-class SpringWebMvcImportSelector implements ImportSelector {
-	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		boolean webmvcPresent = ClassUtils.isPresent( "org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader());
-		return webmvcPresent ? new String[] { "org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration" } : new String[] {};
-	}
-}
-```
-
-## WebMvcSecurityConfiguration
-
-非重点
-
-用于为Spring MVC和Spring Security CSRF集成添加一个RequestDataValueProcessor。
-只要SpringWebMvcImportSelector 添加EnableWebMvc，并且DispatcherServlet出现在类路径上，就会添加此配置。
-它还添加了AuthenticationPrincipalArgumentResolver作为HandlerMethodArgumentResolver。
-
-```java
-class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContextAware {
-	private BeanResolver beanResolver;
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
-		authenticationPrincipalResolver.setBeanResolver(beanResolver);
-		argumentResolvers.add(authenticationPrincipalResolver);
-		argumentResolvers.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
-
-		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
-		currentSecurityContextArgumentResolver.setBeanResolver(beanResolver);
-		argumentResolvers.add(currentSecurityContextArgumentResolver);
-		argumentResolvers.add(new CsrfTokenArgumentResolver());
-	}
-
-	@Bean
-	public RequestDataValueProcessor requestDataValueProcessor() {
-		return new CsrfRequestDataValueProcessor();
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.beanResolver = new BeanFactoryResolver(applicationContext.getAutowireCapableBeanFactory());
-	}
+public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer<HttpSecurity>> httpBasicCustomizer) throws Exception {
+	httpBasicCustomizer.customize(getOrApply(new HttpBasicConfigurer<>()));
+	return HttpSecurity.this;
 }
 
-```
+public HttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer)
+		throws Exception {
+	OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ResourceServerConfigurer<>(getContext()));
+	this.postProcess(configurer);
+	oauth2ResourceServerCustomizer.customize(configurer);
+	return HttpSecurity.this;
+}
 
-# OAuth2ImportSelector
+public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer) throws Exception {
+	oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
+	return HttpSecurity.this;
+}
 
-非重点
+public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) throws Exception {
+	formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer<>()));
+	return HttpSecurity.this;
+}
 
-OAuth2ClientConfiguration 生效,当存在spring-security-oauth2-client 模块
-SecurityReactorContextConfiguration 生效: 当存在 the spring-security-oauth2-client 或者 spring-security-oauth2-resource-server module , 并且需要存在 spring-webflux 模块
+public HttpSecurity exceptionHandling(Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
+	exceptionHandlingCustomizer.customize(getOrApply(new ExceptionHandlingConfigurer<>()));
+	return HttpSecurity.this;
+}
 
-```java
-final class OAuth2ImportSelector implements ImportSelector {
-	@Override
-	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		Set<String> imports = new LinkedHashSet<>();
-		boolean oauth2ClientPresent = ClassUtils.isPresent("org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
-		if (oauth2ClientPresent) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration");
-		}
-		boolean webfluxPresent = ClassUtils.isPresent( "org.springframework.web.reactive.function.client.ExchangeFilterFunction", getClass().getClassLoader());
-		if (webfluxPresent && oauth2ClientPresent) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
-		}
-		boolean oauth2ResourceServerPresent = ClassUtils.isPresent( "org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader());
-		if (webfluxPresent && oauth2ResourceServerPresent) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
-		}
-		return imports.toArray(new String[0]);
-	}
+public HttpSecurity cors(Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer) throws Exception {
+	corsCustomizer.customize(getOrApply(new CorsConfigurer<>()));
+	return HttpSecurity.this;
 }
 ```
+::: tip 内容过多,分章叙述
+- httpBasic 见 [HttpBasicConfigurer 源码分析](formloginconfigurer.md)
+- oauth2ResourceServer 见 [OAuth2ResourceServerConfigurer 源码分析](oauth2resourceserverconfigurer.md)
+- oauth2Login 见 [OAuth2LoginConfigure 源码分析r](oauth2loginconfigurer.md)
+- formLogin 见 [FormLoginConfigurer 源码分析](formloginconfigurer.md)
+- exceptionHandling 见 [ExceptionHandlingConfigurer 源码分析](exceptionhandlingconfigurer.md)
+- cors 见 [CorsConfigurer 源码分析](corsconfigurer.md)
+::: 
