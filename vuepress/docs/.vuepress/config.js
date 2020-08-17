@@ -27,6 +27,7 @@ module.exports = {
           collapsable: false,
           children: [
             '/security/filter',
+            '/security/authentication',
             '/security/securityautoconfiguration',
             '/security/websecurity',
             '/security/websecurityconfigureradapter',
@@ -37,7 +38,7 @@ module.exports = {
             '/security/oauth2loginconfigurer',
             '/security/corsconfigurer',
             '/security/exceptionhandlingconfigurer',
-            '/security/oauth2resourceserverconfigurer'
+            '/security/oauth2resourceserverconfigurer',
           ]
         }
       ]
