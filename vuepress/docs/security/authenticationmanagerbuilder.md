@@ -173,9 +173,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager,
 		// If an authentication manager has been set, re-authenticate the user with the
 		// supplied password.
 		if (authenticationManager != null) {
-			logger.debug("Reauthenticating user '" + username
-					+ "' for password change request.");
-
+		
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 					username, oldPassword));
 		}

@@ -4,15 +4,15 @@
 
 本节描述 Spring Security在 Servlet 身份验证中使用的主要体系结构组件
 
-- SecurityContextHolder
-- SecurityContext
-- Authentication
-- GrantedAuthority
-- AuthenticationManager
-- ProviderManager
-- AuthenticationProvider
-- Request Credentials with AuthenticationEntryPoint
-- AbstractAuthenticationProcessingFilter
+- [SecurityContextHolder](#securitycontextholder) 
+- [SecurityContext](#securitycontext)
+- [Authentication](#authentication)
+- [GrantedAuthority](#grantedauthority)
+- [AuthenticationManager](#authenticationmanager)
+- [ProviderManager](#providermanager)
+- [AuthenticationProvider](#authenticationprovider)
+- [Request Credentials with AuthenticationEntryPoint](#request-credentials-with-authenticationentrypoint)
+- [AbstractAuthenticationProcessingFilter](#abstractauthenticationprocessingfilter)
 
 ## SecurityContextHolder 
 
@@ -120,3 +120,15 @@ AbstractAuthenticationProcessingFilter 用作对用户凭据进行身份验证�
 
 ![abstractauthenticationprocessingfilter](/abstractauthenticationprocessingfilter.png)
 
+1. 当用户提交其凭证时, AbstractAuthenticationProcessingFilter从要进行身份验证的HttpServletRequest创建身份验证。创建的身份验证类型取决于AbstractAuthenticationProcessingFilter的子类. 例如，UsernamePasswordAuthenticationFilter从在HttpServletRequest中提交的用户名和密码创建一个UsernamePasswordAuthenticationToken
+2. 接下来，将身份验证传递到AuthenticationManager以进行身份验证。
+3. 如果身份验证失败
+   1. SecurityContextHandler.clearContext()
+   2. RememberMeServices.loginFail() 被调用,在配置了记住我操作时
+   3. AuthenticationFailureHandler 被调用
+4. 如果身份验证成功
+   1. SessionAuthenticationStrategy 将被通知有新的用户登录
+   2. Authentication 加入到 SecurityContextHolder. 后面的 SecurityContextPersistenceFilter 将保存 SecurityContext 到 HttpSession.
+   3. RememberMeServices.loginSuccess 被调用,在配置了记住我操作时
+   4. ApplicationEventPublisher 被通知事件 InteractiveAuthenticationSuccessEvent.
+   5. AuthenticationSuccessHandler 被调用
