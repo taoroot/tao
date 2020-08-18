@@ -8,10 +8,9 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("用户")
 @Data
 @TableName("user_oauth2")
+@EqualsAndHashCode(callSuper = true)
 public class SysUserOauth2 extends Model<SysUserOauth2> {
     private String clientRegistrationId;
     private String principalName;

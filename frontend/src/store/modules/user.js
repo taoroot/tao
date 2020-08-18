@@ -62,8 +62,6 @@ const actions = {
       getInfo().then(response => {
         const { data } = response
 
-        console.log(data)
-
         if (!data) {
           return reject('Verification failed, please Login again.')
         }

@@ -16,15 +16,15 @@ public class AuthorityUtils {
                     tree.setParentId(treeNode.getParentId());
                     tree.setWeight(treeNode.getWeight());
                     tree.setName(treeNode.getName());
+                    tree.putExtra("path", treeNode.getPath());
                     tree.putExtra("hidden", treeNode.getHidden());
                     tree.putExtra("alwaysShow", treeNode.getAlwaysShow());
                     tree.putExtra("redirect", treeNode.getRedirect());
                     tree.put("component", treeNode.getComponent());
                     HashMap<String, Object> meta = new HashMap<>();
-                    meta.put("title", treeNode.getPath());
-                    meta.put("icon", treeNode.getPath());
+                    meta.put("title", treeNode.getTitle());
+                    meta.put("icon", treeNode.getIcon());
                     meta.put("breadcrumb", treeNode.getBreadcrumb());
-                    meta.put("activeMenu", treeNode.getPath());
                     tree.putExtra("meta", meta);
                 });
     }

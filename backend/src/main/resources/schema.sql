@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 18/08/2020 14:15:58
+ Date: 18/08/2020 21:19:15
 */
 
 SET NAMES utf8mb4;
@@ -39,6 +39,13 @@ CREATE TABLE `authorities`  (
   `breadcrumb` int(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 4003 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of authorities
+-- ----------------------------
+INSERT INTO `authorities` VALUES (10, 'external-link', 'Layout', NULL, NULL, '/github', NULL, '动态路由', 'link', 0, 1, '0', '2020-08-18 10:13:56', '2020-08-18 21:04:54', NULL);
+INSERT INTO `authorities` VALUES (11, 'https://github.com/taoroot/tao', NULL, NULL, NULL, NULL, 'github', 'github', 'link', 10, 1, '0', '2020-08-18 10:14:08', '2020-08-18 21:02:41', NULL);
+INSERT INTO `authorities` VALUES (12, 'https://doc-tao.flizi.cn', NULL, NULL, NULL, NULL, 'vuepress', 'vuepress', 'link', 10, 1, '0', '2020-08-18 10:14:08', '2020-08-18 21:02:41', NULL);
 
 -- ----------------------------
 -- Table structure for oauth2_authorized_client
@@ -69,6 +76,13 @@ CREATE TABLE `role_authority`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色菜单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Records of role_authority
+-- ----------------------------
+INSERT INTO `role_authority` VALUES (1, 10);
+INSERT INTO `role_authority` VALUES (1, 11);
+INSERT INTO `role_authority` VALUES (1, 12);
+
+-- ----------------------------
 -- Table structure for roles
 -- ----------------------------
 DROP TABLE IF EXISTS `roles`;
@@ -81,7 +95,12 @@ CREATE TABLE `roles`  (
   `update_time` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `role_idx1_role_code`(`role`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '角色' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '角色' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of roles
+-- ----------------------------
+INSERT INTO `roles` VALUES (1, 'USER', 'USER', NULL, '2020-08-18 19:36:19', '2020-08-18 21:09:45');
 
 -- ----------------------------
 -- Table structure for user_oauth2
@@ -120,6 +139,6 @@ CREATE TABLE `users`  (
   `avatar` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `roles` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -9,6 +9,7 @@ import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
+import com.github.taoroot.tao.system.entity.SysUserRole;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
@@ -86,6 +87,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser.setAvatar(oAuth2User.getAvatar());
             sysUser.setPassword(passwordEncoder.encode(password));
             sysUser.insert();
+
+            SysUserRole sysUserRole = new SysUserRole();
+            sysUserRole.setUserId(sysUser.getId());
+            sysUserRole.setRoleId(1);
+            sysUserRole.insert();
 
             bindOauth2(clientId, oAuth2User, sysUser.getId());
 
