@@ -26,12 +26,12 @@ public final class CustomMapOAuth2AccessTokenResponseConverter implements Conver
         String accessToken = tokenResponseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN);
 
         OAuth2AccessToken.TokenType accessTokenType;
-        if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
-                tokenResponseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
-            accessTokenType = OAuth2AccessToken.TokenType.BEARER;
-        } else {
-            accessTokenType = OAuth2AccessToken.TokenType.BEARER; // 给一个默认值, 微信没有这个字段
-        }
+//        if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
+//                tokenResponseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
+//            accessTokenType = OAuth2AccessToken.TokenType.BEARER;
+//        }
+        accessTokenType = OAuth2AccessToken.TokenType.BEARER; // 直接给一个默认值, 微信没有这个字段
+
 
         long expiresIn = 0;
         if (tokenResponseParameters.containsKey(OAuth2ParameterNames.EXPIRES_IN)) {

@@ -6,17 +6,20 @@ import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
+import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
+import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
+import com.github.taoroot.tao.utils.AuthorityUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -28,6 +31,8 @@ import java.util.UUID;
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService, CustomUserDetailsService {
 
     private final SysUserOauth2Mapper sysUserOauth2Mapper;
+
+    private final SysAuthorityMapper sysAuthorityMapper;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -70,7 +75,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (create) {
-            String username = clientId +  oAuth2User.getName();
+            String username = clientId + oAuth2User.getName();
             String password = UUID.randomUUID().toString().replaceAll("-", "");
             SysUser sysUser = new SysUser();
             sysUser.setUsername(username);
@@ -140,11 +145,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 myUser.getPassword(),
                 myUser.getPhone(),
                 myUser.getId(),
-                AuthorityUtils.commaSeparatedStringToAuthorityList(myUser.getRoles()));
+                org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList(myUser.getRoles()));
     }
 
     @Override
     public SysUser userInfo() {
         return getById(SecurityUtils.userId());
+    }
+
+    @Override
+    public Object userMenus() {
+        List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
+        return AuthorityUtils.toTree(sysAuthorities);
     }
 }

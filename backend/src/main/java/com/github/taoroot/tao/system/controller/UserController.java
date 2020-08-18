@@ -1,11 +1,11 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.taoroot.tao.security.annotation.NotAuth;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.system.service.ISysUserService;
 import com.github.taoroot.tao.utils.R;
-import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,13 +24,11 @@ public class UserController {
     @Resource
     private ISysUserService iSysUserService;
 
-    @SneakyThrows
     @GetMapping("/user/info")
     public R userInfo() {
         return R.ok(iSysUserService.userInfo());
     }
 
-    @SneakyThrows
     @GetMapping("/user/socials")
     public R social() {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -46,5 +44,12 @@ public class UserController {
 
         return R.ok(collect);
     }
+
+    @NotAuth
+    @GetMapping("/user/authorities")
+    public R userMenus() {
+        return R.ok(iSysUserService.userMenus());
+    }
+
 }
 
