@@ -47,9 +47,8 @@ public class UserController {
 
     @NotAuth
     @GetMapping("/user/authorities")
-    public R userMenus() {
+    public R userAuthorities() {
         return R.ok(iSysUserService.userMenus());
     }
-
 }
 
