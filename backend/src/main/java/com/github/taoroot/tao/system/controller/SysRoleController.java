@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/role")
-public class RoleController {
+public class SysRoleController {
 
     @PutMapping("/menu")
     public R saveRoleMenus(Integer roleId, @RequestParam(value = "menuIds", required = false) String menuIds) {

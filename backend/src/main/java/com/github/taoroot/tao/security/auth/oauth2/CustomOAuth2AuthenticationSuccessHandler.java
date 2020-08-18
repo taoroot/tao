@@ -61,7 +61,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         if (StringUtils.isEmpty(accessToken)) {
             // 如果没有,就创建用户
             JSONObject jsonObject = new JSONObject();
-            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth(clientId, principal, true);
+            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth2(clientId, principal, true);
             jsonObject.put("sub", "" + customUserDetails.getId());
             jsonObject.put("aud", "auth2-" + oauth2Authentication.getAuthorizedClientRegistrationId());
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
@@ -72,7 +72,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         }
         // 绑定社交账号
         else {
-            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth(clientId, principal, false);
+            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth2(clientId, principal, false);
 
             // 已被绑定
             if (customUserDetails != null) {

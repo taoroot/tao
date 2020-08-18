@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class UserController {
+public class SysUserController {
 
     @Resource
     private SysUserOauth2Mapper sysUserOauth2Mapper;
@@ -26,7 +26,7 @@ public class UserController {
 
     @GetMapping("/user/info")
     public R userInfo() {
-        return R.ok(iSysUserService.userInfo());
+        return iSysUserService.userInfo();
     }
 
     @GetMapping("/user/socials")

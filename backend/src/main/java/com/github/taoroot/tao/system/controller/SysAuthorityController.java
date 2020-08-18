@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/authority")
-public class AuthorityController {
+public class SysAuthorityController {
 
     @GetMapping
     public R getUserMenu() {

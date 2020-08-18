@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.taoroot.tao.system.mapper.SysUserMapper">
+
+    <select id="roles" resultType="java.lang.String">
+        select r.name
+        from user_role ur,
+             roles r
+        where r.id = ur.role_id
+          AND ur.user_id = #{userId};
+    </select>
+
+
+    <select id="authorities" resultType="com.github.taoroot.tao.system.entity.SysAuthority">
+        select distinct a.*
+        from authorities a,
+             role_authority ar
+        where a.id = ar.authority_id
+          and a.type = #{type}
+          and ar.role_id in (select r.id
+                             from user_role ur,
+                                  roles r
+                             where r.id = ur.role_id
+                               AND ur.user_id = #{userId})
+    </select>
+
+
+</mapper>

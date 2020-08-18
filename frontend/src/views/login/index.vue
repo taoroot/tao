@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">飞立兹科技后台管理系统</h3>
+        <h3 class="title">T A O 后台管理系统</h3>
       </div>
 
       <div style="margin-bottom: 20px;" class="tips" @click="loginForm.loginType = !loginForm.loginType">

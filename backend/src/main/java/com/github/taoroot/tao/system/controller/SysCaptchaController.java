@@ -17,7 +17,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-public class CaptchaController {
+public class SysCaptchaController {
 
     @Resource
     private CaptchaValidationRepository captchaValidationRepository;

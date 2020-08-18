@@ -13,12 +13,14 @@ import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.utils.AuthorityUtils;
+import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +37,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private final SysAuthorityMapper sysAuthorityMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final SysUserMapper sysUserMapper;
 
     @Override
     public CustomUserDetails createUser(CustomUserDetails user) {
@@ -63,7 +67,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 
     @Override
-    public CustomUserDetails loadUserByOAuth(String clientId, CustomOAuth2User oAuth2User, boolean create) {
+    public CustomUserDetails loadUserByOAuth2(String clientId, CustomOAuth2User oAuth2User, boolean create) {
 
         SysUserOauth2 userOauth2 = sysUserOauth2Mapper.selectOne(Wrappers.<SysUserOauth2>lambdaQuery()
                 .eq(SysUserOauth2::getClientRegistrationId, clientId)
@@ -145,12 +149,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 myUser.getPassword(),
                 myUser.getPhone(),
                 myUser.getId(),
-                org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList(myUser.getRoles()));
+                org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
     }
 
     @Override
-    public SysUser userInfo() {
-        return getById(SecurityUtils.userId());
+    public R userInfo() {
+        Integer userId = SecurityUtils.userId();
+        HashMap<String, Object> result = new HashMap<>();
+        // 查询用户个人信息
+        result.put("info", this.info());
+        // 查询用户角色信息
+        result.put("roles", sysUserMapper.roles(userId));
+        // 菜单: 0
+        List<SysAuthority> menus = sysUserMapper.authorities(userId, 0);
+        result.put("menus", AuthorityUtils.toTree(menus));
+        // 功能: 1
+        result.put("functions", sysUserMapper.authorities(userId, 1));
+        return R.ok(result);
     }
 
     @Override
@@ -158,4 +173,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
         return AuthorityUtils.toTree(sysAuthorities);
     }
+
+    private SysUser info() {
+        return getById(SecurityUtils.userId());
+    }
+
 }

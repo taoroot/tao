@@ -42,7 +42,7 @@ public interface CustomUserDetailsService extends UserDetailsService {
      */
     CustomUserDetails loadUserByPhone(String phone) throws UsernameNotFoundException;
 
-    CustomUserDetails loadUserByOAuth(String clientId, CustomOAuth2User oAuth2User, boolean create);
+    CustomUserDetails loadUserByOAuth2(String clientId, CustomOAuth2User oAuth2User, boolean create);
 
     String bindOauth2(String clientId, CustomOAuth2User principal, Integer userId);
 
