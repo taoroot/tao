@@ -2,7 +2,10 @@
 
 [<< 目录](/security/README.md)
 
-本节描述 Spring Security在 Servlet 身份验证中使用的主要体系结构组件
+
+本文是对[官方文档](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#servlet-authentication)的翻译
+
+本节描述 Spring Security 在 Servlet 身份验证中使用的主要体系结构组件
 
 - [SecurityContextHolder](#securitycontextholder) 
 - [SecurityContext](#securitycontext)

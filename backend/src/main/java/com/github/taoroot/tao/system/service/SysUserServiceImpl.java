@@ -1,5 +1,7 @@
 package com.github.taoroot.tao.system.service;
 
+import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.lang.tree.TreeUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.CustomUserDetails;
@@ -13,7 +15,6 @@ import com.github.taoroot.tao.system.entity.SysUserRole;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
-import com.github.taoroot.tao.utils.TreeUtils;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -169,7 +170,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         //
         // 菜单: 0
         List<SysAuthority> menus = sysUserMapper.authorities(userId, 0);
-        result.put("menus", TreeUtils.toTree(menus));
+        result.put("menus", toTree(menus));
         // 功能: 1
         result.put("functions", sysUserMapper.authorities(userId, 1));
         return R.ok(result);
@@ -179,4 +180,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return getById(SecurityUtils.userId());
     }
 
+    public  List<Tree<Integer>> toTree(List<SysAuthority> sysAuthorities) {
+        return TreeUtil.build(sysAuthorities, 0,
+                (treeNode, tree) -> {
+                    tree.setId(treeNode.getId());
+                    tree.setParentId(treeNode.getParentId());
+                    tree.setWeight(treeNode.getWeight());
+                    tree.setName(treeNode.getName());
+                    tree.putExtra("path", treeNode.getPath());
+                    tree.putExtra("hidden", treeNode.getHidden());
+                    tree.putExtra("alwaysShow", treeNode.getAlwaysShow());
+                    tree.putExtra("redirect", treeNode.getRedirect());
+                    tree.put("component", treeNode.getComponent());
+                    HashMap<String, Object> meta = new HashMap<>();
+                    meta.put("title", treeNode.getTitle());
+                    meta.put("icon", treeNode.getIcon());
+                    meta.put("breadcrumb", treeNode.getBreadcrumb());
+                    tree.putExtra("meta", meta);
+                });
+    }
 }
