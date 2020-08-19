@@ -4,82 +4,71 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-button-group style="margin: 10px 0">
-            <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd" />
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="isEditForm = true" />
-            <el-button type="primary" icon="el-icon-delete" size="mini" @click="handleDelete" />
+            <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
+            <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
+            <el-button type="primary" icon="el-icon-delete" @click="handleDelete" />
           </el-button-group>
-          <el-tree :data="tableTreeData" :props="defaultProps" @node-click="handleNodeClick" />
+          <el-tree :data="tableTreeData" :props="{ children: 'children', label: 'name' }" @node-click="handleNodeClick" />
         </el-col>
         <el-col :span="16">
-          <el-form
-            ref="dataForm"
-            :model="dataForm"
-            :rules="dataRule"
-            label-width="80px"
-            :size="size"
-            style="text-align:left;"
-          >
-            <el-form-item label="主键">
-              <el-input v-model="dataForm.authorityId" :disabled="!isEditForm" />
+          <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="150px" size="small" style="text-align:left;">
+            <el-form-item label="id">
+              <el-input v-model="dataForm.id" :disabled="!isEditForm" />
             </el-form-item>
 
-            <el-form-item label="父节点">
-              <el-input v-model="dataForm.parentId" :disabled="true" />
+            <el-form-item label="parentId">
+              <el-input v-model="dataForm.parentId" :disabled="!isEditForm" />
             </el-form-item>
 
-            <el-form-item label="名称" prop="name">
+            <el-form-item label="name" prop="name">
               <el-input v-model="dataForm.name" :disabled="!isEditForm" />
             </el-form-item>
 
-            <el-form-item label="类型" prop="type">
+            <el-form-item label="title" prop="title">
+              <el-input v-model="dataForm.title" :disabled="!isEditForm" />
+            </el-form-item>
+
+            <el-form-item label="type" prop="type">
               <el-radio-group v-model="dataForm.type">
                 <el-radio v-for="(type, index) in authorityTypeList" :key="index" :disabled="!isEditForm" :label="index">{{ type }}</el-radio>
               </el-radio-group>
             </el-form-item>
 
-            <el-form-item v-if="dataForm.type === 0" label="图标">
-              <el-popover
-                placement="bottom-start"
-                width="460"
-                trigger="click"
-                @show="$refs['iconSelect'].reset()"
-              >
-                <IconSelect ref="iconSelect" @selected="selected" />
-                <el-input
-                  slot="reference"
-                  v-model="dataForm.icon"
-                  placeholder="点击选择图标"
-                  :disabled="!isEditForm"
-                  readonly
-                >
-                  <svg-icon
-                    v-if="dataForm.icon"
-                    slot="prefix"
-                    :icon-class="dataForm.icon"
-                    class="el-input__icon"
-                    style="height: 32px;width: 16px;"
-                  />
+            <el-form-item v-if="dataForm.type === 0" label="icon">
+              <el-popover placement="bottom-start" width="460" trigger="click" :disabled="!isEditForm" @show="$refs['iconSelect'].reset()">
+                <IconSelect ref="iconSelect" @selected="dataForm.icon = name" />
+                <el-input slot="reference" v-model="dataForm.icon" placeholder="点击选择图标" :disabled="!isEditForm" readonly>
+                  <svg-icon v-if="dataForm.icon" slot="prefix" :icon-class="dataForm.icon" class="el-input__icon" style="height: 32px;width: 16px;" />
                   <i v-else slot="prefix" class="el-icon-search el-input__icon" />
                 </el-input>
               </el-popover>
             </el-form-item>
 
-            <el-form-item v-if="dataForm.type === 0" label="URL" prop="url">
-              <el-input v-model="dataForm.path" :disabled="!isEditForm" placeholder="URL" />
+            <el-form-item v-if="dataForm.type === 0" label="path" prop="path">
+              <el-input v-model="dataForm.path" :disabled="!isEditForm" />
             </el-form-item>
 
-            <el-form-item v-if="dataForm.type === 0" label="VUE" prop="url">
-              <el-input v-model="dataForm.components" :disabled="!isEditForm" placeholder="Layout" />
+            <el-form-item v-if="dataForm.type === 0" label="component" prop="url">
+              <el-input v-model="dataForm.component" :disabled="!isEditForm" placeholder="Layout" />
             </el-form-item>
 
-            <el-form-item v-if="dataForm.type === 0" label="排序编号" prop="sort">
-              <el-input-number
-                v-model="dataForm.sort"
-                :disabled="!isEditForm"
-                controls-position="right"
-                :min="0"
-                label="排序编号"
-              />
+            <el-form-item v-if="dataForm.type === 0" label="breadcrumb" prop="url">
+              <el-input v-model="dataForm.breadcrumb" :disabled="!isEditForm" />
+            </el-form-item>
+
+            <el-form-item v-if="dataForm.type === 0" label="redirect" prop="url">
+              <el-input v-model="dataForm.redirect" :disabled="!isEditForm" />
+            </el-form-item>
+
+            <el-form-item v-if="dataForm.type === 0" label="weight" prop="weight">
+              <el-input-number v-model="dataForm.weight" :disabled="!isEditForm" controls-position="right" label="weight" :min="0" />
+            </el-form-item>
+
+            <el-form-item label="hidden" prop="hidden">
+              <el-switch v-model="dataForm.hidden" :disabled="!isEditForm" />
+            </el-form-item>
+            <el-form-item label="alwaysShow" prop="alwaysShow">
+              <el-switch v-model="dataForm.alwaysShow" :disabled="!isEditForm" />
             </el-form-item>
           </el-form>
 
@@ -93,47 +82,43 @@
 
 <script>
 import IconSelect from '@/components/IconSelect'
-import { getAdminAuthorityTree, getAuthorityById, saveAuthority, deleteAuthority, updateAuthority } from '@/api/authority'
+import { getTree, getAuthorityById, saveAuthority, deleteAuthority, updateAuthority } from '@/api/authority'
+
+var _defaultRow = {
+  'id': -1,
+  'path': '',
+  'component': null,
+  'hidden': null,
+  'alwaysShow': null,
+  'redirect': null,
+  'name': '',
+  'title': '',
+  'icon': '',
+  'breadcrumb': null,
+  'parentId': 0,
+  'weight': 1,
+  'type': 0
+}
 export default {
   components: { IconSelect },
   data() {
     return {
       tableTreeData: [],
-      defaultProps: {
-        children: 'children',
-        label: (data, node) => {
-          // var name = this.$t(`route.${data.name}`)
-          return data.name
-        }
-      },
-      size: 'small',
       isEditForm: false,
       authorityTypeList: ['菜单', '按钮'],
-      dataForm: {
-        authorityId: -1,
-        type: null,
-        name: '',
-        parentId: -1,
-        component: '',
-        path: '',
-        sort: 0,
-        icon: ''
-      },
-      // 表单校验
+      dataForm: Object.assign({}, _defaultRow),
       dataRule: {
-        name: [{ required: true, message: '菜单名称不能为空', trigger: 'blur' }]
+        name: [{ required: true, trigger: 'blur' }],
+        title: [{ required: true, trigger: 'blur' }],
+        path: [{ required: true, trigger: 'blur' }],
+        icon: [{ required: true, trigger: 'blur' }]
       }
     }
   },
-  created() {
+  mounted() {
     this.findTreeData()
   },
   methods: {
-    // 选中的icon
-    selected(name) {
-      this.dataForm.icon = name
-    },
-    // 选中的节点
     handleNodeClick(data) {
       if (data.id) {
         getAuthorityById(data.id).then(res => {
@@ -141,35 +126,26 @@ export default {
         })
       }
     },
-    // 获取菜单【TREE】
     findTreeData() {
-      getAdminAuthorityTree().then(res => {
+      getTree().then(res => {
         this.tableTreeData = res.data
       })
     },
     handleAdd() {
       this.isEditForm = true
-      this.dataForm = {
-        type: 1,
-        name: '',
-        parentId: this.dataForm.authorityId,
-        component: '',
-        path: '',
-        sort: 0,
-        icon: ''
-      }
+      this.dataForm = Object.assign({}, _defaultRow)
     },
     create() {
-      if (this.dataForm.authorityId) {
+      if (this.dataForm.id) {
         updateAuthority(this.dataForm).then(res => {
-          if (!res.result) {
+          if (res.code === 0) {
             this.findTreeData()
             this.isEditForm = false
           }
         })
       } else {
         saveAuthority(this.dataForm).then(res => {
-          if (!res.result) {
+          if (res.code === 0) {
             this.findTreeData()
             this.isEditForm = false
           }
@@ -179,7 +155,7 @@ export default {
     cancel() {
       this.$refs.dataForm.resetFields()
       this.isEditForm = false
-      this.dataForm.parentId = -1
+      this.dataForm.parentId = 0
     },
     // 删除操作
     handleDelete() {
@@ -187,14 +163,13 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      })
-        .then(() => {
-          deleteAuthority(this.dataForm.authorityId).then(response => {
-            if (!response.result) {
-              this.findTreeData()
-            }
-          })
+      }).then(() => {
+        deleteAuthority(this.dataForm.id).then(response => {
+          if (response.code === 0) {
+            this.findTreeData()
+          }
         })
+      })
     }
 
   }

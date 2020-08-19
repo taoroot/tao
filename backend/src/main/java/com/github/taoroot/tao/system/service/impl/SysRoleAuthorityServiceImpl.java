@@ -47,8 +47,17 @@ public class SysRoleAuthorityServiceImpl extends ServiceImpl<SysRoleAuthorityMap
     public R getPermission(Integer roleId) {
         HashMap<String, Object> hashMap = new HashMap<>();
 
+        List<Tree<Integer>> all = getTrees();
+
+        hashMap.put("authorityData", all);
+        hashMap.put("checkedKeys", sysAuthorityMapper.getIdsByRole(roleId));
+
+        return R.ok(hashMap);
+    }
+
+    public List<Tree<Integer>> getTrees() {
         List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
-        List<Tree<Integer>> all = TreeUtil.build(sysAuthorities, 0,
+        return TreeUtil.build(sysAuthorities, 0,
                 (treeNode, tree) -> {
                     tree.setId(treeNode.getId());
                     tree.setParentId(treeNode.getParentId());
@@ -56,10 +65,5 @@ public class SysRoleAuthorityServiceImpl extends ServiceImpl<SysRoleAuthorityMap
                     tree.setName(treeNode.getName());
                     tree.putExtra("name", treeNode.getTitle());
                 });
-
-        hashMap.put("authorityData", all);
-        hashMap.put("checkedKeys", sysAuthorityMapper.getIdsByRole(roleId));
-
-        return R.ok(hashMap);
     }
 }

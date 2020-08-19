@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 19/08/2020 14:59:27
+ Date: 19/08/2020 16:19:22
 */
 
 SET NAMES utf8mb4;
@@ -22,7 +22,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `authorities`;
 CREATE TABLE `authorities`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
+  `id` int(11) NOT NULL COMMENT '菜单ID',
   `path` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `component` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `hidden` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '0-开启，1- 关闭',
@@ -38,13 +38,13 @@ CREATE TABLE `authorities`  (
   `update_time` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   `breadcrumb` int(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4003 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '权限表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of authorities
 -- ----------------------------
 INSERT INTO `authorities` VALUES (10, 'external-link', 'Layout', NULL, NULL, '/github', NULL, '动态路由', 'link', 0, 1, '0', '2020-08-18 10:13:56', '2020-08-18 21:04:54', NULL);
-INSERT INTO `authorities` VALUES (11, 'https://github.com/taoroot/tao', NULL, NULL, NULL, NULL, 'github', 'github', 'link', 10, 1, '0', '2020-08-18 10:14:08', '2020-08-18 21:02:41', NULL);
+INSERT INTO `authorities` VALUES (11, 'https://github.com/taoroot/tao', NULL, NULL, NULL, NULL, 'github', 'github', 'github', 10, 1, '0', '2020-08-18 10:14:08', '2020-08-19 15:32:06', NULL);
 INSERT INTO `authorities` VALUES (12, 'https://doc-tao.flizi.cn', NULL, NULL, NULL, NULL, 'vuepress', 'vuepress', 'link', 10, 1, '0', '2020-08-18 10:14:08', '2020-08-18 21:02:41', NULL);
 
 -- ----------------------------
@@ -139,6 +139,6 @@ CREATE TABLE `users`  (
   `avatar` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `roles` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

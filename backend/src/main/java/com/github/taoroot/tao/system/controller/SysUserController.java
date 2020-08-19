@@ -42,11 +42,5 @@ public class SysUserController {
 
         return R.ok(collect);
     }
-
-    @NotAuth
-    @GetMapping("/user/authorities")
-    public R userAuthorities() {
-        return R.ok(iSysUserService.userMenus());
-    }
 }
 

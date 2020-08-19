@@ -175,12 +175,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return R.ok(result);
     }
 
-    @Override
-    public Object userMenus() {
-        List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
-        return TreeUtils.toTree(sysAuthorities);
-    }
-
     private SysUser info() {
         return getById(SecurityUtils.userId());
     }

@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 查找导航菜单树
+export const getTree = () => {
+  return request({
+    url: '/authorities',
+    method: 'get'
+  })
+}
+
 // 保存
 export const saveAuthority = (data) => {
   return request({
@@ -19,21 +27,6 @@ export const deleteAuthority = (id) => {
 export const getAuthorityById = (id) => {
   return request({
     url: `/authority/${id}`,
-    method: 'get'
-  })
-}
-// 查找导航菜单树
-export const getAuthorityTree = () => {
-  return request({
-    url: '/authority/tree',
-    method: 'get'
-  })
-}
-
-// 查找系统菜单树
-export const getAdminAuthorityTree = () => {
-  return request({
-    url: '/authority/admin/tree',
     method: 'get'
   })
 }

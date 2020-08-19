@@ -1,5 +1,7 @@
 package com.github.taoroot.tao.system.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
@@ -28,6 +30,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SysAuthority extends Model<SysAuthority> {
 
+    @TableId(type = IdType.INPUT)
     private Integer id;
 
     private String path;
@@ -52,5 +55,5 @@ public class SysAuthority extends Model<SysAuthority> {
 
     private Integer weight;
 
-    private String type;
+    private Integer type;
 }
