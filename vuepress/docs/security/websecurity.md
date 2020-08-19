@@ -49,7 +49,7 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 
 泛型B: 当前类实际类型
 
-所以这是一个可配置的 AbstractSecurityBuilder 子类, 而实际配置的是委托给 SecurityConfigurer
+所以这是一个可配置的 AbstractSecurityBuilder 子类, 而实际配置委托给 SecurityConfigurer\<O, B\>
 
 ```java
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
@@ -111,7 +111,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 ## WebSecurity
 
-执行我上述的 SecurityConfigurer, 生成 SecurityBuilder\<? extends SecurityFilterChain\>,
+执行上述 `SecurityConfigurer\<O, B\>`, 会生成 `SecurityBuilder\<? extends SecurityFilterChain\>`
 加入到 securityFilterChainBuilders 集合
 
 WebSecurityConfigurer\<WebSecurity\> 具体类 [WebSecurityConfigurerAdapter](/security/websecurityconfigureradapter)
@@ -130,8 +130,7 @@ public final class WebSecurity extends
 		Assert.state(!securityFilterChainBuilders.isEmpty(), () -> "至少要有一个");
 
 		int chainSize = ignoredRequests.size() + securityFilterChainBuilders.size();
-		List<SecurityFilterChain> securityFilterChains = new ArrayList<>(
-				chainSize);
+		List<SecurityFilterChain> securityFilterChains = new ArrayList<>(chainSize);
 
 		// 提供一个默认的过滤器链, 不做任何事情. 
 		// 因为只会走一个过滤器链, 所以当URL被这个匹配到, 相当于没发挥作用

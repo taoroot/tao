@@ -18,7 +18,7 @@ public interface SecurityBuilder<O> {
 
 泛型O: 由 SecurityBuilder 构建的对象
 
-泛型B: 正在配置的 SecurityBuilder。
+泛型B: 正在配置的 SecurityBuilder
  
 ```java
 public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
@@ -36,13 +36,12 @@ public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 ```java
 public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends
 		SecurityConfigurer<Filter, T> {
-
 }
 ```
 
 ## WebSecurityConfigurerAdapter
 
-适配器,提供了默认实现,对WebSecurity进行了默认配置,并创建了一个 HttpSecurity,并进行了默认配置.
+适配器,提供对WebSecurity进行了默认配置,并创建了一个 HttpSecurity,并进行了默认配置.
 
 这也就是为什么 Spring Security 不需要进行配置就可以使用的原因
 
