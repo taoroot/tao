@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.taoroot.tao.system.mapper.SysAuthorityMapper">
+
+
+    <select id="getIdsByRole" resultType="java.lang.Integer">
+        select ra.authority_id
+        from role_authority ra
+        where ra.role_id = #{roleId}
+    </select>
+</mapper>

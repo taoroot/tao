@@ -2,47 +2,52 @@ package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.taoroot.tao.system.entity.SysRole;
+import com.github.taoroot.tao.system.service.SysRoleAuthorityService;
+import com.github.taoroot.tao.system.service.SysRoleService;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
-@RequestMapping("/role")
+@RequestMapping
 public class SysRoleController {
 
-    @PutMapping("/menu")
-    public R saveRoleMenus(Integer roleId, @RequestParam(value = "menuIds", required = false) String menuIds) {
-        return R.ok();
+    private final SysRoleService sysRoleService;
+
+    private final SysRoleAuthorityService sysRoleAuthorityService;
+
+    @PostMapping("/role")
+    public R saveItem(@RequestBody SysRole sysRole) {
+        return R.ok(sysRoleService.save(sysRole));
     }
 
-    @GetMapping("/{id}")
-    public R getById(@PathVariable Integer id) {
-        return R.ok();
+    @DeleteMapping("/role")
+    public R delItem(@RequestParam List<Integer> ids) {
+        return R.ok(sysRoleService.removeByIds(ids));
     }
 
-    @PostMapping
-    public R save(@RequestBody SysRole sysRole) {
-        return R.ok();
+    @PutMapping("/role")
+    public R updateItem(@RequestBody SysRole sysRole) {
+        return R.ok(sysRoleService.updateById(sysRole));
     }
 
-    @PutMapping
-    public R update(@RequestBody SysRole sysRole) {
-        return R.ok();
+    @GetMapping("/roles")
+    public R getPage(Page<SysRole> page) {
+        return R.ok(sysRoleService.page(page));
     }
 
-    @DeleteMapping("/{id}")
-    public R removeById(@PathVariable Integer id) {
-        return R.ok();
+    @GetMapping("/role/{roleId}/authorities")
+    public R getPermission(@PathVariable Integer roleId) {
+        return sysRoleAuthorityService.getPermission(roleId);
     }
 
-    @GetMapping("/list")
-    public R listRoles() {
-        return R.ok();
-    }
-
-    @GetMapping("/page")
-    public R getRolePage(Page page) {
-        return R.ok();
+    @PutMapping("/role/{roleId}/authorities")
+    public R updatePermission(@PathVariable Integer roleId, String authorityIds) {
+        return sysRoleAuthorityService.updatePermission(roleId, authorityIds);
     }
 }

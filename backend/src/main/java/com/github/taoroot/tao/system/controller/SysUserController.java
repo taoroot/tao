@@ -33,14 +33,12 @@ public class SysUserController {
     public R social() {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         List<HashMap<String, String>> collect = sysUserOauth2Mapper.selectList(
-                Wrappers.<SysUserOauth2>lambdaQuery()
-                        .eq(SysUserOauth2::getUserId, name)
+                Wrappers.<SysUserOauth2>lambdaQuery().eq(SysUserOauth2::getUserId, name)
         ).stream().map(item -> {
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(item.getClientRegistrationId(), item.getPrincipalName());
             return hashMap;
-        })
-                .collect(Collectors.toList());
+        }).collect(Collectors.toList());
 
         return R.ok(collect);
     }

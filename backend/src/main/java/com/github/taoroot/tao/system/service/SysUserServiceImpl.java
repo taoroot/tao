@@ -13,7 +13,7 @@ import com.github.taoroot.tao.system.entity.SysUserRole;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
-import com.github.taoroot.tao.utils.AuthorityUtils;
+import com.github.taoroot.tao.utils.TreeUtils;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -166,9 +166,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         result.put("info", this.info());
         // 查询用户角色信息
         result.put("roles", sysUserMapper.roles(userId));
+        //
         // 菜单: 0
         List<SysAuthority> menus = sysUserMapper.authorities(userId, 0);
-        result.put("menus", AuthorityUtils.toTree(menus));
+        result.put("menus", TreeUtils.toTree(menus));
         // 功能: 1
         result.put("functions", sysUserMapper.authorities(userId, 1));
         return R.ok(result);
@@ -177,7 +178,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public Object userMenus() {
         List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
-        return AuthorityUtils.toTree(sysAuthorities);
+        return TreeUtils.toTree(sysAuthorities);
     }
 
     private SysUser info() {

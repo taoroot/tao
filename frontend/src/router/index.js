@@ -53,6 +53,27 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
+  },
+
+  {
+    path: '/system',
+    component: Layout,
+    redirect: '/authority/index',
+    meta: { title: '系统设置', icon: 'user' },
+    children: [
+      {
+        path: 'authority',
+        component: () => import('@/views/authority/index'),
+        name: 'Authority',
+        meta: { title: '权限管理', icon: 'authority' }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/role/index'),
+        name: 'Role',
+        meta: { title: '角色管理', icon: 'user' }
+      }
+    ]
   }
 
   // 404 page must be placed at the end !!!

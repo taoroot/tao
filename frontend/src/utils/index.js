@@ -115,3 +115,17 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+import { Message } from 'element-ui'
+
+export function checkOne(rows) {
+  if (rows.length === 0) {
+    Message.info('请选择操作数据')
+    return undefined
+  }
+  if (rows.length > 1) {
+    Message.info('不支持多行操作')
+    return undefined
+  }
+  return Object.assign({}, rows[0])
+}

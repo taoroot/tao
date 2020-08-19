@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
@@ -79,6 +80,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
         return new CustomJwtDecoder(secret);
     }
 
+
     // @formatter:off
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -98,6 +100,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
                 // JWT登录
                 .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .bearerTokenResolver(bearerTokenResolver())
                         .jwt().decoder(jwtDecoder()))
 
                 // 表单登录
@@ -223,4 +226,12 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
         log.info("permit all urls: {}", permitAllUrls);
     }
+
+    private DefaultBearerTokenResolver bearerTokenResolver() {
+        DefaultBearerTokenResolver defaultBearerTokenResolver = new DefaultBearerTokenResolver();
+        defaultBearerTokenResolver.setAllowFormEncodedBodyParameter(true);
+        defaultBearerTokenResolver.setAllowUriQueryParameter(true);
+        return defaultBearerTokenResolver;
+    }
+
 }

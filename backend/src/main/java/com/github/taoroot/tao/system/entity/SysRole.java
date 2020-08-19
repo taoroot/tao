@@ -13,16 +13,18 @@ import java.time.LocalDateTime;
 @TableName("roles")
 @EqualsAndHashCode(callSuper = true)
 public class SysRole extends Model<SysRole> {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@TableId(value = "role_id", type = IdType.AUTO)
-	private Integer roleId;
+    @TableId(type = IdType.AUTO)
+    private Integer id;
 
-	private String roleName;
+    private String name;
 
-	private String roleDesc;
+    private String role;
 
-	private LocalDateTime createTime;
+    private String description;
 
-	private LocalDateTime updateTime;
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }
