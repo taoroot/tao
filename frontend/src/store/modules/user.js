@@ -1,4 +1,4 @@
-import { login, logout, getInfo, loginPhone } from '@/api/user'
+import { login, logout, getInfo, loginPhone } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 

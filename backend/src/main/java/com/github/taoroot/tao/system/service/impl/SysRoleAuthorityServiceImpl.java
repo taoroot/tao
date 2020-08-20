@@ -10,6 +10,7 @@ import com.github.taoroot.tao.system.entity.SysRoleAuthority;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysRoleAuthorityMapper;
 import com.github.taoroot.tao.system.service.SysRoleAuthorityService;
+import com.github.taoroot.tao.utils.Const;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,7 @@ public class SysRoleAuthorityServiceImpl extends ServiceImpl<SysRoleAuthorityMap
 
     public List<Tree<Integer>> getTrees() {
         List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
-        return TreeUtil.build(sysAuthorities, 0,
+        return TreeUtil.build(sysAuthorities, Const.ROOT_PARENT_ID,
                 (treeNode, tree) -> {
                     tree.setId(treeNode.getId());
                     tree.setParentId(treeNode.getParentId());

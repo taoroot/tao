@@ -68,10 +68,22 @@ export const constantRoutes = [
         meta: { title: '权限管理', icon: 'authority' }
       },
       {
+        path: 'dept',
+        component: () => import('@/views/dept/index'),
+        name: 'Dept',
+        meta: { title: '部门管理', icon: 'dept' }
+      },
+      {
         path: 'role',
         component: () => import('@/views/role/index'),
         name: 'Role',
         meta: { title: '角色管理', icon: 'user' }
+      },
+      {
+        path: 'user',
+        component: () => import('@/views/user/index'),
+        name: 'User',
+        meta: { title: '用户管理', icon: 'user' }
       }
     ]
   }

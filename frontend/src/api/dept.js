@@ -1,15 +1,15 @@
 import request from '@/utils/request'
 
-export function getPage() {
+export function getTree() {
   return request({
-    url: '/users',
+    url: '/depts',
     method: 'get'
   })
 }
 
 export function delItem(ids) {
   return request({
-    url: `/user`,
+    url: `/dept`,
     method: 'delete',
     params: {
       ids: ids
@@ -19,7 +19,7 @@ export function delItem(ids) {
 
 export function saveItem(data) {
   return request({
-    url: '/user',
+    url: '/dept',
     method: 'post',
     data
   })
@@ -27,25 +27,15 @@ export function saveItem(data) {
 
 export function updateItem(data) {
   return request({
-    url: `/user`,
+    url: `/dept`,
     method: 'put',
     data
   })
 }
 
-export function updatePermission(userId, menuIds) {
+export const getItemById = (id) => {
   return request({
-    url: `/user/${userId}/authorities`,
-    method: 'put',
-    params: {
-      authorityIds: menuIds
-    }
-  })
-}
-
-export function getPermission(userId) {
-  return request({
-    url: `/user/${userId}/authorities`,
+    url: `/dept/${id}`,
     method: 'get'
   })
 }

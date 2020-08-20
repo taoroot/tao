@@ -22,6 +22,8 @@ public class SysRole extends Model<SysRole> {
 
     private String role;
 
+    private String scope;
+
     private String description;
 
     private LocalDateTime createTime;

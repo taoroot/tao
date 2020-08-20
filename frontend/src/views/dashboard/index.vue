@@ -16,7 +16,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { getSocial } from '@/api/user'
+import { getSocial } from '@/api/login'
 
 export default {
   name: 'Dashboard',

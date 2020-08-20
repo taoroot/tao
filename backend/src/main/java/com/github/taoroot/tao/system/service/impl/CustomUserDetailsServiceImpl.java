@@ -1,9 +1,8 @@
-package com.github.taoroot.tao.system.service;
+package com.github.taoroot.tao.system.service.impl;
 
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.SecurityUtils;
@@ -12,7 +11,6 @@ import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.entity.SysUserRole;
-import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.utils.R;
@@ -32,40 +30,13 @@ import java.util.UUID;
 @Log4j2
 @Service
 @AllArgsConstructor
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService, CustomUserDetailsService {
+public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     private final SysUserOauth2Mapper sysUserOauth2Mapper;
-
-    private final SysAuthorityMapper sysAuthorityMapper;
 
     private final PasswordEncoder passwordEncoder;
 
     private final SysUserMapper sysUserMapper;
-
-    @Override
-    public CustomUserDetails createUser(CustomUserDetails user) {
-        return null;
-    }
-
-    @Override
-    public void updateUser(CustomUserDetails user) {
-
-    }
-
-    @Override
-    public void deleteUser(String username) {
-
-    }
-
-    @Override
-    public void changePassword(String oldPassword, String newPassword) {
-
-    }
-
-    @Override
-    public boolean userExists(String username) {
-        return false;
-    }
 
 
     @Override
@@ -77,7 +48,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         );
 
         if (userOauth2 != null) {
-            return translate(getById(userOauth2.getUserId()));
+            return translate(sysUserMapper.selectById(userOauth2.getUserId()));
         }
 
         if (create) {
@@ -87,6 +58,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser.setUsername(username);
             sysUser.setAvatar(oAuth2User.getAvatar());
             sysUser.setPassword(passwordEncoder.encode(password));
+            sysUser.setDeptId(1000);
             sysUser.insert();
 
             SysUserRole sysUserRole = new SysUserRole();
@@ -124,7 +96,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public CustomUserDetails loadUserByPhone(String phone) throws UsernameNotFoundException {
-        SysUser myUser = getBaseMapper().selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getPhone, phone));
+        SysUser myUser = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getPhone, phone));
 
         if (myUser == null) {
             throw new UsernameNotFoundException("手机号不存在");
@@ -135,7 +107,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUser myUser = getBaseMapper().selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username));
+        SysUser myUser = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username));
 
         if (myUser == null) {
             throw new UsernameNotFoundException(username);
@@ -146,7 +118,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public CustomUserDetails loadUserById(String userId) {
-        return translate(getBaseMapper().selectById(userId));
+        return translate(sysUserMapper.selectById(userId));
     }
 
     private CustomUserDetails translate(SysUser myUser) {
@@ -159,44 +131,5 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
     }
 
-    @Override
-    public R userInfo() {
-        Integer userId = SecurityUtils.userId();
-        HashMap<String, Object> result = new HashMap<>();
-        // 查询用户个人信息
-        result.put("info", this.info());
-        // 查询用户角色信息
-        result.put("roles", sysUserMapper.roles(userId));
-        //
-        // 菜单: 0
-        List<SysAuthority> menus = sysUserMapper.authorities(userId, 0);
-        result.put("menus", toTree(menus));
-        // 功能: 1
-        result.put("functions", sysUserMapper.authorities(userId, 1));
-        return R.ok(result);
-    }
 
-    private SysUser info() {
-        return getById(SecurityUtils.userId());
-    }
-
-    public  List<Tree<Integer>> toTree(List<SysAuthority> sysAuthorities) {
-        return TreeUtil.build(sysAuthorities, 0,
-                (treeNode, tree) -> {
-                    tree.setId(treeNode.getId());
-                    tree.setParentId(treeNode.getParentId());
-                    tree.setWeight(treeNode.getWeight());
-                    tree.setName(treeNode.getName());
-                    tree.putExtra("path", treeNode.getPath());
-                    tree.putExtra("hidden", treeNode.getHidden());
-                    tree.putExtra("alwaysShow", treeNode.getAlwaysShow());
-                    tree.putExtra("redirect", treeNode.getRedirect());
-                    tree.put("component", treeNode.getComponent());
-                    HashMap<String, Object> meta = new HashMap<>();
-                    meta.put("title", treeNode.getTitle());
-                    meta.put("icon", treeNode.getIcon());
-                    meta.put("breadcrumb", treeNode.getBreadcrumb());
-                    tree.putExtra("meta", meta);
-                });
-    }
 }

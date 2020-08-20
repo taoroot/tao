@@ -1,46 +1,38 @@
 package com.github.taoroot.tao.system.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.taoroot.tao.security.annotation.NotAuth;
-import com.github.taoroot.tao.system.entity.SysUserOauth2;
-import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
-import com.github.taoroot.tao.system.service.ISysUserService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.taoroot.tao.system.entity.SysUser;
+import com.github.taoroot.tao.system.service.SysUserService;
 import com.github.taoroot.tao.utils.R;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
+@AllArgsConstructor
 public class SysUserController {
 
-    @Resource
-    private SysUserOauth2Mapper sysUserOauth2Mapper;
+    private final SysUserService sysUserService;
 
-    @Resource
-    private ISysUserService iSysUserService;
-
-    @GetMapping("/user/info")
-    public R userInfo() {
-        return iSysUserService.userInfo();
+    @PostMapping("/user")
+    public R saveItem(@RequestBody SysUser sysUser) {
+        return R.ok(sysUserService.save(sysUser));
     }
 
-    @GetMapping("/user/socials")
-    public R social() {
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<HashMap<String, String>> collect = sysUserOauth2Mapper.selectList(
-                Wrappers.<SysUserOauth2>lambdaQuery().eq(SysUserOauth2::getUserId, name)
-        ).stream().map(item -> {
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put(item.getClientRegistrationId(), item.getPrincipalName());
-            return hashMap;
-        }).collect(Collectors.toList());
+    @DeleteMapping("/user")
+    public R delItem(@RequestParam List<Integer> ids) {
+        return R.ok(sysUserService.removeByIds(ids));
+    }
 
-        return R.ok(collect);
+    @PutMapping("/user")
+    public R updateItem(@RequestBody SysUser sysUser) {
+        return R.ok(sysUserService.updateById(sysUser));
+    }
+
+    @GetMapping("/users")
+    public R getPage(Page<SysUser> page) {
+        return sysUserService.getPage(page);
     }
 }
 

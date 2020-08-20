@@ -26,5 +26,11 @@
         )
     </select>
 
+    <select id="getPage" resultType="com.github.taoroot.tao.system.dto.SysUserPageVO">
+        select u.*, d.name as dept_name
+        from users u
+        left join depts d on d.id = u.dept_id
+    </select>
+
 
 </mapper>

@@ -100,7 +100,7 @@
 
 <script>
 import { setToken } from '@/utils/auth'
-import { getSms } from '@/api/user'
+import { getSms } from '@/api/login'
 
 export default {
   name: 'Login',
