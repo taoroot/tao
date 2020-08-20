@@ -1,12 +1,18 @@
 module.exports = {
   title: 'T A O 文档说明',
   description: '基于 Spring Boot 的 RBAC 权限管理系统',
+  plugins: [
+    [
+      '@vuepress/google-analytics',
+      { 
+        'ga': 'UA-175890446-1'
+      }
+    ],
+    ['@vuepress/back-to-top', {}]
+  ],
   head: [
     ['link', { rel: 'icon', href: '/zymy.jpg' }]
   ],
-  plugins: {
-    '@vuepress/back-to-top': {}
-  },
   themeConfig: {
     sidebar: {
       '/guide/': [
