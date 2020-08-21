@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-card style="min-height: 600px">
-      <el-row :gutter="20">
-        <el-col :span="8">
+      <el-row>
+        <el-col :span="4">
           <el-button-group style="margin: 10px 0">
             <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
             <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
@@ -10,7 +10,7 @@
           </el-button-group>
           <el-tree :data="tableTreeData" :props="{ children: 'children', label: 'name' }" @node-click="handleNodeClick" />
         </el-col>
-        <el-col :span="16">
+        <el-col :span="19" :offset="1">
           <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="150px" size="small" style="text-align:left;">
             <el-form-item label="id">
               <el-input v-model="dataForm.id" :disabled="!isEditForm" />

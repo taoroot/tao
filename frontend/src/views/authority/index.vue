@@ -1,81 +1,87 @@
 <template>
   <div class="app-container">
     <el-card style="min-height: 600px">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-button-group style="margin: 10px 0">
-            <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
-            <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
-            <el-button type="primary" icon="el-icon-delete" @click="handleDelete" />
-          </el-button-group>
-          <el-tree :data="tableTreeData" :props="{ children: 'children', label: 'name' }" @node-click="handleNodeClick" />
-        </el-col>
-        <el-col :span="16">
-          <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="150px" size="small" style="text-align:left;">
-            <el-form-item label="id">
-              <el-input v-model="dataForm.id" :disabled="!isEditForm" />
-            </el-form-item>
+      <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
+      <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
+      <el-button type="primary" icon="el-icon-delete" @click="handleDelete" />
+      <el-table row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" border :data="tableTreeData">
+        <el-table-column label="id" align="left" width="185">
+          <template slot-scope="scope">
+            <span>{{ scope.row.id }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item label="parentId">
-              <el-input v-model="dataForm.parentId" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="path" align="left" width="333">
+          <template slot-scope="scope">
+            <span>{{ scope.row.path }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item label="name" prop="name">
-              <el-input v-model="dataForm.name" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="component" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.component }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item label="title" prop="title">
-              <el-input v-model="dataForm.title" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="hidden" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.hidden }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item label="type" prop="type">
-              <el-radio-group v-model="dataForm.type">
-                <el-radio v-for="(type, index) in authorityTypeList" :key="index" :disabled="!isEditForm" :label="index">{{ type }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
+        <el-table-column label="alwaysShow" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.alwaysShow }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="icon">
-              <el-popover placement="bottom-start" width="460" trigger="click" :disabled="!isEditForm" @show="$refs['iconSelect'].reset()">
-                <IconSelect ref="iconSelect" @selected="dataForm.icon = name" />
-                <el-input slot="reference" v-model="dataForm.icon" placeholder="点击选择图标" :disabled="!isEditForm" readonly>
-                  <svg-icon v-if="dataForm.icon" slot="prefix" :icon-class="dataForm.icon" class="el-input__icon" style="height: 32px;width: 16px;" />
-                  <i v-else slot="prefix" class="el-icon-search el-input__icon" />
-                </el-input>
-              </el-popover>
-            </el-form-item>
+        <el-table-column label="redirect" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.redirect }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="path" prop="path">
-              <el-input v-model="dataForm.path" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="name" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.name }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="component" prop="url">
-              <el-input v-model="dataForm.component" :disabled="!isEditForm" placeholder="Layout" />
-            </el-form-item>
+        <el-table-column label="title" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.title }} </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="icon" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.icon }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="breadcrumb" prop="url">
-              <el-input v-model="dataForm.breadcrumb" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="breadcrumb" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.breadcrumb }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="redirect" prop="url">
-              <el-input v-model="dataForm.redirect" :disabled="!isEditForm" />
-            </el-form-item>
+        <el-table-column label="weight" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.weight }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item v-if="dataForm.type === 0" label="weight" prop="weight">
-              <el-input-number v-model="dataForm.weight" :disabled="!isEditForm" controls-position="right" label="weight" :min="0" />
-            </el-form-item>
+        <el-table-column label="type" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.type }} </span>
+          </template>
+        </el-table-column>
 
-            <el-form-item label="hidden" prop="hidden">
-              <el-switch v-model="dataForm.hidden" :disabled="!isEditForm" />
-            </el-form-item>
-            <el-form-item label="alwaysShow" prop="alwaysShow">
-              <el-switch v-model="dataForm.alwaysShow" :disabled="!isEditForm" />
-            </el-form-item>
-          </el-form>
-
-          <el-button v-if="isEditForm" @click="create">保存</el-button>
-          <el-button v-if="isEditForm" @click="cancel">取消</el-button>
-        </el-col>
-      </el-row>
+        <el-table-column label="操作" align="center" width="185">
+          <template slot-scope="scope">
+            <el-button type="text" size="mini" icon="el-icon-delete" @click="_delObj(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
@@ -115,7 +121,7 @@ export default {
       }
     }
   },
-  mounted() {
+  created() {
     this.findTreeData()
   },
   methods: {

@@ -15,6 +15,7 @@
   display: none;
 }
 
+body .el-table th.gutter{ display: table-cell!important; }
 
 // to fixed https://github.com/ElemeFE/element/issues/2461
 .el-dialog {
