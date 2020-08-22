@@ -1,83 +1,59 @@
 <template>
   <div class="app-container">
     <el-card style="min-height: 600px">
-      <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
-      <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
-      <el-button type="primary" icon="el-icon-delete" @click="handleDelete" />
+      <el-button type="text" icon="el-icon-plus" @click="handleAdd" />
+      <el-button type="text" icon="el-icon-refresh" @click="findTreeData" />
       <el-table row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" border :data="tableTreeData">
-        <el-table-column label="id" align="left" width="185">
-          <template slot-scope="scope">
-            <span>{{ scope.row.id }} </span>
-          </template>
-        </el-table-column>
 
-        <el-table-column label="path" align="left" width="333">
-          <template slot-scope="scope">
-            <span>{{ scope.row.path }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="component" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.component }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="hidden" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.hidden }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="alwaysShow" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.alwaysShow }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="redirect" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.redirect }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="name" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.name }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="title" align="center">
+        <el-table-column label="菜单名称" align="left">
           <template slot-scope="scope">
             <span>{{ scope.row.title }} </span>
           </template>
         </el-table-column>
-        <el-table-column label="icon" align="center">
+
+        <el-table-column label="图标" align="center">
           <template slot-scope="scope">
-            <span>{{ scope.row.icon }} </span>
+            <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" style="height: 32px;width: 16px;" />
           </template>
         </el-table-column>
 
-        <el-table-column label="breadcrumb" align="center">
-          <template slot-scope="scope">
-            <span>{{ scope.row.breadcrumb }} </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="weight" align="center">
+        <el-table-column label="排序" align="center">
           <template slot-scope="scope">
             <span>{{ scope.row.weight }} </span>
           </template>
         </el-table-column>
 
+        <el-table-column label="权限标识" align="left" width="333">
+          <template slot-scope="scope">
+            <span>{{ scope.row.authority }} </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="路径" align="left">
+          <template slot-scope="scope">
+            <span>{{ scope.row.path }} </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="可见" align="center">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.hidden == true">可见</el-tag>
+            <el-tag v-else-if="scope.row.hidden == undefined">--</el-tag>
+            <el-tag v-else type="warning">隐藏</el-tag>
+          </template>
+        </el-table-column>
+
         <el-table-column label="type" align="center">
           <template slot-scope="scope">
-            <span>{{ scope.row.type }} </span>
+            <el-tag v-if="scope.row.type == 0">菜单</el-tag>
+            <el-tag v-else type="success">按钮</el-tag>
           </template>
         </el-table-column>
 
         <el-table-column label="操作" align="center" width="185">
           <template slot-scope="scope">
+            <el-button type="text" size="mini" icon="el-icon-edit" @click="_delObj(scope.row)">编辑</el-button>
+            <el-button type="text" size="mini" icon="el-icon-plus" @click="_delObj(scope.row)">新增</el-button>
             <el-button type="text" size="mini" icon="el-icon-delete" @click="_delObj(scope.row)">删除</el-button>
           </template>
         </el-table-column>

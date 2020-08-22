@@ -94,7 +94,6 @@
         </el-row>
       </div>
     </el-form>
-    <h5 style="margin-top: 150px; text-align: center; color: #fff">Copyright ©2020 金华飞立兹科技有限公司 浙ICP备19015501号</h5>
   </div>
 </template>
 
