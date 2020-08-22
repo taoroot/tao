@@ -10,7 +10,6 @@ import com.github.taoroot.tao.system.entity.SysRoleAuthority;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
 import com.github.taoroot.tao.system.mapper.SysRoleAuthorityMapper;
 import com.github.taoroot.tao.system.service.SysRoleAuthorityService;
-import com.github.taoroot.tao.utils.Const;
 import com.github.taoroot.tao.utils.R;
 import com.github.taoroot.tao.utils.TreeUtils;
 import lombok.AllArgsConstructor;
@@ -49,16 +48,27 @@ public class SysRoleAuthorityServiceImpl extends ServiceImpl<SysRoleAuthorityMap
     public R getPermission(Integer roleId) {
         HashMap<String, Object> hashMap = new HashMap<>();
 
-        List<Tree<Integer>> all = getTrees();
+        List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
 
-        hashMap.put("authorityData", all);
+        List<Tree<Integer>> authorityData = TreeUtil.build(sysAuthorities, TreeUtils.ROOT_PARENT_ID, (treeNode, tree) -> {
+            tree.setId(treeNode.getId());
+            tree.setParentId(treeNode.getParentId());
+            tree.setWeight(treeNode.getWeight());
+            tree.setName(treeNode.getName());
+            tree.putExtra("path", treeNode.getPath());
+            tree.putExtra("hidden", treeNode.getHidden());
+            tree.putExtra("alwaysShow", treeNode.getAlwaysShow());
+            tree.putExtra("redirect", treeNode.getRedirect());
+            tree.putExtra("component", treeNode.getComponent());
+            tree.putExtra("title", treeNode.getTitle());
+            tree.putExtra("icon", treeNode.getIcon());
+            tree.putExtra("type", treeNode.getType());
+            tree.putExtra("breadcrumb", treeNode.getBreadcrumb());
+        });
+
+        hashMap.put("authorityData", authorityData);
         hashMap.put("checkedKeys", sysAuthorityMapper.getIdsByRole(roleId));
 
         return R.ok(hashMap);
-    }
-
-    public List<Tree<Integer>> getTrees() {
-        List<SysAuthority> sysAuthorities = sysAuthorityMapper.selectList(Wrappers.emptyWrapper());
-        return TreeUtils.authorityTree1(sysAuthorities);
     }
 }

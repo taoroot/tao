@@ -38,6 +38,7 @@ CREATE TABLE `authorities` (
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `breadcrumb` int(1) DEFAULT '0',
+  `authority` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='权限表';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -46,7 +47,7 @@ CREATE TABLE `authorities` (
 -- Dumping data for table `authorities`
 --
 
-INSERT INTO `authorities` (`id`, `path`, `component`, `hidden`, `always_show`, `redirect`, `name`, `title`, `icon`, `parent_id`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`) VALUES (10,'external-link','Layout',NULL,NULL,'/github',NULL,'动态路由','link',-1,1,'0','2020-08-18 02:13:56','2020-08-20 08:26:43',NULL),(11,'https://github.com/taoroot/tao',NULL,NULL,NULL,NULL,'github','github','github',10,1,'0','2020-08-18 02:14:08','2020-08-19 07:32:06',NULL),(12,'https://doc-tao.flizi.cn',NULL,NULL,NULL,NULL,'vuepress','vuepress','link',10,1,'0','2020-08-18 02:14:08','2020-08-18 13:02:41',NULL);
+INSERT INTO `authorities` (`id`, `path`, `component`, `hidden`, `always_show`, `redirect`, `name`, `title`, `icon`, `parent_id`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `authority`) VALUES (10,'external-link','Layout',NULL,NULL,'/github',NULL,'动态路由','link',-1,1,'0','2020-08-18 02:13:56','2020-08-20 08:26:43',NULL,NULL),(11,'https://github.com/taoroot/tao',NULL,NULL,NULL,NULL,'github','github','github',10,1,'0','2020-08-18 02:14:08','2020-08-19 07:32:06',NULL,NULL),(12,'https://doc-tao.flizi.cn',NULL,NULL,NULL,NULL,'vuepress','vuepress','link',10,1,'0','2020-08-18 02:14:08','2020-08-18 13:02:41',NULL,NULL);
 
 --
 -- Table structure for table `depts`
@@ -64,7 +65,7 @@ CREATE TABLE `depts` (
   `parent_id` int(11) DEFAULT NULL COMMENT '上级部门',
   `path` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='部门管理';
+) ENGINE=InnoDB AUTO_INCREMENT=2003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='部门管理';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +138,7 @@ CREATE TABLE `roles` (
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `role_idx1_role_code` (`role`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='角色';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='角色';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -204,7 +205,7 @@ CREATE TABLE `users` (
   `avatar` varchar(200) DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -221,4 +222,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-20 20:12:11
+-- Dump completed on 2020-08-22 13:53:53

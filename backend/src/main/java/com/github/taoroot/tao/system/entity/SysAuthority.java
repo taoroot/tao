@@ -47,6 +47,8 @@ public class SysAuthority extends Model<SysAuthority> {
 
     private String title;
 
+    private String authority;
+
     private String icon;
 
     private Boolean breadcrumb;

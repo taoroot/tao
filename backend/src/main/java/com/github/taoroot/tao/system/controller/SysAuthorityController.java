@@ -16,7 +16,7 @@ public class SysAuthorityController {
 
     @GetMapping(value = "/authorities")
     public R getTree() {
-        return R.ok(sysRoleAuthorityService.getTrees());
+        return sysAuthorityService.getTree();
     }
 
     @GetMapping("/authority/{id}")

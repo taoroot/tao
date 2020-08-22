@@ -21,6 +21,7 @@ public class TreeUtils {
             tree.putExtra("hidden", treeNode.getHidden());
             tree.putExtra("alwaysShow", treeNode.getAlwaysShow());
             tree.putExtra("redirect", treeNode.getRedirect());
+            tree.putExtra("type", treeNode.getType());
             tree.put("component", treeNode.getComponent());
             HashMap<String, Object> meta = new HashMap<>();
             meta.put("title", treeNode.getTitle());
@@ -42,6 +43,7 @@ public class TreeUtils {
             tree.putExtra("component", treeNode.getComponent());
             tree.putExtra("title", treeNode.getTitle());
             tree.putExtra("icon", treeNode.getIcon());
+            tree.putExtra("type", treeNode.getType());
             tree.putExtra("breadcrumb", treeNode.getBreadcrumb());
         });
     }
