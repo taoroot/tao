@@ -47,7 +47,7 @@ CREATE TABLE `authorities` (
 -- Dumping data for table `authorities`
 --
 
-INSERT INTO `authorities` (`id`, `path`, `component`, `hidden`, `always_show`, `redirect`, `name`, `title`, `icon`, `parent_id`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `authority`) VALUES (10,'external-link','Layout',NULL,NULL,'/github',NULL,'动态路由','link',-1,1,'0','2020-08-18 02:13:56','2020-08-20 08:26:43',NULL,NULL),(11,'https://github.com/taoroot/tao',NULL,NULL,NULL,NULL,'github','github','github',10,1,'0','2020-08-18 02:14:08','2020-08-19 07:32:06',NULL,NULL),(12,'https://doc-tao.flizi.cn',NULL,NULL,NULL,NULL,'vuepress','vuepress','link',10,1,'0','2020-08-18 02:14:08','2020-08-18 13:02:41',NULL,NULL);
+INSERT INTO `authorities` (`id`, `path`, `component`, `hidden`, `always_show`, `redirect`, `name`, `title`, `icon`, `parent_id`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `authority`) VALUES (10,'external-link','Layout','0',NULL,'/github',NULL,'动态路由','link',-1,1,'0','2020-08-18 02:13:56','2020-08-23 07:17:26',NULL,NULL),(11,'https://github.com/taoroot/tao',NULL,'1',NULL,NULL,'github','github','github',10,1,'0','2020-08-18 02:14:08','2020-08-23 07:38:19',NULL,NULL),(12,'https://doc-tao.flizi.cn',NULL,'0',NULL,NULL,'vuepress','vuepress','link',10,1,'0','2020-08-18 02:14:08','2020-08-23 03:23:27',NULL,NULL);
 
 --
 -- Table structure for table `depts`
@@ -205,7 +205,7 @@ CREATE TABLE `users` (
   `avatar` varchar(200) DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,4 +222,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-22 13:53:53
+-- Dump completed on 2020-08-23 15:39:19

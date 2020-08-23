@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 
-// 查找导航菜单树
-export const getTree = () => {
+export const getPage = (params) => {
   return request({
     url: '/authorities',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
@@ -48,7 +48,7 @@ export const getAuthoritys = () => {
 }
 
 // 更新菜单
-export function updateAuthority(data) {
+export function updateItem(data) {
   return request({
     url: '/authority',
     method: 'put',

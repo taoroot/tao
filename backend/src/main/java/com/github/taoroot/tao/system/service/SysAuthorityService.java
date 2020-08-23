@@ -5,5 +5,5 @@ import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.utils.R;
 
 public interface SysAuthorityService extends IService<SysAuthority> {
-    R getTree();
+    R getTree(String title, Boolean hidden);
 }

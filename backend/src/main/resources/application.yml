@@ -66,3 +66,13 @@ spring:
             token-uri: https://graph.qq.com/oauth2.0/token
             user-info-uri: https://graph.qq.com/oauth2.0/me
             user-info-authentication-method: form
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  global-config:
+    banner: false
+    db-config:
+      table-underline: true
+  configuration:
+    cache-enabled: false
+    map-underscore-to-camel-case: true
