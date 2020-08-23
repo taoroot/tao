@@ -7,7 +7,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.system.entity.SysAuthority;
+import com.github.taoroot.tao.system.entity.SysRoleAuthority;
 import com.github.taoroot.tao.system.mapper.SysAuthorityMapper;
+import com.github.taoroot.tao.system.mapper.SysRoleAuthorityMapper;
 import com.github.taoroot.tao.system.service.SysAuthorityService;
 import com.github.taoroot.tao.utils.R;
 import com.github.taoroot.tao.utils.TreeUtils;
@@ -15,6 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -23,16 +26,17 @@ import java.util.List;
 public class SysAuthorityServiceImpl extends ServiceImpl<SysAuthorityMapper, SysAuthority> implements SysAuthorityService {
 
     private final SysAuthorityMapper sysAuthorityMapper;
+    private final SysRoleAuthorityMapper sysRoleAuthorityMapper;
 
     @Override
     public R getTree(String title, Boolean hidden) {
         LambdaQueryWrapper<SysAuthority> query = Wrappers.lambdaQuery();
 
-        if(hidden != null) {
+        if (hidden != null) {
             query.eq(SysAuthority::getHidden, hidden);
         }
 
-        if(!StringUtils.isEmpty(title)) {
+        if (!StringUtils.isEmpty(title)) {
             query.like(SysAuthority::getTitle, title);
         }
 
@@ -55,10 +59,20 @@ public class SysAuthorityServiceImpl extends ServiceImpl<SysAuthorityMapper, Sys
             tree.putExtra("breadcrumb", treeNode.getBreadcrumb());
         });
 
-        if(authorityData.size() == 0) {
+        if (authorityData.size() == 0) {
             return R.ok(sysAuthorities);
         }
 
         return R.ok(authorityData);
+    }
+
+    @Override
+    public boolean removeById(Serializable id) {
+        Integer count = sysRoleAuthorityMapper.selectCount(Wrappers.<SysRoleAuthority>lambdaQuery()
+                .eq(SysRoleAuthority::getAuthorityId, id));
+        if (count > 0) {
+            throw new RuntimeException("资源被角色绑定,请先解绑");
+        }
+        return super.removeById(id);
     }
 }

@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export const getPage = (params) => {
+export const getAuthorities = (params) => {
   return request({
     url: '/authorities',
     method: 'get',
@@ -17,7 +17,7 @@ export const saveAuthority = (data) => {
   })
 }
 // 删除
-export const deleteAuthority = (id) => {
+export const delItem = (id) => {
   return request({
     url: '/authority/' + id,
     method: 'delete'

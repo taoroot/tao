@@ -3,13 +3,10 @@
     <el-card>
       <div class="filter-container">
         <el-button type="text" icon="el-icon-plus" @click="handleCreate">新增</el-button>
-        <el-button type="text" icon="el-icon-delete" @click="handleDelete">删除</el-button>
-        <el-button type="text" icon="el-icon-edit" @click="handleEdit">编辑</el-button>
-        <el-button type="text" icon="el-icon-edit" @click="handleAuthority">授权</el-button>
       </div>
 
       <div class="table-container">
-        <el-table ref="table" v-loading="table.loading" border :data="table.data" style="width: 100%" @selection-change="(val) => table.selection = val" @row-click="(row) => $refs.table.toggleRowSelection(row)">
+        <el-table ref="table" v-loading="table.loading" border :data="table.data" style="width: 100%">
           <el-table-column type="selection" />
 
           <el-table-column label="index" width="60" align="center">
@@ -36,6 +33,14 @@
             </template>
           </el-table-column>
 
+          <el-table-column label="操作" align="center" width="285">
+            <template slot-scope="scope">
+              <el-button type="text" icon="el-icon-plus" @click="tableCreate(scope.row)">新增</el-button>
+              <el-button type="text" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
+              <el-button type="text" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
+            </template>
+          </el-table-column>
+
         </el-table>
         <div class="block">
           <el-pagination
@@ -43,7 +48,7 @@
             :page-size="table.size"
             :total="table.total"
             layout="total, prev, pager, next"
-            @current-change="table.current = val; _getPage()"
+            @current-change="table.current = val; tableGetPage()"
           />
         </div>
       </div>
@@ -62,35 +67,27 @@
             <el-input v-model="form.data.description" />
           </el-form-item>
 
+          <el-form-item label="权限" prop="desc">
+            <el-button v-if="permission.checkAll" type="text" size="mini" @click="permissionHandleCheckAll"> 取消全选</el-button>
+            <el-button v-else type="text" size="mini" @click="permissionHandleCheckAll">选择全部</el-button>
+            <el-tree
+              ref="authorityTree"
+              :data="permission.data"
+              :default-checked-keys="form.data.authorities"
+              show-checkbox
+              node-key="id"
+              :props="{ children: 'children', label: 'title' }"
+              element-loading-text="拼命加载中"
+              :check-strictly="true"
+              @check-change="permisssionCheckChange"
+            />
+          </el-form-item>
+
         </el-form>
 
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="form.dialog = false">取消</el-button>
-          <el-button :loading="table.loading" type="primary" @click="doSubmit">确认</el-button>
-        </div>
-
-      </el-dialog>
-
-      <el-dialog :append-to-body="true" :visible.sync="permission.authorityDialog" title="授权" width="500px">
-        <el-tree
-          ref="authorityTree"
-          :data="permission.data"
-          :default-checked-keys="permission.checkedKeys"
-          show-checkbox
-          node-key="id"
-          :props="{ children: 'children', label: 'name' }"
-          element-loading-text="拼命加载中"
-          :check-strictly="true"
-          @check-change="handleAuthorityCheckChange"
-        />
-
-        <div style="padding-left:24px;padding-top:12px;">
-          <el-checkbox v-model="permission.checkAll" :disabled="false" @change="handleCheckAll"><b>全选</b></el-checkbox>
-        </div>
-
-        <div slot="footer" class="dialog-footer">
-          <el-button type="text" @click="permission.authorityDialog = false">取消</el-button>
-          <el-button type="primary" @click="doAuthoritySubmit">确认</el-button>
+          <el-button :loading="table.loading" type="primary" @click="tableDoSubmit">确认</el-button>
         </div>
       </el-dialog>
     </el-card>
@@ -98,8 +95,8 @@
 </template>
 
 <script>
-import { getPage, delItem, saveItem, updateItem, updatePermission, getPermission } from '@/api/role'
-import { checkOne } from '@/utils/index'
+import { getPage, delItem, saveItem, updateItem, getPermission } from '@/api/role'
+import { getAuthorities } from '@/api/authority'
 const _defaultRow = {
   id: 0,
   role: '',
@@ -127,14 +124,12 @@ export default {
       },
       permission: {
         checkAll: false,
-        authorityDialog: false,
-        checkedKeys: [],
         data: []
       }
     }
   },
   mounted() {
-    this._getPage()
+    this.tableGetPage()
   },
   methods: {
     handleCreate() {
@@ -142,29 +137,28 @@ export default {
       this.form.isAdd = true
       this.form.data = Object.assign({}, _defaultRow)
     },
-    handleDelete() {
-      var ids = []
-      this.table.selection.forEach(item => ids.push(item.id))
-
+    handleDelete(row) {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delItem(ids).then(response => {
-          this._getPage()
+        delItem({ id: row.id }).then(response => {
+          this.tableGetPage()
         })
       })
     },
-    handleEdit() {
-      var row = checkOne(this.table.selection)
-      if (!row) return
-
+    tableEdit(row) {
       this.form.dialog = true
       this.form.isAdd = false
       this.form.data = row
+      this.permission.checkAll = false
+      getAuthorities().then(response => {
+        this.permission.data = response.data
+        this.form.data = row
+      })
     },
-    _getPage() {
+    tableGetPage() {
       this.table.loading = true
       const params = new URLSearchParams()
       params.append('current', this.table.current)
@@ -175,70 +169,43 @@ export default {
         this.table.total = response.data.total
       })
     },
-    // 获取勾选
-    handleSelectionChange(val) {
-      this.table.selection = val
-    },
-    // 提交创建 或 更新
-    doSubmit() {
+    tableDoSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.isAdd) {
             saveItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this._getPage()
+              this.getPage()
               this.$refs['form'].resetFields()
             })
           } else {
             updateItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this._getPage()
+              this.getPage()
             })
           }
         }
       })
     },
-    // 授权操作
-    doAuthoritySubmit() {
-      this.authorityIds = this.$refs.authorityTree.getCheckedKeys().join(',').concat(',').concat(this.$refs.authorityTree.getHalfCheckedKeys().join(','))
-      console.log('doAuthoritySubmit', this.authorityIds, this.form.data)
-      updatePermission(this.form.data.id, this.authorityIds).then((res) => {
-        if (!res.result) {
-          this.permission.authorityDialog = false
-        }
-      })
-    },
-    handleAuthority() {
-      var row = checkOne(this.table.selection)
-      if (!row) return
-      getPermission(row.id).then(response => {
-        this.permission.checkedKeys = response.data.checkedKeys
-        this.permission.data = response.data.authorityData
-        this.permission.authorityDialog = true
-        this.form.data = row
-      })
-    },
-    // 全选操作
-    handleCheckAll() {
+    permissionHandleCheckAll() {
+      this.permission.checkAll = !this.permission.checkAll
       if (this.permission.checkAll) {
         const allAuthoritys = []
-        this.checkAllAuthority(this.permission.data, allAuthoritys)
+        this.permissionCheckAll(this.permission.data, allAuthoritys)
         this.$refs.authorityTree.setCheckedNodes(allAuthoritys)
       } else {
         this.$refs.authorityTree.setCheckedNodes([])
       }
     },
-    // 递归全选
-    checkAllAuthority(authorityData, allAuthoritys) {
+    permissionCheckAll(authorityData, allAuthoritys) {
       authorityData.forEach(authority => {
         allAuthoritys.push(authority)
         if (authority.children) {
-          this.checkAllAuthority(authority.children, allAuthoritys)
+          this.permissionCheckAll(authority.children, allAuthoritys)
         }
       })
     },
-    // 树节点选择监听
-    handleAuthorityCheckChange(data, check) {
+    permisssionCheckChange(data, check) {
       if (check) { // 节点选中时同步选中父节点
         const parentId = data.parentId
         this.$refs.authorityTree.setChecked(parentId, true, false)

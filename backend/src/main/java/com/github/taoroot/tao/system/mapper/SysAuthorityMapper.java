@@ -2,10 +2,6 @@ package com.github.taoroot.tao.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.taoroot.tao.system.entity.SysAuthority;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author : zhiyi
@@ -13,5 +9,4 @@ import java.util.Map;
  */
 public interface SysAuthorityMapper extends BaseMapper<SysAuthority> {
 
-    List<Integer> getIdsByRole(@Param("roleId") Integer roleId);
 }

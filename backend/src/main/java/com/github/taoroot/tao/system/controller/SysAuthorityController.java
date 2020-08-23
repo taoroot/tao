@@ -2,17 +2,14 @@ package com.github.taoroot.tao.system.controller;
 
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.service.SysAuthorityService;
-import com.github.taoroot.tao.system.service.SysRoleAuthorityService;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping
 public class SysAuthorityController {
     private final SysAuthorityService sysAuthorityService;
-    private final SysRoleAuthorityService sysRoleAuthorityService;
 
     @GetMapping(value = "/authorities")
     public R getTree(@RequestParam(defaultValue = "") String title, @RequestParam(required = false) Boolean hidden) {

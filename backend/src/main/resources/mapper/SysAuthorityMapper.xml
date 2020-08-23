@@ -3,9 +3,5 @@
 <mapper namespace="com.github.taoroot.tao.system.mapper.SysAuthorityMapper">
 
 
-    <select id="getIdsByRole" resultType="java.lang.Integer">
-        select ra.authority_id
-        from role_authority ra
-        where ra.role_id = #{roleId}
-    </select>
+
 </mapper>

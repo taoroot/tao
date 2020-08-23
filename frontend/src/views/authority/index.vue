@@ -54,9 +54,9 @@
 
           <el-table-column label="可见" align="center">
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.hidden == true">可见</el-tag>
-              <el-tag v-else-if="scope.row.hidden == undefined">--</el-tag>
-              <el-tag v-else type="warning">隐藏</el-tag>
+              <el-tag v-if="scope.row.hidden == false">可见</el-tag>
+              <el-tag v-else-if="scope.row.hidden == true" type="warning">隐藏</el-tag>
+              <el-tag v-else>--</el-tag>
             </template>
           </el-table-column>
 
@@ -109,7 +109,7 @@
             <el-popover placement="bottom-start" width="460" trigger="click" @show="$refs['iconSelect'].reset()">
               <IconSelect ref="iconSelect" @selected="name => {form.data.icon = name}" />
               <el-input slot="reference" v-model="form.data.icon" placeholder="点击选择图标" readonly>
-                <svg-icon v-if="form.data.icon" slot="prefix" :icon-class="form.data.icon" class="el-input__icon" style="height: 32px;width: 16px;" />
+                <svg-icon v-if="form.data.icon" slot="prefix" :icon-class="form.data.icon" class="el-input__icon" style="height: 40px;width: 16px;" />
                 <i v-else slot="prefix" class="el-icon-search el-input__icon" />
               </el-input>
             </el-popover>
@@ -130,7 +130,7 @@
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="是否可见">
+              <el-form-item label="是否隐藏">
                 <el-radio-group v-model="form.data.hidden">
                   <el-radio :label="true">是</el-radio>
                   <el-radio :label="false">否</el-radio>
@@ -157,7 +157,7 @@
 </template>
 
 <script>
-import { getPage, updateItem } from '@/api/authority'
+import { getAuthorities, updateItem, delItem } from '@/api/authority'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import IconSelect from '@/components/IconSelect'
@@ -208,13 +208,17 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {})
+      }).then(() => {
+        delItem(this.form.data.id).then(response => {
+          this.tablePage()
+        })
+      })
     },
     tableEdit(row) {
       this.form.dialog = true
       this.form.isAdd = false
       this.form.data = Object.assign({}, row)
-      getPage().then(response => {
+      getAuthorities().then(response => {
         this.form.authorityTree = []
         const menu = { id: -1, title: '主类目', children: [] }
         menu.children = response.data
@@ -223,7 +227,7 @@ export default {
     },
     tablePage() {
       this.table.loading = true
-      getPage(this.search).then(response => {
+      getAuthorities(this.search).then(response => {
         this.table.loading = false
         this.table.data = response.data
       })

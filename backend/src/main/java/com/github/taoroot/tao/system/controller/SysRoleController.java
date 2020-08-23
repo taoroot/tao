@@ -1,15 +1,13 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.taoroot.tao.system.dto.SysRoleVo;
 import com.github.taoroot.tao.system.entity.SysRole;
-import com.github.taoroot.tao.system.service.SysRoleAuthorityService;
 import com.github.taoroot.tao.system.service.SysRoleService;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -18,8 +16,6 @@ import java.util.List;
 public class SysRoleController {
 
     private final SysRoleService sysRoleService;
-
-    private final SysRoleAuthorityService sysRoleAuthorityService;
 
     @PostMapping("/role")
     public R saveItem(@RequestBody SysRole sysRole) {
@@ -32,22 +28,13 @@ public class SysRoleController {
     }
 
     @PutMapping("/role")
-    public R updateItem(@RequestBody SysRole sysRole) {
-        return R.ok(sysRoleService.updateById(sysRole));
+    public R updateItem(@RequestBody SysRoleVo sysRoleVo) {
+        return sysRoleService.updateItem(sysRoleVo);
     }
 
     @GetMapping("/roles")
     public R getPage(Page<SysRole> page) {
-        return R.ok(sysRoleService.page(page));
+        return sysRoleService.getPage(page);
     }
 
-    @GetMapping("/role/{roleId}/authorities")
-    public R getPermission(@PathVariable Integer roleId) {
-        return sysRoleAuthorityService.getPermission(roleId);
-    }
-
-    @PutMapping("/role/{roleId}/authorities")
-    public R updatePermission(@PathVariable Integer roleId, String authorityIds) {
-        return sysRoleAuthorityService.updatePermission(roleId, authorityIds);
-    }
 }
