@@ -24,6 +24,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     private final SysRoleMapper sysRoleMapper;
     private final SysRoleAuthorityService sysRoleAuthorityService;
+    private final SysRoleAuthorityMapper sysRoleAuthorityMapper;
 
     @Override
     public R getPage(Page<SysRole> page) {
@@ -46,7 +47,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                     roleMenu.setAuthorityId(menuId);
                     return roleMenu;
                 }).collect(Collectors.toList());
-        sysRoleAuthorityService.remove(Wrappers.<SysRoleAuthority>query().lambda()
+        sysRoleAuthorityMapper.delete(Wrappers.<SysRoleAuthority>query().lambda()
                 .eq(SysRoleAuthority::getRoleId, sysRoleVo.getId()));
         sysRoleAuthorityService.saveBatch(roleMenuList);
         return R.ok();

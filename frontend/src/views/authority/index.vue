@@ -8,8 +8,8 @@
           </el-form-item>
           <el-form-item label="状态">
             <el-select v-model="search.hidden" placeholder="菜单状态" clearable>
-              <el-option label="显示" :value="true" />
-              <el-option label="隐藏" :value="false" />
+              <el-option label="可见" :value="false" />
+              <el-option label="隐藏" :value="true" />
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -99,9 +99,9 @@
           </el-row>
 
           <el-form-item label="菜单类型" prop="role">
-            <el-radio-group v-model="form.data.role">
-              <el-radio label="ltr">目录</el-radio>
-              <el-radio label="ltr">菜单</el-radio>
+            <el-radio-group v-model="form.data.type">
+              <el-radio :label="0">菜单</el-radio>
+              <el-radio :label="1">功能</el-radio>
             </el-radio-group>
           </el-form-item>
 
@@ -203,13 +203,13 @@ export default {
       this.form.isAdd = true
       this.form.data = Object.assign({}, _defaultRow)
     },
-    tableDelete() {
+    tableDelete(row) {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delItem(this.form.data.id).then(response => {
+        delItem(row.id).then(response => {
           this.tablePage()
         })
       })

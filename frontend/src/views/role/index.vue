@@ -35,9 +35,8 @@
 
           <el-table-column label="操作" align="center" width="285">
             <template slot-scope="scope">
-              <el-button type="text" icon="el-icon-plus" @click="tableCreate(scope.row)">新增</el-button>
-              <el-button type="text" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
               <el-button type="text" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
+              <el-button type="text" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
 
@@ -95,7 +94,7 @@
 </template>
 
 <script>
-import { getPage, delItem, saveItem, updateItem, getPermission } from '@/api/role'
+import { getPage, delItem, saveItem, updateItem } from '@/api/role'
 import { getAuthorities } from '@/api/authority'
 const _defaultRow = {
   id: 0,
@@ -172,16 +171,18 @@ export default {
     tableDoSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
+          this.form.data.authorities = this.authorityIds =
+            [...this.$refs.authorityTree.getCheckedKeys(), ...this.$refs.authorityTree.getHalfCheckedKeys()]
           if (this.form.isAdd) {
             saveItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this.getPage()
+              this.tableGetPage()
               this.$refs['form'].resetFields()
             })
           } else {
             updateItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this.getPage()
+              this.tableGetPage()
             })
           }
         }
