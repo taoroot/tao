@@ -24,20 +24,20 @@ DROP TABLE IF EXISTS `authorities`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `authorities` (
   `id` int(11) NOT NULL COMMENT '菜单ID',
+  `parent_id` int(11) NOT NULL COMMENT '父菜单ID',
   `path` varchar(128) NOT NULL,
+  `title` varchar(32) DEFAULT NULL COMMENT 'the name show in sidebar and breadcrumb (recommend set)',
+  `name` varchar(32) DEFAULT NULL COMMENT 'the name is used by <keep-alive> (must set!!!)',
   `component` varchar(64) DEFAULT NULL,
-  `hidden` varchar(255) DEFAULT '0' COMMENT '0-开启，1- 关闭',
   `always_show` varchar(255) DEFAULT '0' COMMENT '0-开启，1- 关闭',
   `redirect` varchar(32) DEFAULT NULL COMMENT 'if set noRedirect will no redirect in the breadcrumb',
-  `name` varchar(32) DEFAULT NULL COMMENT 'the name is used by <keep-alive> (must set!!!)',
-  `title` varchar(32) DEFAULT NULL COMMENT 'the name show in sidebar and breadcrumb (recommend set)',
   `icon` varchar(32) DEFAULT NULL COMMENT '图标',
-  `parent_id` int(11) NOT NULL COMMENT '父菜单ID',
   `weight` int(11) NOT NULL DEFAULT '1' COMMENT '排序值',
   `type` char(1) NOT NULL DEFAULT '0' COMMENT '菜单类型 （0菜单 1按钮）',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `breadcrumb` int(1) DEFAULT '0',
+  `hidden` varchar(255) DEFAULT '0' COMMENT '0-开启，1- 关闭',
   `authority` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='权限表';
@@ -47,7 +47,7 @@ CREATE TABLE `authorities` (
 -- Dumping data for table `authorities`
 --
 
-INSERT INTO `authorities` (`id`, `path`, `component`, `hidden`, `always_show`, `redirect`, `name`, `title`, `icon`, `parent_id`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `authority`) VALUES (10,'external-link','Layout','0',NULL,'/github',NULL,'动态路由','link',-1,1,'0','2020-08-18 02:13:56','2020-08-23 07:17:26',NULL,NULL),(11,'https://github.com/taoroot/tao',NULL,'1',NULL,NULL,'github','github','github',10,1,'0','2020-08-18 02:14:08','2020-08-23 07:38:19',NULL,NULL),(12,'https://doc-tao.flizi.cn',NULL,'0',NULL,NULL,'vuepress','vuepress','link',10,1,'0','2020-08-18 02:14:08','2020-08-23 03:23:27',NULL,NULL);
+INSERT INTO `authorities` (`id`, `parent_id`, `path`, `title`, `name`, `component`, `always_show`, `redirect`, `icon`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `hidden`, `authority`) VALUES (10,-1,'external-link','动态路由',NULL,'Layout',NULL,'/github','wechat',1,'0','2020-08-18 02:13:56','2020-08-23 08:50:24',NULL,'0',NULL),(11,10,'https://github.com/taoroot/tao','github','github',NULL,NULL,NULL,'github',1,'0','2020-08-18 02:14:08','2020-08-23 08:56:04',NULL,'0',NULL),(12,10,'https://doc-tao.flizi.cn','vuepress','vuepress',NULL,NULL,NULL,'link',1,'0','2020-08-18 02:14:08','2020-08-23 08:50:37',NULL,'0',NULL),(1000,-1,'/system','系统设置',NULL,'Layout','0','/authority/index','example',1,'0','2020-08-24 08:24:45','2020-08-24 08:39:03',NULL,'0',NULL),(1001,1000,'authority','权限管理','Authority','authority/index','0',NULL,'tree-table',4,'0','2020-08-24 08:26:50','2020-08-24 08:40:01',NULL,'0',NULL),(1002,1000,'dept','部门管理','Dept','dept/index','0',NULL,'tree',3,'0','2020-08-24 08:35:28','2020-08-24 08:39:57',0,'0',NULL),(1003,1000,'role','角色管理','Role','role/index','0',NULL,'peoples',2,'0','2020-08-24 08:35:28','2020-08-24 08:39:51',0,'0',NULL),(1004,1000,'user','用户管理','User','user/index','0',NULL,'user',1,'0','2020-08-24 08:36:57','2020-08-24 08:39:32',0,'0',NULL);
 
 --
 -- Table structure for table `depts`
@@ -119,7 +119,7 @@ CREATE TABLE `role_authority` (
 -- Dumping data for table `role_authority`
 --
 
-INSERT INTO `role_authority` (`role_id`, `authority_id`) VALUES (1,10),(1,11),(1,12);
+INSERT INTO `role_authority` (`role_id`, `authority_id`) VALUES (1,10),(1,11),(1,12),(1,1000),(1,1001),(1,1002),(1,1003),(1,1004);
 
 --
 -- Table structure for table `roles`
@@ -205,7 +205,7 @@ CREATE TABLE `users` (
   `avatar` varchar(200) DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,4 +222,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-23 15:39:19
+-- Dump completed on 2020-08-24 16:44:22

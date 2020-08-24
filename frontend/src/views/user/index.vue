@@ -3,8 +3,10 @@
     <el-card>
       <el-row>
         <el-col :span="4">
-          <el-input v-model="tree.filterText" placeholder="输入关键字进行过滤" />
-          <el-tree ref="tree" class="filter-tree" :data="tree.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="treeFilterNode" />
+          <div style="margin-top: 5px;">
+            <el-input v-model="tree.filterText" size="small" placeholder="输入关键字进行过滤" />
+            <el-tree ref="tree" :expand-on-click-node="false" class="filter-tree" :data="tree.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="treeFilterNode" />
+          </div>
         </el-col>
         <el-col :span="19" :offset="1">
           <div class="filter-container">
