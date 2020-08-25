@@ -71,3 +71,4 @@ node_modules
 .temp
 
 http-client.**
+generate/
