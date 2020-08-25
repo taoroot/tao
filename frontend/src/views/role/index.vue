@@ -66,6 +66,21 @@
             <el-input v-model="form.data.description" />
           </el-form-item>
 
+          <el-form-item label="数据权限" prop="scopeType">
+            <el-select v-model="form.data.scopeType" placeholder="请选择">
+              <el-option
+                v-for="item in [{ 'value': 'ALL', 'label': '全部数据权限' }, { 'value': 'THIS_LEVEL', 'label': '本部门数据权限' }, { 'value': 'THIS_LEVEL_CHILDREN', 'label': '本部门及以下数据权限' }, { 'value': 'CUSTOMIZE', 'label': '自定数据权限' }, { 'value': 'OWN', 'label': '仅本人数据权限' }]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="自定义部门" prop="scope">
+            <div>开放中</div>
+          </el-form-item>
+
           <el-form-item label="权限" prop="desc">
             <el-button v-if="permission.checkAll" type="text" size="mini" @click="permissionHandleCheckAll"> 取消全选</el-button>
             <el-button v-else type="text" size="mini" @click="permissionHandleCheckAll">选择全部</el-button>
@@ -119,7 +134,8 @@ export default {
         data: Object.assign({}, _defaultRow),
         rules: {},
         dialog: false,
-        isAdd: true
+        isAdd: true,
+        scope: [{ 'value': '选项1', 'label': '黄金糕' }, { 'value': '选项2', 'label': '双皮奶' }, { 'value': '选项3', 'label': '蚵仔煎' }, { 'value': '选项4', 'label': '龙须面' }, { 'value': '选项5', 'label': '北京烤鸭' }]
       },
       permission: {
         checkAll: false,

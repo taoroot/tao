@@ -10,5 +10,5 @@ public interface SysRoleService extends IService<SysRole> {
 
     R getPage(Page<SysRole> page);
 
-    R updateItem(SysRoleVo sysRoleVo);
+    R saveOrUpdateItem(SysRoleVo sysRoleVo);
 }

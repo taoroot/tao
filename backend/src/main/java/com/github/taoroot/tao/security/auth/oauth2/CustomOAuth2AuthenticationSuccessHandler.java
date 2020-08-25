@@ -1,5 +1,6 @@
 package com.github.taoroot.tao.security.auth.oauth2;
 
+import cn.hutool.core.collection.CollUtil;
 import com.github.taoroot.tao.security.CustomJwtDecoder;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
@@ -65,6 +66,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
             jsonObject.put("sub", "" + customUserDetails.getId());
             jsonObject.put("aud", "auth2-" + oauth2Authentication.getAuthorizedClientRegistrationId());
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
+            jsonObject.put("scp", CollUtil.join(customUserDetails.getAuthorities(), " "));
 
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
             jwsObject.sign(new MACSigner(jwtDecoder.getSecret()));

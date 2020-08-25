@@ -1,5 +1,6 @@
 package com.github.taoroot.tao.system.dto;
 
+import com.github.taoroot.tao.system.datascope.DataScopeTypeEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,9 @@ public class SysRoleVo {
 
     private String role;
 
-    private String scope;
+    private Integer[] scope;
+
+    private DataScopeTypeEnum scopeType;
 
     private String description;
 

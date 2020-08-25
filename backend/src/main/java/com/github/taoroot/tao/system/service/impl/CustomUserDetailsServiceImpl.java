@@ -7,15 +7,14 @@ import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
-import com.github.taoroot.tao.system.entity.SysAuthority;
-import com.github.taoroot.tao.system.entity.SysUser;
-import com.github.taoroot.tao.system.entity.SysUserOauth2;
-import com.github.taoroot.tao.system.entity.SysUserRole;
+import com.github.taoroot.tao.system.entity.*;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
+import com.github.taoroot.tao.system.service.SysUserService;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author zhiyi
@@ -37,6 +37,8 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private final SysUserMapper sysUserMapper;
+
+    private final SysUserService sysUserService;
 
 
     @Override
@@ -123,13 +125,18 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     private CustomUserDetails translate(SysUser myUser) {
         assert myUser != null;
+        List<SysAuthority> authorities = sysUserMapper.authorities(myUser.getId(), 1);
+        List<SysRole> roles = sysUserMapper.roles(myUser.getId());
+        List<String> collect = authorities.stream().map(SysAuthority::getAuthority).collect(Collectors.toList());
+        List<String> collect1 = roles.stream().map(SysRole::getRole).collect(Collectors.toList());
+        collect.addAll(collect1);
+
         return new CustomUserDetails(
                 myUser.getUsername(),
                 myUser.getPassword(),
                 myUser.getPhone(),
                 myUser.getId(),
-                org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
+                AuthorityUtils.createAuthorityList(collect.toArray(new String[0]))
+        );
     }
-
-
 }

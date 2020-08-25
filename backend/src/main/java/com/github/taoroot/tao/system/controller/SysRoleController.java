@@ -18,8 +18,8 @@ public class SysRoleController {
     private final SysRoleService sysRoleService;
 
     @PostMapping("/role")
-    public R saveItem(@RequestBody SysRole sysRole) {
-        return R.ok(sysRoleService.save(sysRole));
+    public R saveItem(@RequestBody SysRoleVo sysRoleVo) {
+        return R.ok(sysRoleService.saveOrUpdateItem(sysRoleVo));
     }
 
     @DeleteMapping("/role")
@@ -29,12 +29,11 @@ public class SysRoleController {
 
     @PutMapping("/role")
     public R updateItem(@RequestBody SysRoleVo sysRoleVo) {
-        return sysRoleService.updateItem(sysRoleVo);
+        return sysRoleService.saveOrUpdateItem(sysRoleVo);
     }
 
     @GetMapping("/roles")
     public R getPage(Page<SysRole> page) {
         return sysRoleService.getPage(page);
     }
-
 }

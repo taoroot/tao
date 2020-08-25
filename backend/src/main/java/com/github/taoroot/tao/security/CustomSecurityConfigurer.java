@@ -11,9 +11,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -30,7 +32,10 @@ import org.springframework.security.oauth2.client.userinfo.*;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -101,7 +106,7 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 // JWT登录
                 .oauth2ResourceServer(config -> config.authenticationEntryPoint(customAuthenticationEntryPoint)
                         .bearerTokenResolver(bearerTokenResolver())
-                        .jwt().decoder(jwtDecoder()))
+                        .jwt().jwtAuthenticationConverter(jwtAuthenticationConverter()).decoder(jwtDecoder()))
 
                 // 表单登录
                 .formLogin(config -> config.loginProcessingUrl(FORM_LOGIN_PATH_KEY)
@@ -147,6 +152,14 @@ public class CustomSecurityConfigurer extends WebSecurityConfigurerAdapter {
                     permitAllUrls(registry);  // 白名单,不需要登录也可以访问
                     registry.anyRequest().authenticated(); // 其他需要先登录再访问
                 });
+    }
+
+    private Converter<Jwt,? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("SCOPE_");
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
     private void authorizationEndpoint(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig authorization) {

@@ -6,7 +6,8 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="role" jdbcType="VARCHAR" property="role"/>
-        <result column="scope" jdbcType="VARCHAR" property="scope"/>
+        <result column="scope" jdbcType="VARCHAR" property="scope"
+                javaType="com.github.taoroot.tao.system.datascope.DataScopeTypeEnum"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>

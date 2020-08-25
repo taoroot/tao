@@ -3,6 +3,7 @@ package com.github.taoroot.tao.system.controller;
 import com.github.taoroot.tao.system.entity.SysDept;
 import com.github.taoroot.tao.system.service.SysDeptService;
 import com.github.taoroot.tao.utils.R;
+import com.github.taoroot.tao.utils.TreeUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,8 +36,8 @@ public class SysDeptController {
     }
 
     @GetMapping("/depts")
-    public R getPage() {
-        return sysDeptService.tree();
+    public R getPage(@RequestParam(defaultValue = "" + TreeUtils.ROOT_PARENT_ID) Integer parentId) {
+        return R.ok(sysDeptService.tree(parentId));
     }
 }
 

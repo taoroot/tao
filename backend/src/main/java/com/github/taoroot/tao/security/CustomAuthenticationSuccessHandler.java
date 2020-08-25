@@ -1,5 +1,6 @@
 package com.github.taoroot.tao.security;
 
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.taoroot.tao.utils.R;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -11,6 +12,7 @@ import lombok.SneakyThrows;
 import net.minidev.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -42,6 +44,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             jsonObject.put("sub", "" +principal.getId());
             jsonObject.put("aud", "PASS");
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
+            jsonObject.put("scp", CollUtil.join(principal.getAuthorities(), " "));
 
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
             jwsObject.sign(new MACSigner(secret));
