@@ -2,11 +2,11 @@
   <div class="app-container">
     <el-card>
       <el-row :gutter="20">
-        <!-- left tree -->
+        <!-- left dept -->
         <el-col :span="4">
           <div style="margin-top: 5px;">
-            <el-input v-model="tree.filterText" size="small" placeholder="输入关键字过滤部门" />
-            <el-tree ref="tree" style="margin-top: 20px" :expand-on-click-node="false" class="filter-tree" :data="tree.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="treeFilterNode" />
+            <el-input v-model="dept.filterText" size="small" placeholder="输入关键字过滤部门" />
+            <el-tree ref="dept" style="margin-top: 20px" :expand-on-click-node="false" :data="dept.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="(value, data) => { if (!value) return true; return dept.data.label.indexOf(value) !== -1 }" />
           </div>
         </el-col>
         <!-- right table -->
@@ -34,74 +34,106 @@
 
           <div class="tools-container">
             <el-button type="primary" size="mini" icon="el-icon-plus" @click="tableCreate">新增</el-button>
-            <el-button type="info" size="mini" icon="el-icon-edit" :disabled="table.selection.length !== 1" @click="tableEdit">编辑</el-button>
-            <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="table.selection.length !== 1" @click="tableDelete">删除</el-button>
+            <el-button type="info" size="mini" icon="el-icon-edit" :disabled="table.selection.length !== 1" @click="tableEdit(table.selection[0])">编辑</el-button>
+            <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="table.selection.length !== 1" @click="tableDelete(table.selection[0])">删除</el-button>
           </div>
 
           <div class="table-container">
             <el-table ref="table" v-loading="table.loading" size="medium" border :data="table.data" style="width: 100%" @selection-change="(val) => table.selection = val">
               <el-table-column type="selection" align="center" />
-
-              <el-table-column label="username" align="center">
+              <el-table-column label="用户名称" align="center" prop="username" :show-overflow-tooltip="true" />
+              <el-table-column label="用户昵称" align="center" prop="nickname" :show-overflow-tooltip="true" />
+              <el-table-column label="部门" align="center" prop="deptName" :show-overflow-tooltip="true" />
+              <el-table-column label="手机号码" align="center" prop="phone" :show-overflow-tooltip="true" />
+              <el-table-column label="状态" align="center">
                 <template slot-scope="scope">
-                  <span>{{ scope.row.username }} </span>
+                  <el-switch v-model="scope.row.enabled" @change="tableEnableChange(scope.row)" />
                 </template>
               </el-table-column>
-
-              <el-table-column label="avatar" align="center">
-                <template slot-scope="scope">
-                  <el-image style="width: 20px; height: 20px" :src="scope.row.avatar" />
-                </template>
-              </el-table-column>
-
-              <el-table-column label="enabled" align="center">
-                <template slot-scope="scope">
-                  <el-switch v-model="scope.row.enabled" />
-                </template>
-              </el-table-column>
-
-              <el-table-column label="phone" align="center">
-                <template slot-scope="scope">
-                  <span>{{ scope.row.phone }} </span>
-                </template>
-              </el-table-column>
-
-              <el-table-column label="dept" align="center">
-                <template slot-scope="scope">
-                  <span>{{ scope.row.deptName }} </span>
-                </template>
-              </el-table-column>
-
               <el-table-column label="操作" align="center" width="285">
                 <template slot-scope="scope">
-                  <el-button type="text" size="mini" icon="el-icon-edit">编辑</el-button>
-                  <el-button type="text" size="mini" icon="el-icon-delete">删除</el-button>
-                  <el-button type="text" size="mini" icon="el-icon-delete">重置</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-refresh">重置</el-button>
                 </template>
               </el-table-column>
 
             </el-table>
-            <div class="block">
-              <el-pagination
-                :current-page.sync="table.current"
-                :page-size="table.size"
-                :total="table.total"
-                layout="total, prev, pager, next"
-                @current-change="table.current = val; tablePage()"
-              />
+            <div class="pagination-container">
+              <el-pagination :current-page.sync="table.current" :page-size="table.size" :total="table.total" layout="total, prev, pager, next" @current-change="table.current = val; tablePage()" />
             </div>
           </div>
 
-          <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.isAdd ? '新增' : '编辑'" width="500px">
+          <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.data.id === undefined ? '新增' : '编辑'" width="600px" :close-on-click-modal="false">
             <el-form ref="form" :model="form.data" :rules="form.rules" size="small" label-width="100px">
 
-              <el-form-item label="username" prop="username">
-                <el-input v-model="form.data.username" />
-              </el-form-item>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="用户昵称" prop="nickname">
+                    <el-input v-model="form.data.nickname" placeholder="请输入用户昵称" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="归属部门" prop="deptId">
+                    <treeselect v-model="form.data.deptId" :options="dept.data" :normalizer="node => {if (node.children && !node.children.length) delete node.children; return { id: node.id, label: node.name, children: node.children }}" placeholder="请选择归属部门" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="手机号码" prop="phone">
+                    <el-input v-model="form.data.phone" placeholder="请输入手机号码" maxlength="11" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="form.data.email" placeholder="请输入邮箱" maxlength="50" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="用户名称" prop="username">
+                    <el-input v-model="form.data.username" placeholder="请输入用户名称" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item v-if="form.data.id == undefined" label="用户密码" prop="password">
+                    <el-input v-model="form.password" placeholder="请输入用户密码" type="password" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="用户性别">
+                    <el-select v-model="form.data.sex" placeholder="请选择">
+                      <el-option v-for="item in dict.sexOptions" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="状态">
+                    <el-radio-group v-model="form.data.enabled">
+                      <el-radio v-for="item in dict.enabledOptions" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
 
-              <el-form-item label="phone" prop="phone">
-                <el-input v-model="form.data.phone" />
-              </el-form-item>
+                <el-col :span="12">
+                  <el-form-item label="岗位">
+                    <el-select v-model="form.data.postId" placeholder="请选择" @change="$forceUpdate()">
+                      <el-option v-for="item in dict.postOptions" :key="item.postId" :label="item.postName" :value="item.postId" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="角色">
+                    <el-select v-model="form.data.roles" placeholder="请选择" multiple @change="$forceUpdate()">
+                      <el-option v-for="item in dict.roleOptions" :key="item.id" :label="item.name" :value="item.id" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+
+                <el-col :span="24">
+                  <el-form-item label="备注">
+                    <el-input v-model="form.data.remark" type="textarea" placeholder="请输入内容" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </el-form>
 
             <div slot="footer" class="dialog-footer">
@@ -117,9 +149,11 @@
 </template>
 
 <script>
-import { getPage, delItem, saveItem, updateItem } from '@/api/user'
+import { getUsers, delItem, saveItem, updateItem, changeUserStatus } from '@/api/user'
+import { getRoles } from '@/api/role'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getTree } from '@/api/dept'
-import { checkOne } from '@/utils/index'
 
 const _defaultRow = {
   id: 0,
@@ -128,6 +162,7 @@ const _defaultRow = {
 }
 
 export default {
+  components: { Treeselect },
   data() {
     return {
       search: {
@@ -146,62 +181,56 @@ export default {
       form: {
         data: Object.assign({}, _defaultRow),
         rules: {},
-        dialog: false,
-        isAdd: true
+        dialog: false
       },
-      tree: {
+      dept: {
         filterText: '',
         data: []
+      },
+      dict: {
+        enabledOptions: [{ value: true, label: '启用' }, { value: false, label: '停用' }],
+        sexOptions: [{ value: true, label: '男' }, { value: false, label: '女' }],
+        roleOptions: []
       }
     }
   },
   mounted() {
     this.treeGetData()
     this.tablePage()
+    getRoles({ size: -1 }).then(response => {
+      this.dict.roleOptions = response.data.records
+    })
   },
   methods: {
     treeGetData() {
       getTree().then(res => {
-        this.tree.data = res.data
+        this.dept.data = res.data
       })
-    },
-    treeFilterNode(value, data) {
-      if (!value) return true
-      return this.tree.data.label.indexOf(value) !== -1
     },
     tableCreate() {
       this.form.dialog = true
-      this.form.isAdd = true
       this.form.data = Object.assign({}, _defaultRow)
     },
     tableDelete() {
       var ids = []
       this.table.selection.forEach(item => ids.push(item.id))
-
-      this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
+      this.$confirm('此操作将删除选中数据, 是否继续?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
         delItem(ids).then(response => {
-          this._getPage()
+          this.tablePage()
         })
       })
     },
-    tableEdit() {
-      var row = checkOne(this.table.selection)
-      if (!row) return
-
+    tableEdit(row) {
+      this.form.data = Object.assign({}, row)
       this.form.dialog = true
-      this.form.isAdd = false
-      this.form.data = row
     },
     tablePage() {
       this.table.loading = true
-      const params = new URLSearchParams()
-      params.append('current', this.table.current)
-      params.append('size', this.table.size)
-      getPage(params).then(response => {
+      const params = {
+        current: this.table.current,
+        size: this.table.size
+      }
+      getUsers(params).then(response => {
         this.table.loading = false
         this.table.data = response.data.records
         this.table.total = response.data.total
@@ -210,19 +239,29 @@ export default {
     tableSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          if (this.form.isAdd) {
+          if (this.form.data.id === undefined) {
             saveItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this._getPage()
+              this.tablePage()
               this.$refs['form'].resetFields()
             })
           } else {
             updateItem(this.form.data).then((res) => {
               this.form.dialog = false
-              this._getPage()
+              this.tablePage()
             })
           }
         }
+      })
+    },
+    tableEnableChange(row) {
+      const text = row.enabled ? '启用' : '停用'
+      this.$confirm(`确认要 ${text} ${row.username} 用户吗?`, '警告', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(function() {
+        return changeUserStatus(row.id, row.enabled)
+      }).then(() => {
+        this.$message({ message: text + '成功', type: 'success' })
+      }).catch(() => {
+        row.enabled = !row.enabled
       })
     }
   }
@@ -236,5 +275,10 @@ export default {
 .tools-container {
   margin-top: 5px;
   margin-bottom: 15px;
+}
+.pagination-container {
+  position: relative;
+  float: right;
+  margin-top: 10px;
 }
 </style>

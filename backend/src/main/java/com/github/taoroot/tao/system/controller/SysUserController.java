@@ -1,9 +1,8 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.taoroot.tao.system.datascope.DataScope;
+import com.github.taoroot.tao.system.dto.SysUserVO;
 import com.github.taoroot.tao.system.entity.SysUser;
-import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.service.SysUserService;
 import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
@@ -18,8 +17,8 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     @PostMapping("/user")
-    public R saveItem(@RequestBody SysUser sysUser) {
-        return R.ok(sysUserService.save(sysUser));
+    public R saveItem(@RequestBody SysUserVO sysUser) {
+        return sysUserService.saveOrUpdateItem(sysUser);
     }
 
     @DeleteMapping("/user")
@@ -28,8 +27,8 @@ public class SysUserController {
     }
 
     @PutMapping("/user")
-    public R updateItem(@RequestBody SysUser sysUser) {
-        return R.ok(sysUserService.updateById(sysUser));
+    public R updateItem(@RequestBody SysUserVO sysUser) {
+        return sysUserService.saveOrUpdateItem(sysUser);
     }
 
     @GetMapping("/users")

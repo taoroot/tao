@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { getPage, delItem, saveItem, updateItem } from '@/api/role'
+import { getRoles, delItem, saveItem, updateItem } from '@/api/role'
 import { getAuthorities } from '@/api/authority'
 const _defaultRow = {
   id: 0,
@@ -175,10 +175,11 @@ export default {
     },
     tableGetPage() {
       this.table.loading = true
-      const params = new URLSearchParams()
-      params.append('current', this.table.current)
-      params.append('size', this.table.size)
-      getPage(params).then(response => {
+      const params = {
+        current: this.table.current,
+        size: this.table.size
+      }
+      getRoles(params).then(response => {
         this.table.loading = false
         this.table.data = response.data.records
         this.table.total = response.data.total

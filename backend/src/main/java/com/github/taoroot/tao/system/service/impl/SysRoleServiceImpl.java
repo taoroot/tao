@@ -4,7 +4,6 @@ import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.system.datascope.DataScopeTypeEnum;
 import com.github.taoroot.tao.system.dto.SysRoleVo;
@@ -33,7 +32,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     private final SysRoleMapper sysRoleMapper;
     private final SysRoleAuthorityService sysRoleAuthorityService;
     private final SysRoleAuthorityMapper sysRoleAuthorityMapper;
-    private final CustomUserDetailsService customUserDetailsService;
     private final SysUserMapper sysUserMapper;
     private final SysDeptService sysDeptService;
 
@@ -76,17 +74,20 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         sysRole.setScope(deptIds.toArray(new Integer[0]));
         saveOrUpdate(sysRole);
 
-        List<SysRoleAuthority> roleMenuList =
-                Arrays.stream(sysRoleVo.getAuthorities()).sequential().map(menuId -> {
-                    SysRoleAuthority roleMenu = new SysRoleAuthority();
-                    roleMenu.setRoleId(sysRoleVo.getId());
-                    roleMenu.setAuthorityId(menuId);
-                    return roleMenu;
-                }).collect(Collectors.toList());
+        // 更新角色权限
+        if (sysRoleVo.getAuthorities() != null) {
+            List<SysRoleAuthority> roleMenuList = Arrays.stream(sysRoleVo.getAuthorities()).map(menuId -> {
+                SysRoleAuthority roleMenu = new SysRoleAuthority();
+                roleMenu.setRoleId(sysRoleVo.getId());
+                roleMenu.setAuthorityId(menuId);
+                return roleMenu;
+            }).collect(Collectors.toList());
 
-        sysRoleAuthorityMapper.delete(Wrappers.<SysRoleAuthority>query().lambda()
-                .eq(SysRoleAuthority::getRoleId, sysRoleVo.getId()));
-        sysRoleAuthorityService.saveBatch(roleMenuList);
+            sysRoleAuthorityMapper.delete(Wrappers.<SysRoleAuthority>query().lambda()
+                    .eq(SysRoleAuthority::getRoleId, sysRoleVo.getId()));
+            sysRoleAuthorityService.saveBatch(roleMenuList);
+        }
+
         return R.ok();
     }
 

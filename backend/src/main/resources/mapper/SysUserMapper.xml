@@ -2,6 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.taoroot.tao.system.mapper.SysUserMapper">
 
+    <resultMap id="SysUserPageVO" type="com.github.taoroot.tao.system.dto.SysUserVO">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="enabled" jdbcType="BOOLEAN" property="enabled"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
+        <result column="dept_id" jdbcType="INTEGER" property="deptId"/>
+        <collection property="roles" column="{userId=id}" select="roleIds"/>
+    </resultMap>
+
+    <select id="roleIds" resultType="java.lang.Integer">
+        select r.id
+        from user_role ur,
+             roles r
+        where r.id = ur.role_id
+          AND ur.user_id = #{userId};
+    </select>
+
     <select id="roles" resultType="com.github.taoroot.tao.system.entity.SysRole">
         select r.*
         from user_role ur,
@@ -14,27 +33,24 @@
     <select id="authorities" resultType="com.github.taoroot.tao.system.entity.SysAuthority">
         select distinct a.*
         from authorities a,
-             role_authority ar
+        role_authority ar
         where a.id = ar.authority_id
         <if test="type != null">
             and a.type = #{type}
         </if>
-          and ar.role_id in (
-            select r.id
-            from user_role ur,
-                 roles r
-            where r.id = ur.role_id
-              AND ur.user_id = #{userId}
+        and ar.role_id in (
+        select r.id
+        from user_role ur,
+        roles r
+        where r.id = ur.role_id
+        AND ur.user_id = #{userId}
         )
     </select>
 
-    <select id="getPage" resultType="com.github.taoroot.tao.system.dto.SysUserPageVO">
+    <select id="getPage" resultMap="SysUserPageVO">
         select u.*, d.name as dept_name
         from users u
-        left join depts d on d.id = u.dept_id
-    </select>
-    <select id="authorities1" resultType="com.github.taoroot.tao.system.entity.SysAuthority">
-        select * from users
+                 left join depts d on d.id = u.dept_id
     </select>
 
 

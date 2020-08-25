@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.taoroot.tao.system.datascope.DataScope;
-import com.github.taoroot.tao.system.dto.SysUserPageVO;
+import com.github.taoroot.tao.system.dto.SysUserVO;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysRole;
 import com.github.taoroot.tao.system.entity.SysUser;
@@ -18,9 +18,11 @@ import java.util.List;
  */
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
+    List<Integer> roleIds(@Param("userId") Integer userId);
+
     List<SysRole> roles(@Param("userId") Integer userId);
 
     List<SysAuthority> authorities(@Param("userId") Integer userId, @Param("type") Integer type);
 
-    IPage<SysUserPageVO> getPage(Page<SysUser> page, DataScope dataScope);
+    IPage<SysUserVO> getPage(Page<SysUser> page, DataScope dataScope);
 }

@@ -37,7 +37,9 @@ public class SysUser extends Model<SysUser> {
     @ApiModelProperty(value = "头像")
     private String avatar;
 
+    private String nickname;
+
     private Integer deptId;
 
-    private String enabled;
+    private Boolean enabled;
 }

@@ -2,28 +2,37 @@ package com.github.taoroot.tao.system.service.impl;
 
 import cn.hutool.core.lang.tree.TreeUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.system.datascope.DataScope;
-import com.github.taoroot.tao.system.dto.SysUserPageVO;
+import com.github.taoroot.tao.system.dto.SysUserVO;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
+import com.github.taoroot.tao.system.entity.SysUserRole;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
+import com.github.taoroot.tao.system.mapper.SysUserRoleMapper;
+import com.github.taoroot.tao.system.service.SysUserRoleService;
 import com.github.taoroot.tao.system.service.SysUserService;
 import com.github.taoroot.tao.utils.R;
 import com.github.taoroot.tao.utils.TreeUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
     private final SysUserMapper sysUserMapper;
+    private final SysUserRoleService sysUserRoleService;
+    private final SysUserRoleMapper sysUserRoleMapper;
 
     @Override
     public R userInfo() {
@@ -59,7 +68,30 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public R getPage(Page<SysUser> page) {
-        IPage<SysUserPageVO> result = sysUserMapper.getPage(page, new DataScope());
+        IPage<SysUserVO> result = sysUserMapper.getPage(page, new DataScope());
         return R.ok(result);
+    }
+
+    @Override
+    public R saveOrUpdateItem(SysUserVO sysUserVO) {
+        // 更新用户信息
+        SysUser sysUser = new SysUser();
+        BeanUtils.copyProperties(sysUserVO, sysUser);
+        sysUser.updateById();
+
+        // 更新角色信息
+        if (sysUserVO.getRoles() != null) {
+            List<SysUserRole> roleMenuList = Arrays.stream(sysUserVO.getRoles()).map(userId -> {
+                SysUserRole userRole = new SysUserRole();
+                userRole.setRoleId(userId);
+                userRole.setUserId(sysUserVO.getId());
+                return userRole;
+            }).collect(Collectors.toList());
+            sysUserRoleMapper.delete(Wrappers.<SysUserRole>query().lambda()
+                    .eq(SysUserRole::getUserId, sysUserVO.getId()));
+            sysUserRoleService.saveBatch(roleMenuList);
+        }
+
+        return R.ok();
     }
 }

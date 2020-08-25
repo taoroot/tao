@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function getPage() {
+export function getUsers(params) {
   return request({
     url: '/users',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
@@ -47,5 +48,17 @@ export function getPermission(userId) {
   return request({
     url: `/user/${userId}/authorities`,
     method: 'get'
+  })
+}
+
+export function changeUserStatus(id, enabled) {
+  const data = {
+    id,
+    enabled
+  }
+  return request({
+    url: `/user`,
+    method: 'put',
+    data: data
   })
 }
