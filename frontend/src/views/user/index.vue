@@ -1,29 +1,46 @@
 <template>
   <div class="app-container">
     <el-card>
-      <el-row>
+      <el-row :gutter="20">
+        <!-- left tree -->
         <el-col :span="4">
           <div style="margin-top: 5px;">
-            <el-input v-model="tree.filterText" size="small" placeholder="输入关键字进行过滤" />
-            <el-tree ref="tree" :expand-on-click-node="false" class="filter-tree" :data="tree.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="treeFilterNode" />
+            <el-input v-model="tree.filterText" size="small" placeholder="输入关键字过滤部门" />
+            <el-tree ref="tree" style="margin-top: 20px" :expand-on-click-node="false" class="filter-tree" :data="tree.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="treeFilterNode" />
           </div>
         </el-col>
-        <el-col :span="19" :offset="1">
+        <!-- right table -->
+        <el-col :span="20">
           <div class="filter-container">
-            <el-button type="text" icon="el-icon-plus" @click="tableHandleCreate">新增</el-button>
-            <el-button type="text" icon="el-icon-delete" @click="tableHandleDelete">删除</el-button>
-            <el-button type="text" icon="el-icon-edit" @click="tableHandleEdit">编辑</el-button>
+            <el-form :inline="true" :model="search" size="small">
+              <el-form-item label="用户名称">
+                <el-input v-model="search.title" placeholder="请输入菜单名称" clearable />
+              </el-form-item>
+              <el-form-item label="手机号码">
+                <el-input v-model="search.phone" placeholder="请输入手机号码" clearable />
+              </el-form-item>
+              <el-form-item label="状态">
+                <el-select v-model="search.hidden" placeholder="用户状态" clearable>
+                  <el-option label="启用" :value="true" />
+                  <el-option label="停用" :value="false" />
+                </el-select>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" icon="el-icon-search" @click="tablePage">查询</el-button>
+                <el-button icon="el-icon-refresh">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+
+          <div class="tools-container">
+            <el-button type="primary" size="mini" icon="el-icon-plus" @click="tableCreate">新增</el-button>
+            <el-button type="info" size="mini" icon="el-icon-edit" :disabled="table.selection.length !== 1" @click="tableEdit">编辑</el-button>
+            <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="table.selection.length !== 1" @click="tableDelete">删除</el-button>
           </div>
 
           <div class="table-container">
-            <el-table ref="table" v-loading="table.loading" border :data="table.data" style="width: 100%" @selection-change="(val) => table.selection = val" @row-click="(row) => $refs.table.toggleRowSelection(row)">
-              <el-table-column type="selection" />
-
-              <el-table-column label="index" width="60" align="center">
-                <template slot-scope="scope">
-                  <span>{{ scope.$index + 1 }}</span>
-                </template>
-              </el-table-column>
+            <el-table ref="table" v-loading="table.loading" size="medium" border :data="table.data" style="width: 100%" @selection-change="(val) => table.selection = val">
+              <el-table-column type="selection" align="center" />
 
               <el-table-column label="username" align="center">
                 <template slot-scope="scope">
@@ -55,6 +72,14 @@
                 </template>
               </el-table-column>
 
+              <el-table-column label="操作" align="center" width="285">
+                <template slot-scope="scope">
+                  <el-button type="text" size="mini" icon="el-icon-edit">编辑</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-delete">删除</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-delete">重置</el-button>
+                </template>
+              </el-table-column>
+
             </el-table>
             <div class="block">
               <el-pagination
@@ -62,10 +87,11 @@
                 :page-size="table.size"
                 :total="table.total"
                 layout="total, prev, pager, next"
-                @current-change="table.current = val; tableGetPage()"
+                @current-change="table.current = val; tablePage()"
               />
             </div>
           </div>
+
           <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.isAdd ? '新增' : '编辑'" width="500px">
             <el-form ref="form" :model="form.data" :rules="form.rules" size="small" label-width="100px">
 
@@ -80,7 +106,7 @@
 
             <div slot="footer" class="dialog-footer">
               <el-button type="text" @click="form.dialog = false">取消</el-button>
-              <el-button :loading="table.loading" type="primary" @click="tableDoSubmit">确认</el-button>
+              <el-button :loading="table.loading" type="primary" @click="tableSubmit">确认</el-button>
             </div>
 
           </el-dialog>
@@ -104,6 +130,11 @@ const _defaultRow = {
 export default {
   data() {
     return {
+      search: {
+        title: undefined,
+        phone: undefined,
+        hidden: undefined
+      },
       table: {
         data: [],
         currentPage: 1,
@@ -126,7 +157,7 @@ export default {
   },
   mounted() {
     this.treeGetData()
-    this.tableGetPage()
+    this.tablePage()
   },
   methods: {
     treeGetData() {
@@ -138,12 +169,12 @@ export default {
       if (!value) return true
       return this.tree.data.label.indexOf(value) !== -1
     },
-    tableHandleCreate() {
+    tableCreate() {
       this.form.dialog = true
       this.form.isAdd = true
       this.form.data = Object.assign({}, _defaultRow)
     },
-    tableHandleDelete() {
+    tableDelete() {
       var ids = []
       this.table.selection.forEach(item => ids.push(item.id))
 
@@ -157,7 +188,7 @@ export default {
         })
       })
     },
-    tableHandleEdit() {
+    tableEdit() {
       var row = checkOne(this.table.selection)
       if (!row) return
 
@@ -165,7 +196,7 @@ export default {
       this.form.isAdd = false
       this.form.data = row
     },
-    tableGetPage() {
+    tablePage() {
       this.table.loading = true
       const params = new URLSearchParams()
       params.append('current', this.table.current)
@@ -176,7 +207,7 @@ export default {
         this.table.total = response.data.total
       })
     },
-    tableDoSubmit() {
+    tableSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.isAdd) {
@@ -197,3 +228,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.filter-container {
+  margin-top: 6px;
+}
+.tools-container {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+</style>
