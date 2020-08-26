@@ -67,8 +67,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public R getPage(Page<SysUser> page) {
-        IPage<SysUserVO> result = sysUserMapper.getPage(page, new DataScope());
+    public R getPage(Page<SysUser> page, String username, String phone, Integer deptId, Boolean enabled) {
+        IPage<SysUserVO> result = sysUserMapper.getPage(page, new DataScope(), username, phone, deptId, enabled);
         return R.ok(result);
     }
 

@@ -211,14 +211,14 @@ CREATE TABLE `users` (
   `user_id` int(11) DEFAULT NULL,
   `nickname` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=204 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`) VALUES (100,'aaaaaa','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111'),(101,'bbbbbb','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222'),(102,'cccccc','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333'),(200,'dddddd','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444'),(201,'eeeeee','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555'),(202,'ffffff','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666');
+INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`) VALUES (100,'aaaaaa','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111'),(101,'bbbbbb','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222'),(102,'cccccc','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333'),(200,'dddddd','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444'),(201,'eeeeee','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555'),(202,'ffffff','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -229,4 +229,4 @@ INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`,
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-26 11:49:41
+-- Dump completed on 2020-08-26 14:10:37

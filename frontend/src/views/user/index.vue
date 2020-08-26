@@ -5,8 +5,8 @@
         <!-- left dept -->
         <el-col :span="4">
           <div style="margin-top: 5px;">
-            <el-input v-model="dept.filterText" size="small" placeholder="输入关键字过滤部门" />
-            <el-tree ref="dept" style="margin-top: 20px" :expand-on-click-node="false" :data="dept.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="(value, data) => { if (!value) return true; return dept.data.label.indexOf(value) !== -1 }" />
+            <el-input v-model="dept.filterText" size="small" clearable placeholder="输入关键字过滤部门" />
+            <el-tree ref="dept" style="margin-top: 20px" :expand-on-click-node="false" highlight-current :data="dept.data" :props="{ children: 'children', label: 'name' }" default-expand-all :filter-node-method="deptFilter" @node-click="deptNodeClick" />
           </div>
         </el-col>
         <!-- right table -->
@@ -14,13 +14,13 @@
           <div class="filter-container">
             <el-form :inline="true" :model="search" size="small">
               <el-form-item label="用户名称">
-                <el-input v-model="search.title" placeholder="请输入菜单名称" clearable />
+                <el-input v-model="search.username" placeholder="请输入菜单名称" clearable />
               </el-form-item>
               <el-form-item label="手机号码">
                 <el-input v-model="search.phone" placeholder="请输入手机号码" clearable />
               </el-form-item>
               <el-form-item label="状态">
-                <el-select v-model="search.hidden" placeholder="用户状态" clearable>
+                <el-select v-model="search.enabled" placeholder="用户状态" clearable>
                   <el-option label="启用" :value="true" />
                   <el-option label="停用" :value="false" />
                 </el-select>
@@ -151,9 +151,9 @@
 <script>
 import { getUsers, delItem, saveItem, updateItem, changeUserStatus } from '@/api/user'
 import { getRoles } from '@/api/role'
+import { getDepts } from '@/api/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { getDepts } from '@/api/dept'
 
 const _defaultRow = {
   id: 0,
@@ -166,9 +166,10 @@ export default {
   data() {
     return {
       search: {
-        title: undefined,
+        username: undefined,
         phone: undefined,
-        hidden: undefined
+        enabled: undefined,
+        deptId: undefined
       },
       table: {
         data: [],
@@ -194,15 +195,32 @@ export default {
       }
     }
   },
+  watch: {
+    'dept.filterText'(val, oldVal) {
+      this.$refs.dept.filter(val)
+      if (val === undefined || val === '' || (oldVal && (oldVal.length > val.length))) {
+        this.search.deptId = undefined
+      }
+    }
+  },
   mounted() {
-    this.treeGetData()
+    this.deptGetData()
     this.tablePage()
   },
   methods: {
-    treeGetData() {
+    deptGetData() {
       getDepts().then(res => {
         this.dept.data = res.data
+        this.dept.data.unshift({ id: undefined, name: '所有部门' })
       })
+    },
+    deptNodeClick(data) {
+      this.search.deptId = data.id
+      this.tablePage()
+    },
+    deptFilter(value, data) {
+      if (!value) return true
+      return data.name.indexOf(value) !== -1
     },
     tableCreate() {
       this.form.dialog = true
@@ -226,7 +244,11 @@ export default {
       this.table.loading = true
       const params = {
         current: this.table.current,
-        size: this.table.size
+        size: this.table.size,
+        username: this.search.username ? this.search.username : undefined,
+        phone: this.search.phone ? this.search.phone : undefined,
+        enabled: this.search.enabled,
+        deptId: this.search.deptId
       }
       getUsers(params).then(response => {
         this.table.loading = false

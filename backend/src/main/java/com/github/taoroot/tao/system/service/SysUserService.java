@@ -10,7 +10,7 @@ public interface SysUserService extends IService<SysUser> {
 
     R userInfo();
 
-    R getPage(Page<SysUser> page);
+    R getPage(Page<SysUser> page, String username, String phone, Integer deptId, Boolean enabled);
 
     R saveOrUpdateItem(SysUserVO sysUser);
 }

@@ -51,6 +51,21 @@
         select u.*, d.name as dept_name
         from users u
                  left join depts d on d.id = u.dept_id
+        <where>
+            <if test="username != null and username != ''">
+                and u.username = #{username}
+            </if>
+            <if test="phone != null and phone != ''">
+                and u.phone = #{phone}
+            </if>
+            <if test="enabled != null ">
+                and u.enabled = #{enabled}
+            </if>
+            <if test="deptId != null">
+                and u.dept_id = #{deptId}
+            </if>
+        </where>
+
     </select>
 
 

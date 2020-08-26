@@ -24,5 +24,9 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 
     List<SysAuthority> authorities(@Param("userId") Integer userId, @Param("type") Integer type);
 
-    IPage<SysUserVO> getPage(Page<SysUser> page, DataScope dataScope);
+    IPage<SysUserVO> getPage(@Param("page") Page<SysUser> page, @Param("dataScope") DataScope dataScope,
+                             @Param("username") String username,
+                             @Param("phone") String phone,
+                             @Param("deptId") Integer deptId,
+                             @Param("enabled") Boolean enabled);
 }
