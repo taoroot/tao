@@ -75,4 +75,9 @@ public class SysAuthorityServiceImpl extends ServiceImpl<SysAuthorityMapper, Sys
         }
         return super.removeById(id);
     }
+
+    @Override
+    public boolean saveOrUpdate(SysAuthority entity) {
+        return super.saveOrUpdate(entity);
+    }
 }

@@ -29,7 +29,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     public R tree(Integer parentId, String name) {
         LambdaQueryWrapper<SysDept> queryWrapper = Wrappers.lambdaQuery();
 
-        if (!StringUtils.isEmpty(name)){
+        if (!StringUtils.isEmpty(name)) {
             queryWrapper.like(SysDept::getName, name);
         }
 

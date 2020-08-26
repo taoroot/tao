@@ -33,6 +33,9 @@ public class SysAuthorityController {
 
     @PutMapping("/authority")
     public R update(@RequestBody SysAuthority sysAuthority) {
+        if (sysAuthority.getParentId().equals(sysAuthority.getId())) {
+            throw new IllegalArgumentException("参数有误, 不能设置自己为上一级");
+        }
         return R.ok(sysAuthorityService.saveOrUpdate(sysAuthority));
     }
 }

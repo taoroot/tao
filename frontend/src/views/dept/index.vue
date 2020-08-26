@@ -147,7 +147,9 @@ export default {
       this.form.dialog = true
       this.form.data = Object.assign({}, _defaultRow)
       this.form.data.parentId = row.id === undefined ? -1 : row.id
-      this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: false, children: [...this.table.data] }]
+      getDepts().then(response => {
+        this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: false, children: [...response.data] }]
+      })
     },
     tableDelete(row) {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
@@ -159,7 +161,9 @@ export default {
     tableEdit(row) {
       this.form.dialog = true
       this.form.data = Object.assign({}, row)
-      this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: true, children: [...this.table.data] }]
+      getDepts().then(response => {
+        this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: true, children: [...response.data] }]
+      })
     },
     tablePage() {
       this.table.loading = true

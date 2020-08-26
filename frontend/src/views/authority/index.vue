@@ -21,37 +21,15 @@
 
       <div class="table-container">
         <el-table row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" border :data="table.data">
-
-          <el-table-column label="菜单名称" header-align="center">
-            <template slot-scope="scope">
-              <span>{{ scope.row.title }} </span>
-            </template>
-          </el-table-column>
-
+          <el-table-column label="菜单名称" align="left" header-align="center" prop="title" :show-overflow-tooltip="true" />
           <el-table-column label="图标" align="center">
             <template slot-scope="scope">
               <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" style="height: 32px;width: 16px;" />
             </template>
           </el-table-column>
-
-          <el-table-column label="排序" align="center">
-            <template slot-scope="scope">
-              <span>{{ scope.row.weight }} </span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="权限标识" align="center">
-            <template slot-scope="scope">
-              <span>{{ scope.row.authority }} </span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="路径" header-align="center">
-            <template slot-scope="scope">
-              <span>{{ scope.row.path }} </span>
-            </template>
-          </el-table-column>
-
+          <el-table-column label="排序" align="center" header-align="center" prop="weight" :show-overflow-tooltip="true" />
+          <el-table-column label="权限标识" align="center" header-align="center" prop="authority" :show-overflow-tooltip="true" />
+          <el-table-column label="路径" align="center" header-align="center" prop="path" :show-overflow-tooltip="true" />
           <el-table-column label="可见" align="center">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.hidden == false">可见</el-tag>
@@ -59,7 +37,6 @@
               <el-tag v-else>--</el-tag>
             </template>
           </el-table-column>
-
           <el-table-column label="type" align="center">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.type == 0">菜单</el-tag>
@@ -69,20 +46,20 @@
 
           <el-table-column label="操作" align="center" width="285">
             <template slot-scope="scope">
+              <el-button type="text" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
               <el-button type="text" icon="el-icon-plus" @click="tableCreate(scope.row)">新增</el-button>
               <el-button type="text" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
-              <el-button type="text" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
             </template>
           </el-table-column>
 
         </el-table>
       </div>
 
-      <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.isAdd ? '新增' : '编辑'" width="600px">
+      <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.data.id === undefined ? '新增' : '编辑'" width="600px">
         <el-form ref="form" :model="form.data" :rules="form.rules" label-width="80px">
 
-          <el-form-item label="上级菜单" prop="name">
-            <treeselect v-model="form.data.parentId" :options="form.authorityTree" :normalizer="formNormalizer" :show-count="true" placeholder="选择上级菜单" />
+          <el-form-item label="上级菜单" prop="parentId">
+            <treeselect v-model="form.data.parentId" :options="form.authorityTree" :normalizer="node => {if (node.children && !node.children.length) delete node.children; return { id: node.id, label: node.title, children: node.children }}" :show-count="true" placeholder="选择上级菜单" />
           </el-form-item>
 
           <el-row>
@@ -162,9 +139,20 @@ import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import IconSelect from '@/components/IconSelect'
 const _defaultRow = {
-  id: 0,
-  role: '',
-  description: ''
+  'id': undefined,
+  'parentId': -1,
+  'weight': 1,
+  'name': undefined,
+  'path': undefined,
+  'type': 0,
+  'component': '',
+  'hidden': false,
+  'alwaysShow': false,
+  'redirect': null,
+  'title': undefined,
+  'icon': undefined,
+  'authority': null,
+  'breadcrumb': false
 }
 
 export default {
@@ -187,9 +175,13 @@ export default {
       },
       form: {
         data: Object.assign({}, _defaultRow),
-        rules: {},
+        rules: {
+          parentId: [{ required: true, message: '上级部门不能为空', trigger: 'blur' }],
+          path: [{ required: true, message: '路由路径不能为空', trigger: 'blur' }],
+          title: [{ required: true, message: '菜单标题不能为空', trigger: 'blur' }],
+          weight: [{ required: true, message: '排列顺序不能为空', trigger: 'blur' }]
+        },
         dialog: false,
-        isAdd: true,
         authorityTree: []
       }
     }
@@ -200,8 +192,10 @@ export default {
   methods: {
     tableCreate() {
       this.form.dialog = true
-      this.form.isAdd = true
       this.form.data = Object.assign({}, _defaultRow)
+      getAuthorities().then(response => {
+        this.form.authorityTree = [{ id: -1, title: '主类目', children: [...response.data] }]
+      })
     },
     tableDelete(row) {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
@@ -216,13 +210,9 @@ export default {
     },
     tableEdit(row) {
       this.form.dialog = true
-      this.form.isAdd = false
       this.form.data = Object.assign({}, row)
       getAuthorities().then(response => {
-        this.form.authorityTree = []
-        const menu = { id: -1, title: '主类目', children: [] }
-        menu.children = response.data
-        this.form.authorityTree.push(menu)
+        this.form.authorityTree = [{ id: -1, title: '主类目', children: [...response.data] }]
       })
     },
     tablePage() {

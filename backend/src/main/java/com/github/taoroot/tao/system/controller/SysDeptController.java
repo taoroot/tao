@@ -32,6 +32,9 @@ public class SysDeptController {
 
     @PutMapping("/dept")
     public R updateItem(@RequestBody SysDept sysDept) {
+        if (sysDept.getParentId().equals(sysDept.getId())) {
+            throw new IllegalArgumentException("参数有误, 不能设置自己为上一级");
+        }
         return R.ok(sysDeptService.updateById(sysDept));
     }
 

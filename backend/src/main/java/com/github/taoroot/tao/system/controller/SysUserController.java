@@ -1,7 +1,7 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.taoroot.tao.system.dto.SysUserVO;
+import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.service.SysUserService;
 import com.github.taoroot.tao.utils.R;
@@ -17,7 +17,7 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     @PostMapping("/user")
-    public R saveItem(@RequestBody SysUserVO sysUser) {
+    public R saveItem(@RequestBody SysUser sysUser) {
         return sysUserService.saveOrUpdateItem(sysUser);
     }
 
@@ -27,7 +27,7 @@ public class SysUserController {
     }
 
     @PutMapping("/user")
-    public R updateItem(@RequestBody SysUserVO sysUser) {
+    public R updateItem(@RequestBody SysUser sysUser) {
         return sysUserService.saveOrUpdateItem(sysUser);
     }
 

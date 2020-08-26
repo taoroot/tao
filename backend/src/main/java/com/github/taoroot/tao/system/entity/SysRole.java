@@ -28,12 +28,16 @@ public class SysRole extends Model<SysRole> {
 
     private String description;
 
-    @TableField(typeHandler = JacksonTypeHandler.class, jdbcType= JdbcType.ARRAY)
+    @TableField(typeHandler = JacksonTypeHandler.class, jdbcType = JdbcType.ARRAY)
     private Integer[] scope;
+
 
     private DataScopeTypeEnum scopeType;
 
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    @TableField(exist = false)
+    private Integer[] authorities;
 }

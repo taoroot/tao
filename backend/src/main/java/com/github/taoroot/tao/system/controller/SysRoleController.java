@@ -1,7 +1,6 @@
 package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.taoroot.tao.system.dto.SysRoleVo;
 import com.github.taoroot.tao.system.entity.SysRole;
 import com.github.taoroot.tao.system.service.SysRoleService;
 import com.github.taoroot.tao.utils.R;
@@ -18,8 +17,8 @@ public class SysRoleController {
     private final SysRoleService sysRoleService;
 
     @PostMapping("/role")
-    public R saveItem(@RequestBody SysRoleVo sysRoleVo) {
-        return R.ok(sysRoleService.saveOrUpdateItem(sysRoleVo));
+    public R saveItem(@RequestBody SysRole sysRole) {
+        return R.ok(sysRoleService.saveOrUpdateItem(sysRole));
     }
 
     @DeleteMapping("/role")
@@ -28,8 +27,8 @@ public class SysRoleController {
     }
 
     @PutMapping("/role")
-    public R updateItem(@RequestBody SysRoleVo sysRoleVo) {
-        return sysRoleService.saveOrUpdateItem(sysRoleVo);
+    public R updateItem(@RequestBody SysRole sysRole) {
+        return sysRoleService.saveOrUpdateItem(sysRole);
     }
 
     @GetMapping("/roles")

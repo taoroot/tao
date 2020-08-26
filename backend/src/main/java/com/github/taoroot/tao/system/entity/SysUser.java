@@ -1,6 +1,7 @@
 package com.github.taoroot.tao.system.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -42,4 +43,7 @@ public class SysUser extends Model<SysUser> {
     private Integer deptId;
 
     private Boolean enabled;
+
+    @TableField(exist = false)
+    private Integer[] roles;
 }

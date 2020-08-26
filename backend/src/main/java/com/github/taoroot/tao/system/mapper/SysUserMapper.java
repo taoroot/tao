@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.taoroot.tao.system.datascope.DataScope;
-import com.github.taoroot.tao.system.dto.SysUserVO;
+import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysRole;
 import com.github.taoroot.tao.system.entity.SysUser;
@@ -24,7 +24,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 
     List<SysAuthority> authorities(@Param("userId") Integer userId, @Param("type") Integer type);
 
-    IPage<SysUserVO> getPage(@Param("page") Page<SysUser> page, @Param("dataScope") DataScope dataScope,
+    IPage<SysUser> getPage(@Param("page") Page<SysUser> page, @Param("dataScope") DataScope dataScope,
                              @Param("username") String username,
                              @Param("phone") String phone,
                              @Param("deptId") Integer deptId,

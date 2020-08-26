@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.system.datascope.DataScopeTypeEnum;
-import com.github.taoroot.tao.system.dto.SysRoleVo;
+import com.github.taoroot.tao.system.entity.SysRole;
 import com.github.taoroot.tao.system.entity.SysRole;
 import com.github.taoroot.tao.system.entity.SysRoleAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
@@ -41,27 +41,20 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
-    public R saveOrUpdateItem(SysRoleVo sysRoleVo) {
-        SysRole sysRole = new SysRole();
-        sysRole.setId(sysRoleVo.getId());
-        sysRole.setScopeType(sysRoleVo.getScopeType());
-        sysRole.setScope(sysRoleVo.getScope());
-
-        if (sysRoleVo.getId() == null) {
-            sysRole.setRole(sysRoleVo.getRole());
-        }
-
+    public R saveOrUpdateItem(SysRole sysRole) {
         List<Integer> deptIds = new ArrayList<>();
         SysUser sysUser = sysUserMapper.selectById(SecurityUtils.userId());
 
         // 全部
         if (sysRole.getScopeType().equals(DataScopeTypeEnum.ALL)) {
             sysRole.setScope(new Integer[]{});
+            sysRole.setScope(deptIds.toArray(new Integer[0]));
         }
 
         // 本级
         if (sysRole.getScopeType().equals(DataScopeTypeEnum.THIS_LEVEL)) {
             deptIds.add(sysUser.getDeptId());
+            sysRole.setScope(deptIds.toArray(new Integer[0]));
         }
 
         // 本级, 下级
@@ -69,22 +62,29 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             deptIds.add(sysUser.getDeptId()); // 本级
             List<Tree<Integer>> tree = sysDeptService.tree(sysUser.getDeptId()); // 下级
             treeToList(deptIds, tree);
+            sysRole.setScope(deptIds.toArray(new Integer[0]));
         }
 
-        sysRole.setScope(deptIds.toArray(new Integer[0]));
+        // 自定义时, scope 不能空
+        if (sysRole.getScopeType().equals(DataScopeTypeEnum.CUSTOMIZE)) {
+            if (sysRole.getScope() == null || sysRole.getScope().length == 0) {
+                throw new RuntimeException("自定义权限范围时,必须至少包含一个范围");
+            }
+        }
+
         saveOrUpdate(sysRole);
 
         // 更新角色权限
-        if (sysRoleVo.getAuthorities() != null) {
-            List<SysRoleAuthority> roleMenuList = Arrays.stream(sysRoleVo.getAuthorities()).map(menuId -> {
+        if (sysRole.getAuthorities() != null) {
+            List<SysRoleAuthority> roleMenuList = Arrays.stream(sysRole.getAuthorities()).map(menuId -> {
                 SysRoleAuthority roleMenu = new SysRoleAuthority();
-                roleMenu.setRoleId(sysRoleVo.getId());
+                roleMenu.setRoleId(sysRole.getId());
                 roleMenu.setAuthorityId(menuId);
                 return roleMenu;
             }).collect(Collectors.toList());
 
             sysRoleAuthorityMapper.delete(Wrappers.<SysRoleAuthority>query().lambda()
-                    .eq(SysRoleAuthority::getRoleId, sysRoleVo.getId()));
+                    .eq(SysRoleAuthority::getRoleId, sysRole.getId()));
             sysRoleAuthorityService.saveBatch(roleMenuList);
         }
 
