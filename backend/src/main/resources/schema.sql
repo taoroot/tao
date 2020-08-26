@@ -149,7 +149,7 @@ CREATE TABLE `roles` (
 -- Dumping data for table `roles`
 --
 
-INSERT INTO `roles` (`id`, `name`, `role`, `scope_type`, `scope`, `description`, `create_time`, `update_time`) VALUES (1,'普通角色','ROLE_USER',3,'[1000,1001,1002]','','2020-08-18 11:36:19','2020-08-26 01:26:45');
+INSERT INTO `roles` (`id`, `name`, `role`, `scope_type`, `scope`, `description`, `create_time`, `update_time`) VALUES (1,'普通角色','ROLE_USER',4,'[1001]','','2020-08-18 11:36:19','2020-08-26 08:46:15');
 
 --
 -- Table structure for table `user_oauth2`
@@ -210,15 +210,16 @@ CREATE TABLE `users` (
   `dept_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `nickname` varchar(50) DEFAULT NULL,
+  `email` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=206 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`) VALUES (100,'aaaaaa','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111'),(101,'bbbbbb','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222'),(102,'cccccc','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333'),(200,'dddddd','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444'),(201,'eeeeee','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555'),(202,'ffffff','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666');
+INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`, `email`) VALUES (100,'aaaaaa','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111','1@qq.com'),(101,'bbbbbb','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222','1@qq.com'),(102,'cccccc','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333','1@qq.com'),(200,'dddddd','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444','1@qq.com'),(201,'eeeeee','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555','1@qq.com'),(202,'ffffff','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666','1@qq.com');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -229,4 +230,4 @@ INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`,
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-26 14:10:37
+-- Dump completed on 2020-08-26 20:53:15

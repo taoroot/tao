@@ -40,6 +40,8 @@ public class SysUser extends Model<SysUser> {
 
     private String nickname;
 
+    private String email;
+
     private Integer deptId;
 
     private Boolean enabled;

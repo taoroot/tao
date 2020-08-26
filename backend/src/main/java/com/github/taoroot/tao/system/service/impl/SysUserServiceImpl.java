@@ -10,6 +10,7 @@ import com.github.taoroot.tao.system.datascope.DataScope;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserRole;
+import com.github.taoroot.tao.system.mapper.SysDeptMapper;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserRoleMapper;
 import com.github.taoroot.tao.system.service.SysUserRoleService;
@@ -31,15 +32,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private final SysUserMapper sysUserMapper;
     private final SysUserRoleService sysUserRoleService;
     private final SysUserRoleMapper sysUserRoleMapper;
+    private final SysDeptMapper sysDeptMapper;
 
     @Override
     public R userInfo() {
         Integer userId = SecurityUtils.userId();
         HashMap<String, Object> result = new HashMap<>();
+        SysUser sysUser = sysUserMapper.selectById(SecurityUtils.userId());
+        sysUser.setPassword(null);
         // 查询用户个人信息
-        result.put("info", sysUserMapper.selectById(SecurityUtils.userId()));
+        result.put("info", sysUser);
         // 查询用户角色信息
         result.put("roles", sysUserMapper.roles(userId));
+        // 所属部门
+        result.put("dept", sysDeptMapper.selectById(sysUser.getDeptId()).getName());
         // 功能: 1
         result.put("functions", sysUserMapper.authorities(userId, 1));
         // 菜单: 0

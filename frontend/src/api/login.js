@@ -44,3 +44,10 @@ export function logout() {
     method: 'delete'
   })
 }
+
+export function getUserProfile() {
+  return request({
+    url: '/user_info',
+    method: 'get'
+  })
+}
