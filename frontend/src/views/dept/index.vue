@@ -1,117 +1,195 @@
 <template>
   <div class="app-container">
-    <el-card style="min-height: 600px">
-      <el-row>
-        <el-col :span="4">
-          <el-button-group style="margin: 10px 0">
-            <el-button type="primary" icon="el-icon-plus" @click="handleAdd" />
-            <el-button type="primary" icon="el-icon-edit" @click="isEditForm = true" />
-            <el-button type="primary" icon="el-icon-delete" @click="handleDelete" />
-          </el-button-group>
-          <el-tree :data="tableTreeData" :props="{ children: 'children', label: 'name' }" @node-click="handleNodeClick" />
-        </el-col>
-        <el-col :span="19" :offset="1">
-          <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="150px" size="small" style="text-align:left;">
-            <el-form-item label="id">
-              <el-input v-model="dataForm.id" :disabled="!isEditForm" />
-            </el-form-item>
+    <el-card>
+      <div class="filter-container">
+        <el-form :inline="true" :model="search" size="small">
+          <el-form-item label="部门名称">
+            <el-input v-model="search.name" placeholder="请输入部门名称" clearable />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" @click="tablePage">查询</el-button>
+            <el-button type="primary" icon="el-icon-plus" @click="tableCreate">新增</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
 
-            <el-form-item label="parentId">
-              <el-cascader v-model="dataForm.path" :props="{value: 'id', label: 'name', checkStrictly: true}" :options="tableTreeData" :disabled="!isEditForm" />
-            </el-form-item>
+      <div class="table-container">
+        <el-table row-key="id" size="medium" default-expand-all :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" border :data="table.data">
 
-            <el-form-item label="name" prop="name">
-              <el-input v-model="dataForm.name" :disabled="!isEditForm" />
-            </el-form-item>
-          </el-form>
-          <el-button v-if="isEditForm" @click="create">保存</el-button>
-          <el-button v-if="isEditForm" @click="cancel">取消</el-button>
-        </el-col>
-      </el-row>
+          <el-table-column label="部门名称" align="left" header-align="center" prop="name" :show-overflow-tooltip="true" />
+
+          <el-table-column label="显示排序" align="center" prop="weight" :show-overflow-tooltip="true" />
+
+          <el-table-column label="部门状态" align="center">
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.enabled">启用</el-tag>
+              <el-tag v-else type="warning">停用</el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" align="center" width="285">
+            <template slot-scope="scope">
+              <el-button type="text" size="mini" icon="el-icon-plus" @click="tableCreate(scope.row)">新增</el-button>
+              <el-button type="text" size="mini" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
+              <el-button type="text" size="mini" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
+            </template>
+          </el-table-column>
+
+        </el-table>
+      </div>
+
+      <el-dialog :append-to-body="true" :visible.sync="form.dialog" :title="form.data.id === undefined ? '新增' : '编辑'" width="600px">
+        <el-form ref="form" :model="form.data" :rules="form.rules" label-width="80px">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="上级部门" prop="parentId">
+                <treeselect v-model="form.data.parentId" :options="dict.deptOptions" :normalizer="node => {if (node.children && !node.children.length) delete node.children; return { id: node.id, label: node.name, children: node.children }}" placeholder="请选择上级部门" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="部门名称" prop="name">
+                <el-input v-model="form.data.name" placeholder="请输入部门名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="显示排序" prop="weight">
+                <el-input-number v-model="form.data.weight" controls-position="right" :min="0" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="负责人" prop="leader">
+                <el-input v-model="form.data.leader" placeholder="请输入负责人" maxlength="20" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="联系电话" prop="phone">
+                <el-input v-model="form.data.phone" placeholder="请输入联系电话" maxlength="11" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="部门状态">
+                <el-radio-group v-model="form.data.enabled">
+                  <el-radio :label="true">启用</el-radio>
+                  <el-radio :label="false">停用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="form.data.email" placeholder="请输入邮箱" maxlength="50" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button type="text" @click="form.dialog = false">取消</el-button>
+          <el-button :loading="table.loading" type="primary" @click="formSubmit">确认</el-button>
+        </div>
+
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
-import { getTree, getItemById, saveItem, deleteItem, updateItem } from '@/api/dept'
+import { getDepts, createDept, updateDept, delDepts } from '@/api/dept'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
-var _defaultRow = {
-  'id': -1,
-  'name': '',
-  'parentId': 0,
-  'weight': 1
+const _defaultRow = {
+  id: undefined,
+  name: '',
+  weight: 1,
+  leader: '',
+  phone: '',
+  email: '',
+  enabled: true
 }
+
 export default {
+  name: 'Role',
+  components: { Treeselect },
+  props: {},
   data() {
     return {
-      tableTreeData: [],
-      isEditForm: false,
-      authorityTypeList: ['菜单', '按钮'],
-      dataForm: Object.assign({}, _defaultRow),
-      dataRule: {
-        name: [{ required: true, trigger: 'blur' }],
-        title: [{ required: true, trigger: 'blur' }],
-        path: [{ required: true, trigger: 'blur' }],
-        icon: [{ required: true, trigger: 'blur' }]
+      search: {
+        name: undefined
+      },
+      table: {
+        data: [],
+        currentPage: 1,
+        size: 10,
+        total: 0,
+        loading: false
+      },
+      form: {
+        data: Object.assign({}, _defaultRow),
+        rules: {
+          parentId: [{ required: true, message: '上级部门不能为空', trigger: 'blur' }],
+          name: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }],
+          weight: [{ required: true, message: '排列顺序不能为空', trigger: 'blur' }],
+          email: [{ type: 'email', message: "'请输入正确的邮箱地址", trigger: ['blur', 'change'] }],
+          phone: [{ pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }]
+        },
+        dialog: false
+      },
+      dict: {
+        deptOptions: []
       }
     }
   },
   mounted() {
-    this.findTreeData()
+    this.tablePage()
   },
   methods: {
-    handleNodeClick(data) {
-      if (data.id) {
-        getItemById(data.id).then(res => {
-          this.dataForm = res.data
-        })
-      }
+    tableCreate(row) {
+      this.form.dialog = true
+      this.form.data = Object.assign({}, _defaultRow)
+      this.form.data.parentId = row.id === undefined ? -1 : row.id
+      this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: false, children: [...this.table.data] }]
     },
-    findTreeData() {
-      getTree().then(res => {
-        this.tableTreeData = res.data
+    tableDelete(row) {
+      this.$confirm('此操作将删除选中数据, 是否继续?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+        delDepts([row.id]).then(response => {
+          this.tablePage()
+        })
       })
     },
-    handleAdd() {
-      this.isEditForm = true
-      this.dataForm = Object.assign({}, _defaultRow)
+    tableEdit(row) {
+      this.form.dialog = true
+      this.form.data = Object.assign({}, row)
+      this.dict.deptOptions = [{ id: -1, name: '主类目', isDisabled: true, children: [...this.table.data] }]
     },
-    create() {
-      if (this.dataForm.id) {
-        updateItem(this.dataForm).then(res => {
-          if (res.code === 0) {
-            this.findTreeData()
-            this.isEditForm = false
-          }
-        })
-      } else {
-        saveItem(this.dataForm).then(res => {
-          if (res.code === 0) {
-            this.findTreeData()
-            this.isEditForm = false
-          }
-        })
-      }
+    tablePage() {
+      this.table.loading = true
+      getDepts(this.search).then(response => {
+        this.table.loading = false
+        this.table.data = response.data
+      })
     },
-    cancel() {
-      this.$refs.dataForm.resetFields()
-      this.isEditForm = false
-      this.dataForm.parentId = 0
-    },
-    handleDelete() {
-      this.$confirm('此操作将把分类删除, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteItem(this.dataForm.id).then(response => {
-          if (response.code === 0) {
-            this.findTreeData()
+    formSubmit() {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          if (this.form.data.id === undefined) {
+            createDept(this.form.data).then((res) => {
+              this.form.dialog = false
+              this.tablePage()
+              this.$refs['form'].resetFields()
+            })
+          } else {
+            updateDept(this.form.data).then((res) => {
+              this.form.dialog = false
+              this.tablePage()
+            })
           }
-        })
+        }
       })
     }
-
   }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>

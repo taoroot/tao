@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName(value = "depts", autoResultMap = true)
+@TableName(value = "depts")
 public class SysDept extends Model<SysDept> {
 
     @TableId(type = IdType.AUTO)
@@ -24,12 +24,17 @@ public class SysDept extends Model<SysDept> {
 
     private String name;
 
-    @TableField(typeHandler = JacksonTypeHandler.class, jdbcType= JdbcType.ARRAY)
-    private Integer[] path;
-
     private Integer parentId;
 
     private Integer weight;
+
+    private String email;
+
+    private String phone;
+
+    private String leader;
+
+    private Boolean enabled;
 
     private LocalDateTime createTime;
 

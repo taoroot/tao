@@ -1,17 +1,12 @@
 package com.github.taoroot.tao.system.service.impl;
 
-import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.lang.tree.TreeUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
-import com.github.taoroot.tao.security.SecurityUtils;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
 import com.github.taoroot.tao.system.entity.*;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
-import com.github.taoroot.tao.system.service.SysUserService;
-import com.github.taoroot.tao.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -19,7 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,9 +31,6 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private final SysUserMapper sysUserMapper;
-
-    private final SysUserService sysUserService;
-
 
     @Override
     public CustomUserDetails loadUserByOAuth2(String clientId, CustomOAuth2User oAuth2User, boolean create) {
@@ -61,6 +52,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
             sysUser.setAvatar(oAuth2User.getAvatar());
             sysUser.setPassword(passwordEncoder.encode(password));
             sysUser.setDeptId(1000);
+            sysUser.setEnabled(true);
             sysUser.insert();
 
             SysUserRole sysUserRole = new SysUserRole();
@@ -136,6 +128,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 myUser.getPassword(),
                 myUser.getPhone(),
                 myUser.getId(),
+                myUser.getEnabled(),
                 AuthorityUtils.createAuthorityList(collect.toArray(new String[0]))
         );
     }

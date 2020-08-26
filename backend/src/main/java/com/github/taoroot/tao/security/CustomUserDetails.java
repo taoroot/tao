@@ -11,8 +11,8 @@ public class CustomUserDetails extends User {
 
     private String phone;
 
-    public CustomUserDetails(String username, String password, String phone, Integer id, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
+    public CustomUserDetails(String username, String password, String phone, Integer id, boolean enabled, Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, enabled, true, true, true, authorities);
         this.id = id;
         this.phone = phone;
     }

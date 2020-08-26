@@ -36,8 +36,9 @@ public class SysDeptController {
     }
 
     @GetMapping("/depts")
-    public R getPage(@RequestParam(defaultValue = "" + TreeUtils.ROOT_PARENT_ID) Integer parentId) {
-        return R.ok(sysDeptService.tree(parentId));
+    public R getPage(@RequestParam(defaultValue = "" + TreeUtils.ROOT_PARENT_ID) Integer parentId,
+                     @RequestParam(required = false) String name) {
+        return sysDeptService.tree(parentId, name);
     }
 }
 

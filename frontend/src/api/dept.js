@@ -1,13 +1,14 @@
 import request from '@/utils/request'
 
-export function getTree() {
+export function getDepts(params) {
   return request({
     url: '/depts',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
-export function delItem(ids) {
+export function delDepts(ids) {
   return request({
     url: `/dept`,
     method: 'delete',
@@ -17,7 +18,7 @@ export function delItem(ids) {
   })
 }
 
-export function saveItem(data) {
+export function createDept(data) {
   return request({
     url: '/dept',
     method: 'post',
@@ -25,17 +26,10 @@ export function saveItem(data) {
   })
 }
 
-export function updateItem(data) {
+export function updateDept(data) {
   return request({
     url: `/dept`,
     method: 'put',
     data
-  })
-}
-
-export const getItemById = (id) => {
-  return request({
-    url: `/dept/${id}`,
-    method: 'get'
   })
 }

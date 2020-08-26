@@ -35,7 +35,7 @@
           <div class="tools-container">
             <el-button type="primary" size="mini" icon="el-icon-plus" @click="tableCreate">新增</el-button>
             <el-button type="info" size="mini" icon="el-icon-edit" :disabled="table.selection.length !== 1" @click="tableEdit(table.selection[0])">编辑</el-button>
-            <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="table.selection.length !== 1" @click="tableDelete(table.selection[0])">删除</el-button>
+            <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="table.selection.length === 0" @click="tableDelete(table.selection)">删除</el-button>
           </div>
 
           <div class="table-container">
@@ -47,13 +47,13 @@
               <el-table-column label="手机号码" align="center" prop="phone" :show-overflow-tooltip="true" />
               <el-table-column label="状态" align="center">
                 <template slot-scope="scope">
-                  <el-switch v-model="scope.row.enabled" @change="tableEnableChange(scope.row)" />
+                  <el-switch v-model="scope.row.enabled" @change="tableEnabledChange(scope.row)" />
                 </template>
               </el-table-column>
               <el-table-column label="操作" align="center" width="285">
                 <template slot-scope="scope">
                   <el-button type="text" size="mini" icon="el-icon-edit" @click="tableEdit(scope.row)">编辑</el-button>
-                  <el-button type="text" size="mini" icon="el-icon-delete" @click="tableDelete(scope.row)">删除</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-delete" @click="tableDelete([scope.row.id])">删除</el-button>
                   <el-button type="text" size="mini" icon="el-icon-refresh">重置</el-button>
                 </template>
               </el-table-column>
@@ -153,7 +153,7 @@ import { getUsers, delItem, saveItem, updateItem, changeUserStatus } from '@/api
 import { getRoles } from '@/api/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { getTree } from '@/api/dept'
+import { getDepts } from '@/api/dept'
 
 const _defaultRow = {
   id: 0,
@@ -197,13 +197,10 @@ export default {
   mounted() {
     this.treeGetData()
     this.tablePage()
-    getRoles({ size: -1 }).then(response => {
-      this.dict.roleOptions = response.data.records
-    })
   },
   methods: {
     treeGetData() {
-      getTree().then(res => {
+      getDepts().then(res => {
         this.dept.data = res.data
       })
     },
@@ -211,9 +208,7 @@ export default {
       this.form.dialog = true
       this.form.data = Object.assign({}, _defaultRow)
     },
-    tableDelete() {
-      var ids = []
-      this.table.selection.forEach(item => ids.push(item.id))
+    tableDelete(ids) {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
         delItem(ids).then(response => {
           this.tablePage()
@@ -223,6 +218,9 @@ export default {
     tableEdit(row) {
       this.form.data = Object.assign({}, row)
       this.form.dialog = true
+      getRoles({ size: -1 }).then(response => {
+        this.dict.roleOptions = response.data.records
+      })
     },
     tablePage() {
       this.table.loading = true
@@ -238,23 +236,22 @@ export default {
     },
     tableSubmit() {
       this.$refs['form'].validate((valid) => {
-        if (valid) {
-          if (this.form.data.id === undefined) {
-            saveItem(this.form.data).then((res) => {
-              this.form.dialog = false
-              this.tablePage()
-              this.$refs['form'].resetFields()
-            })
-          } else {
-            updateItem(this.form.data).then((res) => {
-              this.form.dialog = false
-              this.tablePage()
-            })
-          }
+        if (!valid) return
+        if (this.form.data.id === undefined) {
+          saveItem(this.form.data).then((res) => {
+            this.form.dialog = false
+            this.tablePage()
+            this.$refs['form'].resetFields()
+          })
+        } else {
+          updateItem(this.form.data).then((res) => {
+            this.form.dialog = false
+            this.tablePage()
+          })
         }
       })
     },
-    tableEnableChange(row) {
+    tableEnabledChange(row) {
       const text = row.enabled ? '启用' : '停用'
       this.$confirm(`确认要 ${text} ${row.username} 用户吗?`, '警告', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(function() {
         return changeUserStatus(row.id, row.enabled)
