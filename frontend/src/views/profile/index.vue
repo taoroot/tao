@@ -25,7 +25,7 @@
             </el-row>
             <el-row class="row-height">
               <el-col :span="12"><svg-icon icon-class="tree" />所属部门</el-col>
-              <el-col :span="12" style="text-align: right"> {{ user.deptName }} </el-col>
+              <el-col :span="12" style="text-align: right"> {{ deptName }} </el-col>
             </el-row>
             <el-row class="row-height">
               <el-col :span="12"><svg-icon icon-class="role" />所属角色</el-col>
@@ -79,18 +79,20 @@
 <script>
 import userAvatar from './userAvatar'
 import userInfo from './userInfo'
+import resetPwd from './resetPwd'
 import openWindow from '@/utils/open-window'
 import { getToken } from '@/utils/auth'
-import { getUserProfile, getUserSocial, unbindUserSocial, resetPwd } from '@/api/login'
+import { getUserProfile, getUserSocial, unbindUserSocial, resetPassword } from '@/api/login'
 export default {
   name: 'Profile',
   components: { userAvatar, userInfo, resetPwd },
   data() {
     return {
+      social: [],
       activeTab: 'userinfo',
       user: {},
       deptName: '',
-      social: {}
+      roles: []
     }
   },
   destroyed() {

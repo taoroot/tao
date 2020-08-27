@@ -210,18 +210,17 @@ CREATE TABLE `users` (
   `phone` varchar(20) DEFAULT NULL,
   `avatar` varchar(200) DEFAULT NULL,
   `dept_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
   `nickname` varchar(50) DEFAULT NULL,
   `email` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`, `email`) VALUES (1,'admin','$2a$10$BK2HGpZVjchJe1HJQUAzVudj8DUhWwNjdS7zEBKFM8RmDjYmbWgLi',1,NULL,'https://avatars0.githubusercontent.com/u/14340565?v=4',1000,NULL,'超级管理员',NULL),(100,'aaaaaa','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111','1@qq.com'),(101,'bbbbbb','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222','1@qq.com'),(102,'cccccc','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333','1@qq.com'),(200,'dddddd','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444','1@qq.com'),(201,'eeeeee','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555','1@qq.com'),(202,'ffffff','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666','1@qq.com');
+INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `nickname`, `email`) VALUES (1,'admin','$2a$10$BK2HGpZVjchJe1HJQUAzVudj8DUhWwNjdS7zEBKFM8RmDjYmbWgLi',1,'13131333333','https://avatars0.githubusercontent.com/u/14340565?v=4',1000,'超级管理员','1@qq.com'),(100,'aaaaaa','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1000,'11111','1@qq.com'),(101,'bbbbbb','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1001,'22222','1@qq.com'),(102,'cccccc','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',0,'1234567890','http://localhost:9528/logo.jpg',1002,'33333','1@qq.com'),(200,'dddddd','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2002,'44444','1@qq.com'),(201,'eeeeee','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2001,'55555','1@qq.com'),(202,'ffffff','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2000,'66666','1@qq.com');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -232,4 +231,4 @@ INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`,
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-27 16:45:37
+-- Dump completed on 2020-08-27 17:30:41

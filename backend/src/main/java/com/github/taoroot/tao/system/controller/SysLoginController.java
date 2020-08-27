@@ -2,6 +2,7 @@ package com.github.taoroot.tao.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.taoroot.tao.security.SecurityUtils;
+import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import com.github.taoroot.tao.system.service.SysUserService;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesRegistrationAdapter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -34,6 +32,22 @@ public class SysLoginController {
     @GetMapping("/user_info")
     public R userInfo() {
         return sysUserService.userInfo();
+    }
+
+    @PutMapping("/user_info")
+    public R userInfo(@RequestBody SysUser sysUser) {
+        SysUser sysUser1 = new SysUser();
+        sysUser1.setId(sysUser.getId());
+        sysUser1.setUsername(sysUser.getUsername());
+        sysUser1.setNickname(sysUser.getNickname());
+        sysUser1.setEmail(sysUser.getEmail());
+        sysUser1.setPhone(sysUser.getPhone());
+        if (sysUser.getId().equals(SecurityUtils.userId())) {
+            if (sysUser.updateById()) {
+                return R.okMsg("修改成功");
+            }
+        }
+        return R.errMsg("参数错误");
     }
 
     @GetMapping("/user_socials")

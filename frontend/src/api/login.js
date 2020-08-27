@@ -58,3 +58,19 @@ export function unbindUserSocial(id) {
     method: 'delete'
   })
 }
+
+export function updateUser(data) {
+  return request({
+    url: `/user_info`,
+    method: 'put',
+    data
+  })
+}
+
+export function resetPassword(data) {
+  return request({
+    url: `/user_password`,
+    method: 'put',
+    data
+  })
+}
