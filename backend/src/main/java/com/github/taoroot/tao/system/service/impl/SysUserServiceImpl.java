@@ -39,7 +39,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         Integer userId = SecurityUtils.userId();
         HashMap<String, Object> result = new HashMap<>();
         SysUser sysUser = sysUserMapper.selectById(SecurityUtils.userId());
-        sysUser.setPassword(null);
         // 查询用户个人信息
         result.put("info", sysUser);
         // 查询用户角色信息

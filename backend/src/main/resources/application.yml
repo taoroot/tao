@@ -15,11 +15,11 @@ spring:
           github:
             client-id: xxxx
             client-secret: xxxx
-          gitea:
-            client-id: xxxx
-            client-secret: xxxx
-            authorization-grant-type: authorization_code
-            redirect-uri: https://xxxx/login/oauth2/code/gitea
+#          gitea:
+#            client-id: xxxx
+#            client-secret: xxxx
+#            authorization-grant-type: authorization_code
+#            redirect-uri: https://xxxx/login/oauth2/code/gitea
           gitee:
             client-id: xxxx
             client-secret: xxxx

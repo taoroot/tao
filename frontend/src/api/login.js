@@ -31,7 +31,7 @@ export function getSms(params) {
   })
 }
 
-export function getSocial() {
+export function getUserSocial() {
   return request({
     url: '/user_socials',
     method: 'get'
@@ -49,5 +49,12 @@ export function getUserProfile() {
   return request({
     url: '/user_info',
     method: 'get'
+  })
+}
+
+export function unbindUserSocial(id) {
+  return request({
+    url: `/user_social/${id}`,
+    method: 'delete'
   })
 }

@@ -86,7 +86,7 @@
         <el-row style="text-align: center;">
 
           <el-col :span="6">第三方登录方式: </el-col>
-          <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('wx', 540)"> <svg-icon style="height: 13px;" icon-class="wechat" /> 微信</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('wx', 540)"> <svg-icon style="height: 13px;" icon-class="wx" /> 微信</a></el-col>
           <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('gitee', 1000)"><svg-icon style="height: 13px;" icon-class="gitee" /> 码云</a></el-col>
           <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('github', 540)"> <svg-icon style="height: 13px;" icon-class="github" /> GitHub</a></el-col>
           <el-col :span="4"><a referrerpolicy="origin" href="#" style="line-height: 20px" @click="oauth2Button('qq', 540)"><img style="height: 13px;" src="qq.png"> QQ</a></el-col>
@@ -98,7 +98,6 @@
 </template>
 
 <script>
-import { setToken } from '@/utils/auth'
 import { getSms } from '@/api/login'
 import openWindow from '@/utils/open-window'
 
@@ -121,8 +120,8 @@ export default {
     // }
     return {
       loginForm: {
-        username: '',
-        password: '',
+        username: 'admin',
+        password: '123456',
         imageKey: Math.random().toString(36).substr(2),
         code: '',
         phone: '',

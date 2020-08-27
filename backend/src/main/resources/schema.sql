@@ -47,7 +47,7 @@ CREATE TABLE `authorities` (
 -- Dumping data for table `authorities`
 --
 
-INSERT INTO `authorities` (`id`, `parent_id`, `path`, `title`, `name`, `component`, `always_show`, `redirect`, `icon`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `hidden`, `authority`) VALUES (10,-1,'external-link','动态路由',NULL,'Layout',NULL,'/github','wechat',2,'0','2020-08-18 02:13:56','2020-08-25 15:08:52',NULL,'0',NULL),(11,10,'https://github.com/taoroot/tao','github','github',NULL,NULL,NULL,'github',1,'0','2020-08-18 02:14:08','2020-08-23 08:56:04',NULL,'0',NULL),(12,10,'https://doc-tao.flizi.cn','vuepress','vuepress',NULL,NULL,NULL,'link',1,'0','2020-08-18 02:14:08','2020-08-23 08:50:37',NULL,'0',NULL),(1000,-1,'/system','系统设置',NULL,'Layout','0','/authority/index','example',1,'0','2020-08-24 08:24:45','2020-08-26 01:11:11',NULL,'0',NULL),(1001,1000,'authority','权限管理','Authority','authority/index','0',NULL,'tree-table',4,'0','2020-08-24 08:26:50','2020-08-24 08:40:01',NULL,'0',NULL),(1002,1000,'dept','部门管理','Dept','dept/index','0',NULL,'tree',3,'0','2020-08-24 08:35:28','2020-08-24 08:39:57',0,'0',NULL),(1003,1000,'role','角色管理','Role','role/index','0',NULL,'peoples',2,'0','2020-08-24 08:35:28','2020-08-24 08:39:51',0,'0',NULL),(1004,1000,'user','用户管理','User','user/index','0',NULL,'user',1,'0','2020-08-24 08:36:57','2020-08-24 08:39:32',0,'0',NULL);
+INSERT INTO `authorities` (`id`, `parent_id`, `path`, `title`, `name`, `component`, `always_show`, `redirect`, `icon`, `weight`, `type`, `create_time`, `update_time`, `breadcrumb`, `hidden`, `authority`) VALUES (10,-1,'external-link','动态路由',NULL,'Layout',NULL,'/github','link',2,'0','2020-08-18 02:13:56','2020-08-27 08:44:38',NULL,'0',NULL),(11,10,'https://github.com/taoroot/tao','github','github',NULL,NULL,NULL,'github',1,'0','2020-08-18 02:14:08','2020-08-23 08:56:04',NULL,'0',NULL),(12,10,'https://doc-tao.flizi.cn','vuepress','vuepress',NULL,NULL,NULL,'education',1,'0','2020-08-18 02:14:08','2020-08-27 08:44:59',NULL,'0',NULL),(1000,-1,'/system','系统设置',NULL,'Layout','0','/authority/index','example',1,'0','2020-08-24 08:24:45','2020-08-26 01:11:11',NULL,'0',NULL),(1001,1000,'authority','权限管理','Authority','authority/index','0',NULL,'tree-table',4,'0','2020-08-24 08:26:50','2020-08-24 08:40:01',NULL,'0',NULL),(1002,1000,'dept','部门管理','Dept','dept/index','0',NULL,'tree',3,'0','2020-08-24 08:35:28','2020-08-24 08:39:57',0,'0',NULL),(1003,1000,'role','角色管理','Role','role/index','0',NULL,'peoples',2,'0','2020-08-24 08:35:28','2020-08-24 08:39:51',0,'0',NULL),(1004,1000,'user','用户管理','User','user/index','0',NULL,'user',1,'0','2020-08-24 08:36:57','2020-08-24 08:39:32',0,'0',NULL);
 
 --
 -- Table structure for table `depts`
@@ -68,7 +68,7 @@ CREATE TABLE `depts` (
   `leader` varchar(20) COLLATE utf8mb4_bin DEFAULT NULL,
   `enabled` char(1) COLLATE utf8mb4_bin NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2005 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='部门管理';
+) ENGINE=InnoDB AUTO_INCREMENT=2003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='部门管理';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,14 +142,14 @@ CREATE TABLE `roles` (
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `role_idx1_role_code` (`role`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='角色';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='角色';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `roles`
 --
 
-INSERT INTO `roles` (`id`, `name`, `role`, `scope_type`, `scope`, `description`, `create_time`, `update_time`) VALUES (1,'普通角色','ROLE_USER',4,'[1001]','','2020-08-18 11:36:19','2020-08-26 08:46:15');
+INSERT INTO `roles` (`id`, `name`, `role`, `scope_type`, `scope`, `description`, `create_time`, `update_time`) VALUES (1,'普通角色','ROLE_USER',1,'[]','','2020-08-18 11:36:19','2020-08-26 08:46:15'),(2,'个人角色','ROLE_OWN',5,'[]','','2020-08-27 08:40:44',NULL);
 
 --
 -- Table structure for table `user_oauth2`
@@ -165,8 +165,9 @@ CREATE TABLE `user_oauth2` (
   `user_id` varchar(255) DEFAULT NULL,
   `nickname` varchar(200) DEFAULT NULL,
   `avatar` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`client_registration_id`,`principal_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -192,6 +193,7 @@ CREATE TABLE `user_role` (
 -- Dumping data for table `user_role`
 --
 
+INSERT INTO `user_role` (`user_id`, `role_id`) VALUES (1,1),(1,2);
 
 --
 -- Table structure for table `users`
@@ -212,14 +214,14 @@ CREATE TABLE `users` (
   `nickname` varchar(50) DEFAULT NULL,
   `email` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=206 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`, `email`) VALUES (100,'aaaaaa','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111','1@qq.com'),(101,'bbbbbb','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222','1@qq.com'),(102,'cccccc','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333','1@qq.com'),(200,'dddddd','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444','1@qq.com'),(201,'eeeeee','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555','1@qq.com'),(202,'ffffff','$2a$10$Qgr0gPqwgRrYfjMgAnrhRuIKRu9yLdfVIjkxuKbJdFGguvhT8Tihu',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666','1@qq.com');
+INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`, `dept_id`, `user_id`, `nickname`, `email`) VALUES (1,'admin','$2a$10$BK2HGpZVjchJe1HJQUAzVudj8DUhWwNjdS7zEBKFM8RmDjYmbWgLi',1,NULL,'https://avatars0.githubusercontent.com/u/14340565?v=4',1000,NULL,'超级管理员',NULL),(100,'aaaaaa','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1000,100,'11111','1@qq.com'),(101,'bbbbbb','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',1001,101,'22222','1@qq.com'),(102,'cccccc','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',0,'1234567890','http://localhost:9528/logo.jpg',1002,102,'33333','1@qq.com'),(200,'dddddd','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2002,200,'44444','1@qq.com'),(201,'eeeeee','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2001,201,'55555','1@qq.com'),(202,'ffffff','$2a$10$TStD92Aw2enUZWjtBzdeCu5mpOH4YnmvotMt5vwy3niP2NY8PNGr2',1,'1234567890','http://localhost:9528/logo.jpg',2000,202,'66666','1@qq.com');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -230,4 +232,4 @@ INSERT INTO `users` (`id`, `username`, `password`, `enabled`, `phone`, `avatar`,
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-26 20:53:15
+-- Dump completed on 2020-08-27 16:45:37

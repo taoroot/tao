@@ -10,8 +10,8 @@
       <el-button type="primary" @click="submit">更新</el-button>
     </el-form-item>
     <el-form-item>
-      <span class="wx-svg-container"><svg-icon icon-class="wechat" class="icon" /></span>
-      <a style="color: blue" @click="handleClick('wechat')">绑定微信</a>
+      <span class="wx-svg-container"><svg-icon icon-class="wx" class="icon" /></span>
+      <a style="color: blue" @click="handleClick('wx')">绑定微信</a>
     </el-form-item>
   </el-form>
 </template>
@@ -42,7 +42,7 @@ export default {
       let appid, url
       var redirect_uri = encodeURIComponent('http://auth.flizi.cn/#/authredirect')
       // redirect_uri = encodeURIComponent(window.location.origin + '/#/authredirect')
-      if (thirdpart === 'wechat') {
+      if (thirdpart === 'wx') {
         appid = 'wx6cb5e779a9523765'
         url = 'https://open.weixin.qq.com/connect/qrconnect?appid=' + appid + '&redirect_uri=' + redirect_uri + '&state=WX-BIND&response_type=code&scope=snsapi_login#wechat_redirect'
       }

@@ -184,8 +184,12 @@ export default {
     tableSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
+          if (this.form.data.scopeType === 'CUSTOMIZE') {
+            this.form.data.scope = [...this.$refs.deptTree.getCheckedKeys(), ...this.$refs.deptTree.getHalfCheckedKeys()]
+          } else {
+            this.form.data.scope = []
+          }
           this.form.data.authorities = [...this.$refs.authorityTree.getCheckedKeys(), ...this.$refs.authorityTree.getHalfCheckedKeys()]
-          this.form.data.scope = [...this.$refs.deptTree.getCheckedKeys(), ...this.$refs.deptTree.getHalfCheckedKeys()]
           if (this.form.data.id === undefined) {
             saveItem(this.form.data).then((res) => {
               this.form.dialog = false

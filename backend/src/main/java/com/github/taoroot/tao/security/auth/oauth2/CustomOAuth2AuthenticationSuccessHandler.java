@@ -58,36 +58,34 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         String accessToken = (String) request.getSession().getAttribute(OAuth2ParameterNames.ACCESS_TOKEN);
         String clientId = oauth2Authentication.getAuthorizedClientRegistrationId();
 
+        CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth2(clientId, principal);
+
         // 登录账号
         if (StringUtils.isEmpty(accessToken)) {
-            // 如果没有,就创建用户
+            if (customUserDetails == null) {
+                response.sendRedirect(redirectUrl + "msg=" + URLEncoder.encode("用户不存在,请联系管理员", "UTF-8"));
+                return;
+            }
+
             JSONObject jsonObject = new JSONObject();
-            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth2(clientId, principal, true);
             jsonObject.put("sub", "" + customUserDetails.getId());
             jsonObject.put("aud", "auth2-" + oauth2Authentication.getAuthorizedClientRegistrationId());
             jsonObject.put("exp", System.currentTimeMillis() / 1000 + 24 * 60 * 60);
             jsonObject.put("scp", CollUtil.join(customUserDetails.getAuthorities(), " "));
-
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(jsonObject));
             jwsObject.sign(new MACSigner(jwtDecoder.getSecret()));
             response.sendRedirect(redirectUrl + OAuth2ParameterNames.ACCESS_TOKEN + "=" + jwsObject.serialize());
         }
-        // 绑定社交账号
+        // 绑定账号
         else {
-            CustomUserDetails customUserDetails = userDetailsService.loadUserByOAuth2(clientId, principal, false);
-
-            // 已被绑定
             if (customUserDetails != null) {
                 response.sendRedirect(redirectUrl + "msg=" + URLEncoder.encode("请先与 " + customUserDetails.getUsername() + " 解绑", "UTF-8"));
                 return;
             }
 
-            // 绑定
             Jwt decode = jwtDecoder.decode(accessToken);
             String username = decode.getSubject();
-            String type = oauth2Authentication.getAuthorizedClientRegistrationId();
             String msg = userDetailsService.bindOauth2(clientId, principal, Integer.parseInt(username));
-            log.info("用户: {} 绑定: {} : {}", username, type, principal.getName());
             response.sendRedirect(redirectUrl + "msg=" + URLEncoder.encode(msg, "UTF-8"));
         }
     }

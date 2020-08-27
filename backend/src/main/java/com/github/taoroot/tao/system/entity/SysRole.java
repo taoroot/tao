@@ -31,7 +31,6 @@ public class SysRole extends Model<SysRole> {
     @TableField(typeHandler = JacksonTypeHandler.class, jdbcType = JdbcType.ARRAY)
     private Integer[] scope;
 
-
     private DataScopeTypeEnum scopeType;
 
     private LocalDateTime createTime;

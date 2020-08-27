@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.taoroot.tao.security.CustomUserDetails;
 import com.github.taoroot.tao.security.CustomUserDetailsService;
 import com.github.taoroot.tao.security.auth.oauth2.CustomOAuth2User;
-import com.github.taoroot.tao.system.entity.*;
+import com.github.taoroot.tao.system.entity.SysAuthority;
+import com.github.taoroot.tao.system.entity.SysRole;
+import com.github.taoroot.tao.system.entity.SysUser;
+import com.github.taoroot.tao.system.entity.SysUserOauth2;
 import com.github.taoroot.tao.system.mapper.SysUserMapper;
 import com.github.taoroot.tao.system.mapper.SysUserOauth2Mapper;
 import lombok.AllArgsConstructor;
@@ -15,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +35,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final SysUserMapper sysUserMapper;
 
     @Override
-    public CustomUserDetails loadUserByOAuth2(String clientId, CustomOAuth2User oAuth2User, boolean create) {
+    public CustomUserDetails loadUserByOAuth2(String clientId, CustomOAuth2User oAuth2User) {
 
         SysUserOauth2 userOauth2 = sysUserOauth2Mapper.selectOne(Wrappers.<SysUserOauth2>lambdaQuery()
                 .eq(SysUserOauth2::getClientRegistrationId, clientId)
@@ -42,27 +44,6 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         if (userOauth2 != null) {
             return translate(sysUserMapper.selectById(userOauth2.getUserId()));
-        }
-
-        if (create) {
-            String username = clientId + oAuth2User.getName();
-            String password = UUID.randomUUID().toString().replaceAll("-", "");
-            SysUser sysUser = new SysUser();
-            sysUser.setUsername(username);
-            sysUser.setAvatar(oAuth2User.getAvatar());
-            sysUser.setPassword(passwordEncoder.encode(password));
-            sysUser.setDeptId(1000);
-            sysUser.setEnabled(true);
-            sysUser.insert();
-
-            SysUserRole sysUserRole = new SysUserRole();
-            sysUserRole.setUserId(sysUser.getId());
-            sysUserRole.setRoleId(1);
-            sysUserRole.insert();
-
-            bindOauth2(clientId, oAuth2User, sysUser.getId());
-
-            return translate(sysUser);
         }
         return null;
     }
