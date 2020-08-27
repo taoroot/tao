@@ -98,6 +98,15 @@ const actions = {
       commit('RESET_STATE')
       resolve()
     })
+  },
+
+  // save token
+  saveToken({ commit }, token) {
+    return new Promise(resolve => {
+      commit('SET_TOKEN', token)
+      setToken(token)
+      resolve()
+    })
   }
 }
 
