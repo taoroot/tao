@@ -86,10 +86,10 @@
         <el-row style="text-align: center;">
 
           <el-col :span="6">第三方登录方式: </el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('wx')"> <svg-icon style="height: 13px;" icon-class="wechat" /> 微信</a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('gitee')"><svg-icon style="height: 13px;" icon-class="gitee" /> 码云</a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('github')"> <svg-icon style="height: 13px;" icon-class="github" /> GitHub</a></el-col>
-          <el-col :span="4"><a referrerpolicy="origin" :href="getAuthUrl('qq')" style="line-height: 20px"><img style="height: 13px;" src="qq.png"> QQ</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('wx', 540)"> <svg-icon style="height: 13px;" icon-class="wechat" /> 微信</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('gitee', 1000)"><svg-icon style="height: 13px;" icon-class="gitee" /> 码云</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" href="#" @click="oauth2Button('github', 540)"> <svg-icon style="height: 13px;" icon-class="github" /> GitHub</a></el-col>
+          <el-col :span="4"><a referrerpolicy="origin" href="#" style="line-height: 20px" @click="oauth2Button('qq', 540)"><img style="height: 13px;" src="qq.png"> QQ</a></el-col>
           <!-- <el-col :span="5"><a referrerpolicy="origin" :href="getAuthUrl('gitea')"> GITEA登录 </a></el-col> -->
         </el-row>
       </div>
@@ -100,6 +100,7 @@
 <script>
 import { setToken } from '@/utils/auth'
 import { getSms } from '@/api/login'
+import openWindow from '@/utils/open-window'
 
 export default {
   name: 'Login',
@@ -147,14 +148,12 @@ export default {
       immediate: true
     }
   },
+  destroyed() {
+    window.removeEventListener('storage', this.afterQRScan)
+  },
   created() {
-    var token = (window.location.search.match(new RegExp('[?&]access_token=([^&]+)')) || [null, null])[1]
-    if (token) {
-      setToken(token)
-      var { pathname, origin, hash } = window.location
-      window.location.href = origin + pathname + hash
-    }
     this.refreshCode()
+    window.addEventListener('storage', this.afterQRScan)
   },
   methods: {
     getAuthUrl(type) {
@@ -190,6 +189,11 @@ export default {
       this.loginForm.imageKey = Math.random().toString(36).substr(2)
       this.codeUrl = process.env.VUE_APP_BASE_API + 'code/image/' + this.loginForm.imageKey
     },
+    oauth2Button(thirdpart, wdith) {
+      const redirect_uri = encodeURIComponent(window.location.origin + '/#/auth-redirect')
+      var url = process.env.VUE_APP_BASE_API + 'oauth2/authorization/' + thirdpart + '?redirect_uri=' + redirect_uri
+      openWindow(url, thirdpart, wdith, 540)
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -205,6 +209,13 @@ export default {
           return false
         }
       })
+    },
+    afterQRScan(e) {
+      if (e.key === 'x-admin-oauth-code') {
+        var token = e.newValue
+        this.$store.dispatch('user/saveToken', token)
+        this.$router.push({ path: this.redirect || '/' })
+      }
     }
   }
 }
