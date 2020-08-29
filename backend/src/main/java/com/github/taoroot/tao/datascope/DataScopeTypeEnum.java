@@ -1,4 +1,4 @@
-package com.github.taoroot.tao.system.datascope;
+package com.github.taoroot.tao.datascope;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.AllArgsConstructor;

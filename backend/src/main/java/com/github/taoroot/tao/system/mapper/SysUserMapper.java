@@ -3,11 +3,10 @@ package com.github.taoroot.tao.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.taoroot.tao.system.datascope.DataScope;
+import com.github.taoroot.tao.datascope.DataScope;
 import com.github.taoroot.tao.system.entity.SysUser;
 import com.github.taoroot.tao.system.entity.SysAuthority;
 import com.github.taoroot.tao.system.entity.SysRole;
-import com.github.taoroot.tao.system.entity.SysUser;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

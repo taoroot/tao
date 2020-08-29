@@ -1,8 +1,8 @@
-package com.github.taoroot.tao.system.config;
+package com.github.taoroot.tao.config;
 
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.github.taoroot.tao.system.datascope.DataScopeInterceptor;
+import com.github.taoroot.tao.datascope.DataScopeInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

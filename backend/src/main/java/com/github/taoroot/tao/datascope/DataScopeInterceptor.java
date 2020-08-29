@@ -1,4 +1,4 @@
-package com.github.taoroot.tao.system.datascope;
+package com.github.taoroot.tao.datascope;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -117,12 +117,6 @@ public class DataScopeInterceptor extends AbstractSqlParserHandler implements In
         }
     }
 
-    /**
-     * 查找参数是否包括DataScope对象
-     *
-     * @param parameterObj 参数列表
-     * @return DataScope
-     */
     private DataScope findDataScopeObject(Object parameterObj) {
         if (parameterObj instanceof DataScope) {
             return (DataScope) parameterObj;

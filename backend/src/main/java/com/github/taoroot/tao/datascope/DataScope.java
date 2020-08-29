@@ -1,4 +1,4 @@
-package com.github.taoroot.tao.system.datascope;
+package com.github.taoroot.tao.datascope;
 
 import lombok.Data;
 

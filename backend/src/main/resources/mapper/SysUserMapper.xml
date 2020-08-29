@@ -65,8 +65,6 @@
                 and u.dept_id = #{deptId}
             </if>
         </where>
-
     </select>
-
 
 </mapper>

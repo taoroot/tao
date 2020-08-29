@@ -82,7 +82,7 @@ import userInfo from './userInfo'
 import resetPwd from './resetPwd'
 import openWindow from '@/utils/open-window'
 import { getToken } from '@/utils/auth'
-import { getUserProfile, getUserSocial, unbindUserSocial, resetPassword } from '@/api/login'
+import { getUserProfile, getUserSocial, unbindUserSocial } from '@/api/login'
 export default {
   name: 'Profile',
   components: { userAvatar, userInfo, resetPwd },
