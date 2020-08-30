@@ -61,6 +61,17 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/',
+    component: Layout,
+    redirect: '/form',
+    children: [{
+      path: 'form',
+      name: 'Form',
+      component: () => import('@/views/form/index'),
+      meta: { title: 'EXCEL转换', icon: 'dashboard' }
+    }]
+  },
+  {
     path: '/profile',
     component: Layout,
     redirect: '/profile/index',

@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="app-container">
     <div class="dashboard-text">账号: {{ name }}</div>
   </div>
 </template>
