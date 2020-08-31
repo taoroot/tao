@@ -20,7 +20,11 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      loading: false
+      loading: false,
+      dialog: false,
+      baseURL: 'https://api.flizi.cn/tj/',
+      // baseURL: 'http://localhost:8080/',
+      id: ''
     }
   },
   methods: {
@@ -29,20 +33,25 @@ export default {
       formData.append('file', item.file)
       this.loading = true
       axios({
-        baseURL: 'https://api.flizi.cn/tj/',
+        baseURL: this.baseURL,
         timeout: 2 * 60 * 60 * 1000,
         url: '/upload',
         method: 'post',
-        data: formData,
-        responseType: 'blob'
+        data: formData
       }).then(res => {
-        this.convertRes2Blob(res)
+        this.loading = true
+        this.id = res.data
+        this.$alert(`<a href="${this.baseURL}file/${this.id}">点击下载</a>`, '转换完成', {
+          dangerouslyUseHTMLString: true,
+          center: true
+        })
       }).catch(res => {
         this.loading = false
       }).finally(res => {
         this.loading = false
       })
     },
+
     convertRes2Blob(response) {
       // 提取文件名
       var filename = response.headers['content-disposition']
