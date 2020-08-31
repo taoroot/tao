@@ -29,7 +29,7 @@ export default {
       formData.append('file', item.file)
       this.loading = true
       axios({
-        baseURL: 'http://api.flizi.cn/tj/',
+        baseURL: 'https://api.flizi.cn/tj/',
         timeout: 2 * 60 * 60 * 1000,
         url: '/upload',
         method: 'post',
