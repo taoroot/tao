@@ -41,9 +41,10 @@ export default {
       }).then(res => {
         this.loading = true
         this.id = res.data
-        this.$alert(`<a href="${this.baseURL}file/${this.id}">点击下载</a>`, '转换完成', {
+        this.$alert(`<a href="${this.id}">点击下载</a>`, '转换完成', {
           dangerouslyUseHTMLString: true,
-          center: true
+          center: true,
+          showConfirmButton: false
         })
       }).catch(res => {
         this.loading = false
